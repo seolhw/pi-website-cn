@@ -24,9 +24,11 @@ const { title = 'Pi 中文文档', description = 'Pi 的中文文档与使用指
 		<title>{title}</title>
 	</head>
 	<body>
-		<Header />
-		<slot />
-		<Footer />
+		<div class="site-content-layer">
+			<Header />
+			<slot />
+			<Footer />
+		</div>
 	</body>
 </html>
 

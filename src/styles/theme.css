@@ -1,7 +1,7 @@
 /* Pi 中文站主题：颜色、字体、间距和响应式布局变量。 */
 @font-face {
 	font-family: 'Noto Sans SC';
-	src: url('../assets/fonts/NotoSansSC-VariableFont_wght.ttf') format('truetype');
+	src: url('../assets/fonts/NotoSansSC-Subset.woff2') format('woff2');
 	font-weight: 100 900;
 	font-style: normal;
 	font-display: swap;
@@ -33,6 +33,8 @@
 	--text-sm: 0.875rem;
 	--text-base: 1rem;
 	--page-grid-cell: 20px;
+	--page-grid-inset: -8rem;
+	--page-vignette-overlay: #ebe7e426;
 	--color-bg: #ebe7e4;
 	--color-panel: #f3f2f0;
 	--color-copy: #384251dc;
@@ -62,6 +64,7 @@
 :root[data-theme='dark'] {
 	color-scheme: dark;
 	--color-bg: #161d27;
+	--page-vignette-overlay: #0d11161f;
 	--color-panel: #212730;
 	--color-article: #212730;
 	--color-text: #ebe7e4;
@@ -85,6 +88,7 @@
 
 * { box-sizing: border-box; }
 html {
+	background-color: var(--color-bg);
 	font-size: 18px;
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
@@ -93,8 +97,23 @@ html {
 	scroll-behavior: smooth;
 }
 body {
-	--grid-gap: calc(var(--page-grid-cell) / 5);
 	margin: 0;
+	min-height: 100vh;
+	background-color: transparent;
+	color: var(--color-text);
+	font-family: var(--font-body);
+	line-height: 1.6;
+}
+body::before,
+body::after {
+	content: '';
+	position: fixed;
+	inset: var(--page-grid-inset);
+	z-index: 0;
+	pointer-events: none;
+}
+body::before {
+	--grid-gap: calc(var(--page-grid-cell) / 5);
 	background-color: var(--color-bg);
 	background-image:
 		linear-gradient(var(--page-grid-minor) 0 1px, transparent 1px var(--grid-gap)),
@@ -110,10 +129,13 @@ body {
 		calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5), calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
 		calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5);
 	background-position: 0 0, 0 0, 0 0, 0 0, calc(var(--grid-gap) * -2.5) calc(var(--grid-gap) * -2.5), 0 0, 0 0;
-	background-attachment: fixed;
-	color: var(--color-text);
-	font-family: var(--font-body);
-	line-height: 1.6;
+}
+body::after {
+	background: linear-gradient(to bottom, var(--page-vignette-overlay), var(--color-bg) 90%);
+}
+.site-content-layer {
+	position: relative;
+	z-index: 1;
 }
 a { color: var(--color-link); }
 button { font: inherit; }
