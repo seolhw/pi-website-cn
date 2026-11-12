@@ -18,7 +18,7 @@ pi install git:github.com/example/pi-tools@v1
 pi install ./local-package
 ```
 
-`pi list` shows configured packages. Use `pi remove <source>` to remove one and `pi update --extensions` to reconcile package installations. See [Command Line](cli.md#package-commands) for every package command and option.
+`pi list` shows configured packages. Use `pi remove <source>` to remove one and `pi update --extensions` to reconcile package installations. See [Command Line](/cli/#package-commands) for every package command and option.
 
 If a configured package fails to install at startup, for example because npm cannot reach the registry, Pi warns about it, skips that package's resources, and keeps running. Pi tries to install it again on the next start or `/reload`. `pi install` and `pi update --extensions` still report the failure and exit non-zero.
 
@@ -154,4 +154,4 @@ The same package can appear in personal and project settings. A project entry no
 
 Pi identifies npm packages by package name, git packages by repository URL without the ref, and local packages by resolved absolute path. This prevents the same package from loading twice through equivalent declarations.
 
-Use [Extensions](extensions.md), [Skills](skills.md), [Prompt Templates](prompt-templates.md), and [Themes](themes.md) to design each resource before packaging it.
+Use [Extensions](/extensions/), [Skills](/skills/), [Prompt Templates](/prompt-templates/), and [Themes](/themes/) to design each resource before packaging it.

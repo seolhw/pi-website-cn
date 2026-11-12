@@ -6,7 +6,7 @@ title: "Session File Format"
 
 Sessions are stored as JSONL (JSON Lines) files. Each line is a JSON object with a `type` field. Session entries form a tree structure via `id`/`parentId` fields, enabling in-place branching without creating new files.
 
-For programmatic creation, persistence, and tree navigation, see the [`SessionManager` API](sdk.md#sessionmanager-api).
+For programmatic creation, persistence, and tree navigation, see the [`SessionManager` API](/sdk/#sessionmanager-api).
 
 
 ## File Location
@@ -37,7 +37,7 @@ Existing sessions are automatically migrated to the current version (v3) when lo
 
 Source on GitHub ([pi](https://github.com/earendil-works/pi)):
 - [`packages/coding-agent/src/core/session-manager.ts`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/core/session-manager.ts) - Session entry types and SessionManager
-- [Message Types](message-types.md) - Shared message and content-block reference
+- [Message Types](/message-types/) - Shared message and content-block reference
 - [`packages/coding-agent/src/core/messages.ts`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/core/messages.ts) - Extended message types
 - [`packages/ai/src/types.ts`](https://github.com/earendil-works/pi/blob/main/packages/ai/src/types.ts) - Base message and content-block types
 - [`packages/agent/src/types.ts`](https://github.com/earendil-works/pi/blob/main/packages/agent/src/types.ts) - Extensible `AgentMessage` union
@@ -46,7 +46,7 @@ For TypeScript definitions in your project, inspect `node_modules/@earendil-work
 
 ## Messages
 
-A `message` entry stores an [`AgentMessage`](message-types.md). Message content blocks, roles, usage, and message timestamps are defined in [Message Types](message-types.md).
+A `message` entry stores an [`AgentMessage`](/message-types/). Message content blocks, roles, usage, and message timestamps are defined in [Message Types](/message-types/).
 
 Session entry timestamps are ISO 8601 strings. The nested message timestamp is a Unix timestamp in milliseconds.
 
@@ -100,7 +100,7 @@ Assistant messages name the model that produced them. Newer messages also record
 
 ### ModelChangeEntry
 
-Emitted when the user switches models mid-session. The latest entry is the selected model, which may be a [virtual model](virtual-models.md); assistant messages then name the physical model that answered.
+Emitted when the user switches models mid-session. The latest entry is the selected model, which may be a [virtual model](/virtual-models/); assistant messages then name the physical model that answered.
 
 ```json
 {"type":"model_change","id":"d4e5f6g7","parentId":"c3d4e5f6","timestamp":"2024-12-03T14:05:00.000Z","provider":"openai","modelId":"gpt-4o"}
@@ -175,7 +175,7 @@ Extension state persistence. Does NOT participate in LLM context.
 
 Use `customType` to identify your extension's entries on reload. Interactive mode can render custom entries via `pi.registerEntryRenderer(customType, renderer)`, but they still do not participate in LLM context.
 
-Pi stores [virtual model](virtual-models.md) router state as custom entries with `customType` `pi.virtual-model-state` and `data` `{ provider, modelId, state }`.
+Pi stores [virtual model](/virtual-models/) router state as custom entries with `customType` `pi.virtual-model-state` and `data` `{ provider, modelId, state }`.
 
 ### CustomMessageEntry
 

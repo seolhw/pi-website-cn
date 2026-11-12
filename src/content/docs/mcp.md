@@ -33,7 +33,7 @@ Use `/mcp` inside an interactive session to inspect connections, sign in, reconn
 
 ## Configure servers
 
-Pi reads user-level servers from `~/.pi/agent/mcp.json` and project servers from `.pi/mcp.json`. Project configuration is read only after [project trust](security.md#understand-project-trust) is granted. A project entry replaces a user-level entry with the same name.
+Pi reads user-level servers from `~/.pi/agent/mcp.json` and project servers from `.pi/mcp.json`. Project configuration is read only after [project trust](/security/#understand-project-trust) is granted. A project entry replaces a user-level entry with the same name.
 
 A project entry without `command`, `url`, or `type` overrides only `enabled`, `exposure`, and `toolExposure` of the user-level server with the same name and keeps the rest, including `env`, `headers`, and `auth`. For example, this turns off a user-level server in one project:
 
@@ -85,7 +85,7 @@ Keep personal servers and servers with credentials in the user-level file. Use t
 - `env` and `headers` values can use environment variables such as `${GITHUB_TOKEN}`. They can also run a command with `!command`, but the command must make up the whole value, for example `"Authorization": "!echo Bearer $(gh auth token)"`.
 - Invalid entries are reported and skipped without preventing other servers from connecting.
 
-`pi mcp add` and `pi mcp remove` cover common changes from a shell. See [MCP commands](cli.md#mcp-commands) for their options.
+`pi mcp add` and `pi mcp remove` cover common changes from a shell. See [MCP commands](/cli/#mcp-commands) for their options.
 
 ### Inspect or change a server
 
@@ -198,8 +198,8 @@ Each server tool is registered as `mcp__<server>__<tool>`. The server's `exposur
 
 | Exposure | Behavior | Typical use |
 |---|---|---|
-| `codemode` (default) | Callable from [`codemode`](cli.md#tools) scripts, but neither declared to the model nor listed in the codemode description. Scripts find tools with `searchTools()`, `describeTool()`, or `ALL_TOOLS`. | General MCP servers, especially when scripts should combine or filter calls. |
-| `deferred` | Not declared until [`tool_search`](cli.md#tools) loads a match for the next model call. | Large servers whose tools should be called directly after discovery. |
+| `codemode` (default) | Callable from [`codemode`](/cli/#tools) scripts, but neither declared to the model nor listed in the codemode description. Scripts find tools with `searchTools()`, `describeTool()`, or `ALL_TOOLS`. | General MCP servers, especially when scripts should combine or filter calls. |
+| `deferred` | Not declared until [`tool_search`](/cli/#tools) loads a match for the next model call. | Large servers whose tools should be called directly after discovery. |
 | `direct` | Declared to the model like a built-in tool and also callable from codemode. | Small, frequently used tool sets. |
 | `hidden` | Registered but unreachable. | Servers or tools that should remain unavailable. |
 
@@ -231,9 +231,9 @@ Pi activates `codemode` when a server with `codemode` exposure connects. It acti
 
 Tools with `codemode` or `deferred` exposure can be reached through either indirect mechanism: codemode scripts can call them, and `tool_search` can load them. Codemode calls do not depend on the active tool set, so they remain available after `/tree`, resume, and fork. Tools loaded by `tool_search` are recorded in the transcript and remain declared on that branch.
 
-`--tools` does not remove MCP tools unless one of its entries starts with `mcp__`; `pi --tools read,codemode,'mcp__radius__*'` keeps only the tools of `radius`. `--exclude-tools` accepts the same patterns, and `--no-mcp` disables MCP for one run (see [Tools](cli.md#mcp-tools)).
+`--tools` does not remove MCP tools unless one of its entries starts with `mcp__`; `pi --tools read,codemode,'mcp__radius__*'` keeps only the tools of `radius`. `--exclude-tools` accepts the same patterns, and `--no-mcp` disables MCP for one run (see [Tools](/cli/#mcp-tools)).
 
-To keep `codemode` active without MCP servers, add `"defaultTools": ["+codemode"]` to [settings](settings.md#tools). To prevent automatic codemode activation, set `"autoEnableCodemode": false` beside `mcpServers`. A project value overrides the user-level value. Pi warns once when neither `codemode` nor `tool_search` is active and non-direct tools cannot be called.
+To keep `codemode` active without MCP servers, add `"defaultTools": ["+codemode"]` to [settings](/settings/#tools). To prevent automatic codemode activation, set `"autoEnableCodemode": false` beside `mcpServers`. A project value overrides the user-level value. Pi warns once when neither `codemode` nor `tool_search` is active and non-direct tools cannot be called.
 
 Text results over 20 KB reach the model with their middle removed around a `…N chars truncated…` marker. The full text is saved to a temporary file named in the result. Codemode scripts receive the complete result and can reduce it before returning output to the model.
 
@@ -257,22 +257,22 @@ Reading and listing resources is retried once after a transient HTTP error (408,
 
 Every MCP call passes through Pi's tool pipeline. Extension `tool_call` and `tool_result` handlers, including permission gates, therefore apply to MCP tools. Calls made from codemode scripts carry the codemode call ID as `parentToolCallId`.
 
-`pi.getAllTools()` reports the annotations declared by each server: `readOnlyHint`, `destructiveHint`, `idempotentHint`, and `openWorldHint`. Permission extensions can use these hints to decide which calls require confirmation (see [Tool exposure](extensions.md#tool-exposure)). Resource tools are marked read-only.
+`pi.getAllTools()` reports the annotations declared by each server: `readOnlyHint`, `destructiveHint`, `idempotentHint`, and `openWorldHint`. Permission extensions can use these hints to decide which calls require confirmation (see [Tool exposure](/extensions/#tool-exposure)). Resource tools are marked read-only.
 
 ## Extensions and SDK
 
 ### Add servers from extensions
 
-Extensions can add servers for the current session with `pi.registerMcpServer(name, config)`, using the same shape as an `mcpServers` entry (see [MCP servers in extensions](extensions.md#mcp-servers)). Registered servers connect like configured servers and appear in `/mcp` with the extension as their source.
+Extensions can add servers for the current session with `pi.registerMcpServer(name, config)`, using the same shape as an `mcpServers` entry (see [MCP servers in extensions](/extensions/#mcp-servers)). Registered servers connect like configured servers and appear in `/mcp` with the extension as their source.
 
 Changes to enabled state or exposure apply only to the current session. A file-configured server with the same name takes precedence, and `/mcp` lists the overridden registration. `pi mcp` shell commands do not load extensions and only see file-configured servers.
 
 ### Replace the built-in MCP support
 
-An installed extension that registers `/mcp`, such as `pi-mcp-adapter`, replaces the built-in MCP support for sessions. Pi then does not read `mcp.json` or connect its servers in a session, and `/mcp` belongs to the extension. Remove the extension to restore the built-in behavior. To disable built-in MCP support without a replacement, disable `mcp` under Built-in in `pi config`, or set `"extensions": ["-builtin:mcp"]` in [settings](settings.md#resources). `--no-mcp` disables it for one run.
+An installed extension that registers `/mcp`, such as `pi-mcp-adapter`, replaces the built-in MCP support for sessions. Pi then does not read `mcp.json` or connect its servers in a session, and `/mcp` belongs to the extension. Remove the extension to restore the built-in behavior. To disable built-in MCP support without a replacement, disable `mcp` under Built-in in `pi config`, or set `"extensions": ["-builtin:mcp"]` in [settings](/settings/#resources). `--no-mcp` disables it for one run.
 
-An extension that registers `codemode` or `tool_search` similarly replaces the built-in tool with that name. Pi activates the replacement for MCP servers and waits for the servers its calls need only when it declares [`reachesTools`](extensions.md#tool-exposure). Shell-level `pi mcp` commands always use the built-in implementation.
+An extension that registers `codemode` or `tool_search` similarly replaces the built-in tool with that name. Pi activates the replacement for MCP servers and waits for the servers its calls need only when it declares [`reachesTools`](/extensions/#tool-exposure). Shell-level `pi mcp` commands always use the built-in implementation.
 
 ### Use MCP from the SDK
 
-SDK sessions do not load built-in extensions. Add the MCP extension, the codemode extension for `codemode` servers, and the tool-search extension for `deferred` servers to the resource loader. See [Codemode and MCP](sdk.md#codemode-mcp).
+SDK sessions do not load built-in extensions. Add the MCP extension, the codemode extension for `codemode` servers, and the tool-search extension for `deferred` servers to the resource loader. See [Codemode and MCP](/sdk/#codemode-mcp).

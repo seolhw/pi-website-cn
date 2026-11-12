@@ -37,7 +37,7 @@ On Windows, use forward slashes or escape backslashes:
 }
 ```
 
-Run `/reload` after changing the setting. See [Run Pi on Windows](windows.md) for the native Windows defaults.
+Run `/reload` after changing the setting. See [Run Pi on Windows](/windows/) for the native Windows defaults.
 
 ## Run setup before every Bash command
 
@@ -94,4 +94,4 @@ Pi has fallen back to `sh` or `shellPath` points to a non-Bash shell. Install Ba
 
 Remove interactive commands from `shellCommandPrefix`. The prefix runs in a non-interactive process before every Bash command.
 
-For the complete setting definitions, see [Shell settings](settings.md#shell).
+For the complete setting definitions, see [Shell settings](/settings/#shell).

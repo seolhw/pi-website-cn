@@ -54,7 +54,7 @@ Arguments after `/skill:name` are appended to the loaded instructions as a user 
 /skill:pdf-tools extract report.pdf
 ```
 
-Set `disable-model-invocation: true` in frontmatter when a skill should be available only through its explicit command. The `enableSkillCommands` [setting](settings.md) controls whether skill commands appear in interactive command discovery; manually entered `/skill:name` commands still work.
+Set `disable-model-invocation: true` in frontmatter when a skill should be available only through its explicit command. The `enableSkillCommands` [setting](/settings/) controls whether skill commands appear in interactive command discovery; manually entered `/skill:name` commands still work.
 
 <a id="choose-where-it-loads"></a>
 
@@ -64,7 +64,7 @@ Place the skill in your user or project skills directory. Directories containing
 
 Pi also supports the Agent Skills locations `~/.agents/skills/` and `.agents/skills/`. Project `.agents/skills/` directories are discovered from the working directory through its ancestors, stopping at the repository root when one exists.
 
-Pi accepts some standalone Markdown skills, but a directory containing `SKILL.md` is the portable form and should be preferred. See [Settings](settings.md#resources) and [Pi Packages](packages.md) for additional locations.
+Pi accepts some standalone Markdown skills, but a directory containing `SKILL.md` is the portable form and should be preferred. See [Settings](/settings/#resources) and [Pi Packages](/packages/) for additional locations.
 
 Project skills can instruct the model to run scripts or modify files. Review unfamiliar skills and their supporting files before granting project trust.
 
@@ -92,6 +92,6 @@ Malformed `SKILL.md` files and declared skills without descriptions are not load
 
 Run Pi from a location where the skill is discoverable, then inspect the startup diagnostics and `/skill:name` command. Run `/reload` after editing a skill during an active session.
 
-Use a [Pi package](packages.md) to distribute one or more skills through npm or git. Keep environment setup inside the skill and declare any required runtime dependencies in the package.
+Use a [Pi package](/packages/) to distribute one or more skills through npm or git. Keep environment setup inside the skill and declare any required runtime dependencies in the package.
 
 For examples, see the [Anthropic skills collection](https://github.com/anthropics/skills) and [Pi skills collection](https://github.com/badlogic/pi-skills).

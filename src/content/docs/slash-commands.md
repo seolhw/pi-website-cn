@@ -62,4 +62,4 @@ Review a session before exporting or sharing it. Sessions can contain prompts, t
 - Each prompt template is available under its template name.
 - Skills are available as `/skill:name` when skill commands are enabled.
 
-Use `/reload` after adding or changing a discovered command resource. See [Extensions](extensions.md), [Prompt Templates](prompt-templates.md), and [Skills](skills.md) for their loading and naming rules.
+Use `/reload` after adding or changing a discovered command resource. See [Extensions](/extensions/), [Prompt Templates](/prompt-templates/), and [Skills](/skills/) for their loading and naming rules.

@@ -1,0 +1,38 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/theme.css';
+import '../styles/docs-layout.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const { title = 'Pi 中文文档', description = 'Pi 的中文文档与使用指南。' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
+		<meta name="theme-color" content="#ebe7e4" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<slot name="head" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<Header />
+		<slot />
+		<Footer />
+	</body>
+</html>
+
+<script is:inline>
+	try {
+		const savedTheme = localStorage.getItem('pi-theme');
+		if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
+	} catch {}
+</script>

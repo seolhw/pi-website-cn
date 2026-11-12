@@ -1,164 +1,202 @@
 ---
-import LanguageSelect from "virtual:starlight/components/LanguageSelect";
-import SiteTitle from "virtual:starlight/components/SiteTitle";
-import ThemeSelect from "virtual:starlight/components/ThemeSelect";
-
 const navLinks = [
-	{ label: "文档", href: "/docs/" },
-	{ label: "更新日志", href: "https://pi.dev/changelog" },
-	{ label: "模型", href: "https://pi.dev/models" },
-	{ label: "包", href: "https://pi.dev/packages" },
-	{ label: "Radius", href: "https://radius.earendil.com/" },
+  { label: '文档', href: '/overview/' },
+  { label: '更新日志', href: 'https://pi.dev/changelog' },
+  { label: '模型', href: 'https://pi.dev/models' },
+  { label: '包', href: 'https://pi.dev/packages' },
+  { label: 'Radius', href: 'https://radius.earendil.com/' },
 ];
-
 ---
 
-<div class="announcement-strip">
-	<span>Pi 1.0 与 Pi Durable 已发布</span>
-	<a href="https://earendil.com/posts/pi-1-0/">了解详情 <span aria-hidden="true">→</span></a>
-</div>
-<div class="header">
-	<div class="title-wrapper sl-flex"><SiteTitle /></div>
-	<nav class="site-nav sl-hidden md:sl-flex" aria-label="主导航">
-		{navLinks.map(({ label, href }) => <a href={href}>{label}</a>)}
-	</nav>
-	<div class="sl-hidden md:sl-flex print:hidden right-group">
-		<ThemeSelect />
-		<LanguageSelect />
-	</div>
-</div>
+<header class="site-header">
+  <aside class="site-announcement" aria-label="公告">
+    Pi 1.0 与 Pi Durable 已发布 <a href="https://earendil.com/posts/pi-1-0/">了解详情 <span aria-hidden="true">→</span></a>
+  </aside>
+  <nav class="sticky-nav" id="stickyNav" data-nav-open="false">
+    <div class="sticky-nav-inner">
+      <a class="sticky-nav-logo" href="/" aria-label="Pi 首页">
+        <img src="/pi-mark.svg" alt="" width="44" height="44" />
+      </a>
+      <div class="sticky-nav-page-links" aria-label="主导航">
+        {navLinks.map(({ label, href }) => <a href={href} class="sticky-nav-page-link">{label}</a>)}
+      </div>
+      <div class="header-actions">
+        <button class="theme-toggle" type="button" aria-label="切换主题" data-theme-toggle>
+          <span aria-hidden="true" data-theme-icon>☼</span><span data-theme-label>浅色</span>
+        </button>
+        <a class="sticky-nav-earendil" href="https://earendil.com" title="Earendil Inc. 网站" aria-label="Earendil Inc. 网站" target="_blank" rel="noopener">
+          <svg viewBox="121.24 22.62 81.65 149.38" aria-hidden="true" focusable="false"><path fill="currentColor" d="M202.89 123.89c.4 29.74-40.27 26.97-40.8 48.11h-.05c-.52-21.14-41.19-18.38-40.8-48.11 27.99 0 40.09-46.29 40.82-101.27.74 54.98 12.83 101.27 40.82 101.27h0Z"></path></svg>
+        </a>
+        <button class="sticky-nav-toggle burger-trigger" type="button" aria-label="打开菜单" aria-controls="navSheet" aria-expanded="false" data-nav-toggle data-open="false">
+          <span aria-hidden="true"><i></i><i></i><i></i></span>
+          <span aria-hidden="true"><i></i><i></i><i></i></span>
+          <span aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+      </div>
+    </div>
+    <button class="nav-sheet-backdrop" type="button" aria-label="关闭菜单" data-nav-backdrop tabindex="-1"></button>
+    <aside class="nav-sheet" id="navSheet" aria-hidden="true" inert data-open="false">
+      <div class="nav-sheet-inner">
+        <nav class="nav-sheet-links" aria-label="移动端主导航">
+          {navLinks.map(({ label, href }) => <a class="nav-sheet-link" href={href}><span>{label}</span><span aria-hidden="true">→</span></a>)}
+        </nav>
+        <div class="nav-sheet-meta">
+          <button class="theme-toggle theme-toggle-menu" type="button" aria-label="切换主题" data-theme-toggle-menu>
+            <span aria-hidden="true" data-theme-icon-menu>☼</span><span data-theme-label-menu>浅色主题</span>
+          </button>
+          <a href="https://github.com/earendil-works/pi" class="nav-sheet-link" target="_blank" rel="noopener"><span>GitHub</span><span aria-hidden="true">↗</span></a>
+        </div>
+        <p class="nav-sheet-note">本站为社区维护的中文文档，非 Pi 官方站点。</p>
+      </div>
+    </aside>
+  </nav>
+</header>
+
+<script>
+  const root = document.documentElement;
+  const themeButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle], [data-theme-toggle-menu]'));
+  const setTheme = (theme: string) => {
+    root.dataset.theme = theme;
+    try { localStorage.setItem('pi-theme', theme); } catch {}
+    const light = theme !== 'dark';
+    document.querySelectorAll<HTMLElement>('[data-theme-icon], [data-theme-icon-menu]').forEach((node) => { node.textContent = light ? '☼' : '☾'; });
+    document.querySelectorAll<HTMLElement>('[data-theme-label], [data-theme-label-menu]').forEach((node) => { node.textContent = light ? '浅色' : '深色'; });
+  };
+  const currentTheme = root.dataset.theme === 'dark' ? 'dark' : 'light';
+  setTheme(currentTheme);
+  themeButtons.forEach((button) => button.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark')));
+
+  const nav = document.querySelector<HTMLElement>('#stickyNav');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const sheet = document.querySelector<HTMLElement>('#navSheet');
+  const backdrop = document.querySelector<HTMLButtonElement>('[data-nav-backdrop]');
+  const closeMenu = () => {
+    nav?.setAttribute('data-nav-open', 'false');
+    sheet?.setAttribute('data-open', 'false');
+    sheet?.setAttribute('aria-hidden', 'true');
+    sheet?.setAttribute('inert', '');
+    toggle?.setAttribute('data-open', 'false');
+    toggle?.setAttribute('aria-expanded', 'false');
+    toggle?.setAttribute('aria-label', '打开菜单');
+  };
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') !== 'true';
+    nav?.setAttribute('data-nav-open', String(open));
+    sheet?.setAttribute('data-open', String(open));
+    sheet?.setAttribute('aria-hidden', String(!open));
+    if (open) sheet?.removeAttribute('inert');
+    else sheet?.setAttribute('inert', '');
+    toggle.setAttribute('data-open', String(open));
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
+  });
+  backdrop?.addEventListener('click', closeMenu);
+  sheet?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
+</script>
 
 <style>
-	@layer starlight.core {
-		:global(header.header) {
-			position: sticky;
-			top: 0;
-			z-index: 20;
-			height: auto;
-			min-height: 0;
-			background: transparent !important;
-		}
+  .site-header { position: sticky; top: 0; z-index: 20; }
+  .site-announcement {
+    position: relative;
+    z-index: 1;
+    padding: 0.3rem 1rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-link) 10%, transparent);
+    background: var(--color-panel);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 1.22rem;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.55;
+    text-align: center;
+  }
+  .site-announcement a { color: var(--color-link); white-space: nowrap; }
+  .site-announcement a:hover { color: var(--color-text); }
+  .sticky-nav { --sticky-nav-inline-pad: 2rem; position: relative; z-index: 20; width: 100%; padding: 0.8rem var(--sticky-nav-inline-pad) 0; }
+  .sticky-nav-inner {
+    --sticky-nav-shell-pad-inline: 0.95rem;
+    --sticky-nav-shell-pad-block: 0.7rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: min(100%, 96rem);
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 auto;
+    padding: var(--sticky-nav-shell-pad-block) var(--sticky-nav-shell-pad-inline);
+    border: 1px solid var(--nav-panel-border);
+    border-top-color: var(--nav-panel-highlight);
+    background: var(--nav-panel-background);
+  }
+  .sticky-nav-logo { display: inline-flex; align-items: center; color: var(--color-text); }
+  .sticky-nav-logo img { display: block; width: 2.444444rem; height: 2.444444rem; }
+  .sticky-nav-page-links {
+    position: absolute;
+    left: 50%;
+    display: flex;
+    justify-content: center;
+    gap: clamp(0.65rem, 1.5vw, 1.25rem);
+    transform: translateX(-50%);
+  }
+  .sticky-nav-page-link {
+    color: var(--color-muted-strong);
+    font-family: var(--font-ui-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .sticky-nav-page-link:hover { color: var(--color-text); }
+  .header-actions { display: flex; align-items: center; gap: 0.8rem; }
+  .theme-toggle { display: inline-flex; align-items: center; gap: 0.35rem; border: 0; padding: 0.25rem; background: transparent; color: var(--color-muted-strong); cursor: pointer; font: 0.72rem var(--font-ui-mono); }
+  .sticky-nav-earendil { display: inline-flex; align-items: center; margin-inline-end: calc(2.444444rem * 165.29 / 800); color: var(--color-muted-strong); }
+  .sticky-nav-earendil:hover { color: var(--color-text); }
+  .sticky-nav-earendil svg { display: block; width: auto; height: 1.5rem; }
+  .sticky-nav-toggle,
+  .nav-sheet-backdrop,
+  .nav-sheet { display: none; }
+  .sticky-nav-toggle { width: 2.444444rem; height: 2.444444rem; align-items: center; justify-content: center; margin: 0; border: 0; padding: 0; background: transparent; color: var(--color-muted-strong); cursor: pointer; }
+  .burger-trigger { flex-direction: column; gap: 0.25rem; }
+  .burger-trigger > span { display: flex; gap: 0.12rem; transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease; }
+  .burger-trigger i { width: 0.23rem; height: 0.19rem; border-radius: 1px; background: currentColor; }
+  .burger-trigger > span:first-child i:first-child,
+  .burger-trigger > span:first-child i:last-child,
+  .burger-trigger > span:last-child i:first-child,
+  .burger-trigger > span:last-child i:last-child { background: var(--color-link); }
+  .burger-trigger[data-open="true"] > span:first-child { transform: translateY(0.4rem) rotate(45deg); }
+  .burger-trigger[data-open="true"] > span:nth-child(2) { opacity: 0; }
+  .burger-trigger[data-open="true"] > span:last-child { transform: translateY(-0.4rem) rotate(-45deg); }
+  .nav-sheet-backdrop,
+  .nav-sheet { --nav-sheet-max-height: 36rem; }
+  .nav-sheet-backdrop { position: fixed; inset: 0; z-index: 0; border: 0; background: #0d1116a8; opacity: 0; pointer-events: none; transition: opacity 180ms ease; }
+  .sticky-nav[data-nav-open="true"] .nav-sheet-backdrop { opacity: 1; pointer-events: auto; }
+  .nav-sheet { position: absolute; top: calc(100% - 1px); left: 50%; z-index: 1; width: min(calc(100% - var(--sticky-nav-inline-pad) * 2), 96rem); max-height: 0; overflow: hidden; opacity: 0; pointer-events: none; transform: translate(-50%, -0.45rem); transition: max-height 360ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease, transform 280ms cubic-bezier(0.22, 1, 0.36, 1); }
+  .nav-sheet[data-open="true"] { max-height: min(var(--nav-sheet-max-height), calc(100dvh - 6rem)); overflow-y: auto; opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+  .nav-sheet-inner { display: grid; gap: 0.9rem; padding: 0.35rem 0.82rem 0.9rem; border: 1px solid var(--nav-panel-border); background: var(--nav-panel-background); }
+  .nav-sheet-links { display: grid; gap: 0.2rem; }
+  .nav-sheet-link { display: flex; justify-content: space-between; padding: 0.66rem 0.72rem; border: 1px solid transparent; color: var(--color-text); font: 0.88rem var(--font-ui-mono); text-decoration: none; }
+  .nav-sheet-link:hover { border-color: var(--color-border-strong); background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+  .nav-sheet-meta { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--color-border); padding-top: 0.65rem; }
+  .nav-sheet-note { margin: 0; color: var(--color-muted); font-size: 0.72rem; }
+  .theme-toggle-menu { padding: 0.55rem 0.72rem; }
+  .sticky-nav-toggle:focus-visible, .nav-sheet-link:focus-visible { outline: 1px solid var(--color-link); outline-offset: 0.18rem; }
 
-		.announcement-strip {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 0.6rem;
-			padding: 0.3rem 1rem;
-			border-bottom: 1px solid var(--sl-color-hairline);
-			background: #f0f2f3;
-			color: var(--sl-color-text);
-			font-family: var(--sl-font);
-			font-size: 1.22rem;
-			font-style: italic;
-			text-align: center;
-		}
-
-		.announcement-strip a {
-			color: var(--sl-color-text-accent);
-			white-space: nowrap;
-		}
-
-		:global(.sl-menu-button) { top: 5rem; }
-
-		.header {
-			position: relative;
-			display: flex !important;
-			flex-wrap: nowrap;
-			width: min(100%, 96rem);
-			box-sizing: border-box;
-			margin: 0.7rem auto 0;
-			padding: 0.7rem 0.95rem;
-			border: 1px solid var(--nav-panel-border);
-			border-top-color: var(--nav-panel-highlight);
-			background: var(--nav-panel-background);
-			gap: 1rem;
-			justify-content: space-between;
-			align-items: center;
-		}
-
-		.title-wrapper {
-			overflow: clip;
-			padding: 0.25rem;
-			margin: -0.25rem;
-			min-width: 0;
-		}
-
-		.site-nav {
-			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
-			gap: clamp(0.65rem, 1.5vw, 1.25rem);
-			align-items: center;
-			flex-shrink: 0;
-		}
-
-		.site-nav a {
-			font-family: var(--sl-font-mono);
-			font-size: 0.76rem;
-			font-weight: 600;
-			letter-spacing: 0.08em;
-			line-height: 1;
-			text-transform: uppercase;
-			color: var(--sl-color-text);
-			text-decoration: none;
-			white-space: nowrap;
-		}
-
-		.site-nav a:hover {
-			color: var(--sl-color-text-accent);
-		}
-
-		.right-group,
-		.social-icons {
-			gap: 0.75rem;
-			align-items: center;
-			flex-shrink: 0;
-		}
-
-		.social-icons a {
-			display: flex;
-			color: var(--sl-color-text);
-		}
-
-		.social-icons a:hover {
-			color: var(--sl-color-text-accent);
-		}
-
-		.social-icons::after {
-			content: '';
-			height: 2rem;
-			border-inline-end: 1px solid var(--sl-color-gray-5);
-		}
-
-		@media (min-width: 50rem) {
-			:global(:root[data-has-sidebar]) {
-				--__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
-			}
-			:global(:root:not([data-has-toc])) {
-				--__toc-width: 0rem;
-			}
-			.header {
-				display: flex !important;
-				flex-wrap: nowrap;
-				--__sidebar-width: max(0rem, var(--sl-content-inline-start, 0rem) - var(--sl-nav-pad-x));
-				--__main-column-fr: calc(
-					(
-							100% + var(--__sidebar-pad, 0rem) - var(--__toc-width, var(--sl-sidebar-width)) -
-								(2 * var(--__toc-width, var(--sl-nav-pad-x))) - var(--sl-content-inline-start, 0rem) -
-								var(--sl-content-width)
-						) / 2
-				);
-				display: grid;
-				grid-template-columns:
-					minmax(
-						calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))),
-						auto
-					)
-					1fr
-					auto;
-				align-content: center;
-			}
-		}
-	}
+  @media (max-width: 1023px) {
+    .sticky-nav { --sticky-nav-inline-pad: 0.65rem; }
+    .sticky-nav-inner { --sticky-nav-shell-pad-inline: 0.68rem; --sticky-nav-shell-pad-block: 0.58rem; column-gap: 0.75rem; }
+    .sticky-nav-page-links, .sticky-nav-earendil { display: none; }
+    .sticky-nav-toggle { display: inline-flex; }
+    .nav-sheet-backdrop, .nav-sheet { display: block; }
+  }
+  @media (max-width: 767px) {
+    .site-announcement { font-size: 1.08rem; line-height: 1.48; }
+    .theme-toggle { font-size: 0.66rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sticky-nav-toggle, .burger-trigger > span, .nav-sheet-backdrop, .nav-sheet { transition-duration: 0.01ms; }
+  }
 </style>

@@ -31,7 +31,7 @@ Pi asks the terminal for its colors when it starts. Terminals usually answer wit
 
 Open `/settings` and select **Theme**. You can use one theme for every terminal appearance or choose separate themes for light and dark terminals.
 
-The selection is saved as the `theme` [setting](settings.md#terminal-and-display):
+The selection is saved as the `theme` [setting](/settings/#terminal-and-display):
 
 ```json
 {
@@ -58,7 +58,7 @@ pi --use-theme light
 pi --use-theme light/dark
 ```
 
-See [CLI resources](cli.md#resources) for the command-line option.
+See [CLI resources](/cli/#resources) for the command-line option.
 
 ## Create a custom theme
 
@@ -97,7 +97,7 @@ A color can be written in six forms:
 
 Terminal default colors render as the terminal's own colors. Where Pi needs a concrete value, such as HTML export or extension color math, it uses the default colors the terminal reports, or a black or white guess based on the theme's appearance.
 
-Pi resolves chained variable references. A missing variable or circular reference makes the theme invalid. Pi uses truecolor when available, gamut-maps OKLCH to sRGB, and approximates colors for 256-color terminals. HTML exports convert OKHSL values to hexadecimal because CSS does not support them. If colors differ from their source values, check your terminal's truecolor detection and contrast settings. See [Configure Your Terminal](terminal-setup.md#override-detected-capabilities).
+Pi resolves chained variable references. A missing variable or circular reference makes the theme invalid. Pi uses truecolor when available, gamut-maps OKLCH to sRGB, and approximates colors for 256-color terminals. HTML exports convert OKHSL values to hexadecimal because CSS does not support them. If colors differ from their source values, check your terminal's truecolor detection and contrast settings. See [Configure Your Terminal](/terminal-setup/#override-detected-capabilities).
 
 Use the [theme JSON schema](https://pi.dev/schemas/theme.schema.json) for the exact properties, required colors, and accepted value types.
 
@@ -135,8 +135,8 @@ If `export` colors are omitted, Pi derives HTML page and panel backgrounds from 
 
 ## Load a theme from a project or package
 
-Place a project theme in `.pi/themes/`. Project themes load only after [project trust](security.md#understand-project-trust) is granted.
+Place a project theme in `.pi/themes/`. Project themes load only after [project trust](/security/#understand-project-trust) is granted.
 
-You can also load theme files and directories through the `themes` setting or distribute them in a Pi package. See [Configuration](configuration.md), [Settings](settings.md#resources), and [Pi Packages](packages.md).
+You can also load theme files and directories through the `themes` setting or distribute them in a Pi package. See [Configuration](/configuration/), [Settings](/settings/#resources), and [Pi Packages](/packages/).
 
 Each loaded theme must have a unique name. Pi reports duplicate names as resource collisions.

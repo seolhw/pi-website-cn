@@ -6,7 +6,7 @@ title: "Models Configuration"
 
 <!-- This file is generated from TypeScript source. Do not edit it manually; run npm run generate:references. -->
 
-This reference lists the fields of `models.json`. See [Configure a compatible endpoint](models.md#configure-a-compatible-endpoint) for examples and [Configuration](configuration.md#agent-directory) for the file location.
+This reference lists the fields of `models.json`. See [Configure a compatible endpoint](/models/#configure-a-compatible-endpoint) for examples and [Configuration](/configuration/#agent-directory) for the file location.
 
 Add `"$schema": "https://pi.dev/schemas/models.schema.json"` to `models.json` for editor validation and completion.
 
@@ -92,7 +92,7 @@ Each `modelOverrides` key is the ID of a built-in or extension model. Unknown ID
 
 ## Input limits
 
-See [Describe model input and caching](models.md#describe-model-input-and-caching).
+See [Describe model input and caching](/models/#describe-model-input-and-caching).
 
 | Field | Type | Default | Description |
 |---|---|---|---|

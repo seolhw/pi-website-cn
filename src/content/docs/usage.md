@@ -4,11 +4,11 @@ title: "Use Pi in the Terminal"
 
 # Use Pi in the terminal
 
-Run `pi` from the folder you want to work in. Pi uses that folder to discover files, instructions, and configuration, and to group saved sessions. If you have not installed Pi or chosen a model yet, follow the [Quickstart](quickstart.md).
+Run `pi` from the folder you want to work in. Pi uses that folder to discover files, instructions, and configuration, and to group saved sessions. If you have not installed Pi or chosen a model yet, follow the [Quickstart](/quickstart/).
 
-Pi may ask whether you trust the working folder before loading its project resources. See [Project trust](security.md#understand-project-trust).
+Pi may ask whether you trust the working folder before loading its project resources. See [Project trust](/security/#understand-project-trust).
 
-<p align="center"><img src="images/interactive-mode.png" alt="Pi interactive mode showing a conversation, editor, and status information" width="750"></p>
+<p align="center"><img src="/images/interactive-mode.png" alt="Pi interactive mode showing a conversation, editor, and status information" width="750"></p>
 
 The transcript shows your prompts, Pi's responses, tool calls, results, and errors. You write prompts and commands in the editor. The footer shows the current folder, session, model, context usage, and accumulated usage and cost.
 
@@ -28,7 +28,7 @@ Pi shows each tool call and result while it works. Press `Ctrl+O` to expand or c
 
 The startup header lists the instructions and resources Pi loaded. The editor border indicates the current thinking level. The footer updates as the model uses context and reports usage.
 
-Pi does not ask before every tool call. Review commands and changed files, and use a sandbox for untrusted or unattended work. See [Security](security.md).
+Pi does not ask before every tool call. Review commands and changed files, and use a sandbox for untrusted or unattended work. See [Security](/security/).
 
 ## Change direction
 
@@ -43,7 +43,7 @@ You can send more input while Pi is working:
 
 A message sent with `Enter` waits until the current response and its tool calls finish, then guides the next response. A follow-up sent with `Alt+Enter` waits until Pi finishes the current task. Aborting returns queued messages to the editor.
 
-Windows Terminal reserves some Alt shortcuts. See [Terminal Setup](terminal-setup.md) for the Windows alternatives.
+Windows Terminal reserves some Alt shortcuts. See [Terminal Setup](/terminal-setup/) for the Windows alternatives.
 
 ## Change the model or settings
 
@@ -54,7 +54,7 @@ Type `/` to search the available commands. The commands you will use most often 
 - `/login` and `/logout` manage provider access.
 - `/settings` changes common preferences.
 
-Prompt templates, skills, and extensions can add more commands to the same menu. See [Choose a Model](models.md), [Configuration](configuration.md), or the complete [Slash Commands reference](slash-commands.md).
+Prompt templates, skills, and extensions can add more commands to the same menu. See [Choose a Model](/models/), [Configuration](/configuration/), or the complete [Slash Commands reference](/slash-commands/).
 
 ## Continue or start over
 
@@ -65,7 +65,7 @@ Pi saves sessions automatically unless session persistence is disabled.
 - `/name` gives the current session a recognizable name.
 - `/session` shows its file, ID, message count, token usage, and cost.
 
-Use `/tree`, `/fork`, or `/clone` when you want to explore another approach without losing existing work. Use `/compact` to reduce the conversation history sent to the model. See [Sessions and Context](sessions.md) for these workflows.
+Use `/tree`, `/fork`, or `/clone` when you want to explore another approach without losing existing work. Use `/compact` to reduce the conversation history sent to the model. See [Sessions and Context](/sessions/) for these workflows.
 
 After leaving Pi, run `pi --continue` from the same folder to resume its most recent session.
 
@@ -83,16 +83,16 @@ Use `!!` when you want to run a command without sending its output to the model.
 
 Press `Ctrl+X` or run `/copy` to copy the last assistant response. Use `/export` to save the session as HTML or JSONL.
 
-Use `/share` to upload the session and get a viewer link. By default, Radius authentication makes the artifact visible to your Radius organization; otherwise, Pi creates a private GitHub gist through the GitHub CLI. The [`sessionShareDestination`](settings.md#sessions-and-context) setting can force either destination. Review the session first because it can contain prompts, tool output, file contents, and credentials exposed during the conversation.
+Use `/share` to upload the session and get a viewer link. By default, Radius authentication makes the artifact visible to your Radius organization; otherwise, Pi creates a private GitHub gist through the GitHub CLI. The [`sessionShareDestination`](/settings/#sessions-and-context) setting can force either destination. Review the session first because it can contain prompts, tool output, file contents, and credentials exposed during the conversation.
 
 ## Adjust the terminal
 
 Fullscreen mode, the default, keeps the editor and status area fixed while the transcript scrolls within the terminal window. Regular mode uses the terminal's normal scrollback. Choose a mode through `/settings` or `--tui-mode`.
 
-Terminal support for mouse input, keyboard shortcuts, and inline images varies. See [Terminal Setup](terminal-setup.md) for platform-specific configuration and [Keybindings](keybindings.md) for every configurable shortcut. Run `/hotkeys` to inspect the shortcuts active in your current session.
+Terminal support for mouse input, keyboard shortcuts, and inline images varies. See [Terminal Setup](/terminal-setup/) for platform-specific configuration and [Keybindings](/keybindings/) for every configurable shortcut. Run `/hotkeys` to inspect the shortcuts active in your current session.
 
 ## Collect diagnostic information
 
-When troubleshooting terminal rendering or conversation state, run `/debug`. Pi writes the rendered terminal lines and current session messages to `pi-debug.log` in your [agent directory](configuration.md#agent-directory).
+When troubleshooting terminal rendering or conversation state, run `/debug`. Pi writes the rendered terminal lines and current session messages to `pi-debug.log` in your [agent directory](/configuration/#agent-directory).
 
 Review this file before sharing it. It can contain prompts, model responses, tool output, file contents, and terminal data.

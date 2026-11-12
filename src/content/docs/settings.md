@@ -4,7 +4,7 @@ title: "Settings"
 
 # Settings Reference
 
-This reference lists user-configurable settings, their types, defaults, and purposes. Project settings override agent-directory settings. Resource lists are combined. See [Configuration](configuration.md) for file locations and trust behavior.
+This reference lists user-configurable settings, their types, defaults, and purposes. Project settings override agent-directory settings. Resource lists are combined. See [Configuration](/configuration/) for file locations and trust behavior.
 
 Add `"$schema": "https://pi.dev/schemas/settings.schema.json"` to `settings.json` for editor validation and completion.
 
@@ -24,9 +24,9 @@ Add `"$schema": "https://pi.dev/schemas/settings.schema.json"` to `settings.json
 | `showCacheMissNotices` | boolean | `false` | Show notices for significant cache misses, successful cache warming, compaction usage, and provider recovery. |
 | `cacheWarming` | `"off" \| "streaming" \| "idle"` | `"idle"` | Keep eligible provider prompt caches warm during active runs and, with `"idle"`, for up to 30 minutes between runs. `"streaming"` warms only during active runs. Global setting only. |
 
-Cache warming runs only when the model declares a cache lifetime and Pi estimates at least $0.05 in avoided cache-miss cost. Refresh usage counts toward session totals but does not enter model context. `/session` shows the next decision; extensions can override it with `cache_warming_decision`. See [Prompt Cache Lifetimes](models.md#prompt-cache-lifetimes).
+Cache warming runs only when the model declares a cache lifetime and Pi estimates at least $0.05 in avoided cache-miss cost. Refresh usage counts toward session totals but does not enter model context. `/session` shows the next decision; extensions can override it with `cache_warming_decision`. See [Prompt Cache Lifetimes](/models/#prompt-cache-lifetimes).
 
-See [Choose a Model](models.md) for model selection and thinking controls.
+See [Choose a Model](/models/) for model selection and thinking controls.
 
 ## Interaction
 
@@ -61,7 +61,7 @@ This replaces `bash` with `powershell` and enables `grep`: `["-bash", "+powershe
 
 `/reload` enables tools newly added to `defaultTools`. It does not disable tools removed from it or re-enable unchanged tools you turned off. `--tools` with plain names, `--no-tools`, and `--no-builtin-tools` override `defaultTools`, also on reload.
 
-CLI tool options override this setting for one invocation. `--tools` with only `+name` and `-name` entries changes the resolved `defaultTools` selection instead, for example `pi --tools +codemode`. On `/reload`, these entries apply to the reloaded setting too, so a tool removed with `-name` stays removed. See [Command Line](cli.md#tools).
+CLI tool options override this setting for one invocation. `--tools` with only `+name` and `-name` entries changes the resolved `defaultTools` selection instead, for example `pi --tools +codemode`. On `/reload`, these entries apply to the reloaded setting too, so a tool removed with `-name` stays removed. See [Command Line](/cli/#tools).
 
 ## Sessions and context
 
@@ -83,7 +83,7 @@ CLI tool options override this setting for one invocation. `--tools` with only `
 
 Compaction token values must be non-negative safe integers. Each value resolves independently from the matching model override, then the ordinary compaction setting, then the built-in default. Project and user objects merge before model lookup.
 
-See [Compaction Reference](compaction.md) for trigger, summarization, and validation behavior.
+See [Compaction Reference](/compaction/) for trigger, summarization, and validation behavior.
 
 ### Branch summaries
 
@@ -119,7 +119,7 @@ See [Compaction Reference](compaction.md) for trigger, summarization, and valida
 | `markdown.codeBlockIndent` | string | `"  "` | Prefix used to indent rendered code blocks. |
 | `markdown.mermaid` | `"off" \| "final" \| "streaming"` | `"streaming"` | Mermaid rendering mode. |
 
-See [Themes](themes.md) and [Terminal Setup](terminal-setup.md) for format and platform details.
+See [Themes](/themes/) and [Terminal Setup](/terminal-setup/) for format and platform details.
 
 ## Network and retries
 
@@ -146,9 +146,9 @@ Keep `retry.provider.maxRetries` at `0` unless provider-level retries are requir
 | `shellPath` | string | Platform default | Custom shell executable path. Supports a leading `~`. |
 | `shellCommandPrefix` | string | None | Prefix prepended to every shell command. |
 | `npmCommand` | `string[]` | `npm` | Command and arguments used for npm package lookup and installation. |
-| `selfUpdateCommand` | `string[]` | None | Command and arguments `pi update` runs to update Pi itself, with `{packageName}`, `{version}`, and `{installSpec}` placeholders. `PI_SELF_UPDATE_COMMAND` takes precedence. **Can only be set in agent-directory settings.** See [Custom update command](cli.md#custom-update-command). |
+| `selfUpdateCommand` | `string[]` | None | Command and arguments `pi update` runs to update Pi itself, with `{packageName}`, `{version}`, and `{installSpec}` placeholders. `PI_SELF_UPDATE_COMMAND` takes precedence. **Can only be set in agent-directory settings.** See [Custom update command](/cli/#custom-update-command). |
 
-See [Shell aliases](shell-aliases.md) for shell setup and [Pi Packages](packages.md) for package-manager behavior.
+See [Shell aliases](/shell-aliases/) for shell setup and [Pi Packages](/packages/) for package-manager behavior.
 
 ## Resources
 
@@ -156,7 +156,7 @@ Resource paths in user settings resolve from the agent directory. Paths in proje
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `packages` | array | `[]` | npm, git, or local Pi package sources. See [Pi Packages](packages.md). |
+| `packages` | array | `[]` | npm, git, or local Pi package sources. See [Pi Packages](/packages/). |
 | `extensions` | `string[]` | `[]` | Extension files or directories. |
 | `skills` | `string[]` | `[]` | Skill files or directories. |
 | `prompts` | `string[]` | `[]` | Prompt-template files or directories. |

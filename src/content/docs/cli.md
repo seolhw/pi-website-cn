@@ -33,7 +33,7 @@ git diff | pi --print "Review this change"
 pi --mode json "Inspect this repository" > events.jsonl
 ```
 
-With terminal stdin and stdout, Pi opens the terminal UI unless `--print`, `--mode json`, or `--mode rpc` selects another interface. When either stream is redirected and neither JSON nor RPC mode is selected, Pi uses print mode. See [CLI Integration](cli-integration.md) for choosing between interactive, print, JSON, RPC, and SDK integration.
+With terminal stdin and stdout, Pi opens the terminal UI unless `--print`, `--mode json`, or `--mode rpc` selects another interface. When either stream is redirected and neither JSON nor RPC mode is selected, Pi uses print mode. See [CLI Integration](/cli-integration/) for choosing between interactive, print, JSON, RPC, and SDK integration.
 
 | Input | Behavior |
 |---|---|
@@ -54,7 +54,7 @@ Pi resolves `@path` from the current working directory. The working directory al
 | `--mode rpc` | Read JSONL commands from stdin and write responses and events to stdout until shutdown |
 | `--export <input> [output]` | Export a session file to HTML and exit; derive the destination when `output` is omitted |
 
-RPC mode rejects `@file` arguments. JSON and RPC modes reserve stdout for protocol records. See [JSON Event Stream](json.md) and [RPC Protocol](rpc.md).
+RPC mode rejects `@file` arguments. JSON and RPC modes reserve stdout for protocol records. See [JSON Event Stream](/json/) and [RPC Protocol](/rpc/).
 
 <a id="model-options"></a>
 
@@ -64,7 +64,7 @@ RPC mode rejects `@file` arguments. JSON and RPC modes reserve stdout for protoc
 pi --model sonnet:high
 ```
 
-See [Choose a Model](models.md) for model selection and [Providers](providers.md) for credentials.
+See [Choose a Model](/models/) for model selection and [Providers](/providers/) for credentials.
 
 - `--provider <name>`<br>
   Restricts `--model` lookup to one provider. It requires `--model`.
@@ -87,7 +87,7 @@ See [Choose a Model](models.md) for model selection and [Providers](providers.md
 pi --continue
 ```
 
-See [Sessions and Context](sessions.md) for resuming, forking, naming, and storing sessions.
+See [Sessions and Context](/sessions/) for resuming, forking, naming, and storing sessions.
 
 - `-c`, `--continue`<br>
   Continues the most recent session for the current directory.
@@ -120,7 +120,7 @@ Constraints:
 pi --tools read,grep,find,ls --print "Review this project"
 ```
 
-See [Settings](settings.md#tools) for configuring the default tool selection.
+See [Settings](/settings/#tools) for configuring the default tool selection.
 
 - `-t`, `--tools <list>`<br>
   Replaces the default selection with a comma-separated allowlist of built-in, extension, or custom tools. Entries are tool names or patterns where `*` matches any characters. MCP tools are kept unless an entry starts with `mcp__` (see [MCP tools](#mcp-tools)). A list of only `+name` and `-name` entries is not an allowlist; it changes the default selection instead.
@@ -135,7 +135,7 @@ Default enabled tools are `read`, `bash`, `edit`, and `write`, unless `defaultTo
 
 <a id="mcp-tools"></a>
 
-`--tools` selects the tools declared to the model. It does not remove MCP tools, whose reach is set by their [exposure](mcp.md#control-tool-exposure): `pi --tools read,codemode` keeps every MCP tool callable from codemode scripts. An MCP tool that no entry names or matches is never declared directly, whatever its exposure; only `tool_search`, if listed, can load it. Once an entry starts with `mcp__`, `--tools` filters MCP tools too, so this keeps only the tools of the `radius` server:
+`--tools` selects the tools declared to the model. It does not remove MCP tools, whose reach is set by their [exposure](/mcp/#control-tool-exposure): `pi --tools read,codemode` keeps every MCP tool callable from codemode scripts. An MCP tool that no entry names or matches is never declared directly, whatever its exposure; only `tool_search`, if listed, can load it. Once an entry starts with `mcp__`, `--tools` filters MCP tools too, so this keeps only the tools of the `radius` server:
 
 ```sh
 pi --tools read,bash,codemode,'mcp__radius__*'
@@ -154,7 +154,7 @@ The MCP resource tools (`list_mcp_resources`, `list_mcp_resource_templates`, `re
 | `find` | Find paths using glob patterns |
 | `ls` | List directory contents |
 
-Built-in extensions add two more tools. They are off by default; the MCP extension turns them on when an MCP server needs them (see [MCP](mcp.md#control-tool-exposure)). To enable them yourself, name them in `--tools` or `defaultTools`.
+Built-in extensions add two more tools. They are off by default; the MCP extension turns them on when an MCP server needs them (see [MCP](/mcp/#control-tool-exposure)). To enable them yourself, name them in `--tools` or `defaultTools`.
 
 | Built-in extension | Purpose |
 |---|---|
@@ -177,11 +177,11 @@ This keeps `read`, `bash`, `edit`, and `write` and adds `codemode`. For one invo
 pi --tools +codemode
 ```
 
-Codemode is useful without MCP: scripts can run several tool calls in parallel, filter large output before it reaches the model, call classifier models such as TypeSafe's Jev through `models.classify()` (see [Classifier models](models.md#use-classifier-models)), and generate images through `models.generateImages()` (see [Image models](models.md#use-image-models)).
+Codemode is useful without MCP: scripts can run several tool calls in parallel, filter large output before it reaches the model, call classifier models such as TypeSafe's Jev through `models.classify()` (see [Classifier models](/models/#use-classifier-models)), and generate images through `models.generateImages()` (see [Image models](/models/#use-image-models)).
 
 ### How codemode works
 
-Scripts run in a QuickJS sandbox and reach the other tools through `tools.<name>(args)`. [Codemode](codemode.md) describes the script API, how tools are listed and found, the `store()` and `models` globals, and the limits.
+Scripts run in a QuickJS sandbox and reach the other tools through `tools.<name>(args)`. [Codemode](/codemode/) describes the script API, how tools are listed and found, the `store()` and `models` globals, and the limits.
 
 ### Tool search
 
@@ -195,7 +195,7 @@ Scripts run in a QuickJS sandbox and reach the other tools through `tools.<name>
 pi --extension ./review.ts
 ```
 
-See [Configuration](configuration.md) for conventional directories and project trust, [Settings](settings.md#resources) for configured paths, and [Pi Packages](packages.md) for package sources.
+See [Configuration](/configuration/) for conventional directories and project trust, [Settings](/settings/#resources) for configured paths, and [Pi Packages](/packages/) for package sources.
 
 - `-e`, `--extension <path>`<br>
   Loads an extension file or directory, or a built-in extension such as `builtin:mcp`, and is repeatable.
@@ -230,7 +230,7 @@ Resource paths apply only to the current process. Relative paths resolve from th
 pi --append-system-prompt ./instructions.md
 ```
 
-See [Configuration](configuration.md) for saved configuration, [Security](security.md#understand-project-trust) for project trust, and [Environment Variables](environment-variables.md) for process controls.
+See [Configuration](/configuration/) for saved configuration, [Security](/security/#understand-project-trust) for project trust, and [Environment Variables](/environment-variables/) for process controls.
 
 - `--system-prompt <text|path>`<br>
   Replaces the default system prompt with text or the contents of an existing file.
@@ -259,7 +259,7 @@ Extensions may register additional long-form options. Unknown short options are 
 pi install npm:@scope/package
 ```
 
-See [Pi Packages](packages.md) for source formats, filtering, installation, and project scope.
+See [Pi Packages](/packages/) for source formats, filtering, installation, and project scope.
 
 ### Common tasks
 
@@ -323,7 +323,7 @@ pi auth logout radius
 pi auth check --provider openai --json
 ```
 
-The other authentication commands require `--provider <provider>` or `--model <model>`. See [Providers](providers.md) for supported methods.
+The other authentication commands require `--provider <provider>` or `--model <model>`. See [Providers](/providers/) for supported methods.
 
 | Command | Description |
 |---|---|
@@ -344,7 +344,7 @@ Credential-printing commands write secrets to stdout.
 
 ## MCP commands
 
-These commands work outside a session, so agents can run them through `bash`. See [MCP Servers](mcp.md).
+These commands work outside a session, so agents can run them through `bash`. See [MCP Servers](/mcp/).
 
 | Command | Description |
 |---|---|
@@ -355,6 +355,6 @@ These commands work outside a session, so agents can run them through `bash`. Se
 | `pi mcp login <server> [-l] [--timeout <seconds>]` | Sign in to an OAuth server: open the authorization page and wait for the browser; a terminal also accepts the pasted redirect URL. `--timeout` limits the whole sign-in, including requests to the authorization server (default 300 seconds). `-l` requires the server to be defined in the project's `.pi/mcp.json` |
 | `pi mcp logout <server> [-l]` | Delete the stored OAuth credentials of a server |
 
-`add` and `remove` change `~/.pi/agent/mcp.json`, or `.pi/mcp.json` in the current directory with `--local` (`-l`). `add` also takes `--exposure <mode>` (see [Exposure](mcp.md#control-tool-exposure)) and `--description <text>` and does not connect; run `pi mcp list` to check the server.
+`add` and `remove` change `~/.pi/agent/mcp.json`, or `.pi/mcp.json` in the current directory with `--local` (`-l`). `add` also takes `--exposure <mode>` (see [Exposure](/mcp/#control-tool-exposure)) and `--description <text>` and does not connect; run `pi mcp list` to check the server.
 
 Project `.pi/mcp.json` files are only read for projects that are already trusted.

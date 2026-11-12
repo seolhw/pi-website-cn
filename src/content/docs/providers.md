@@ -13,7 +13,7 @@ Use `/login [provider]` to see the methods supported by a provider. Amazon Bedro
 
 ## Authenticate interactively
 
-Run `/login` and select a provider. Pi guides you through its OAuth or API-key flow and saves the resulting credential in [`auth.json`](configuration.md#agent-directory).
+Run `/login` and select a provider. Pi guides you through its OAuth or API-key flow and saves the resulting credential in [`auth.json`](/configuration/#agent-directory).
 
 On a remote or headless machine, an OAuth callback may not reach the local process. When prompted, paste the final redirect URL or authorization code back into Pi.
 
@@ -51,7 +51,7 @@ This table covers providers with a single primary API-key variable. Providers th
 | ZAI Coding Plan (China) | `ZAI_CODING_CN_API_KEY` |
 | OpenCode Zen and Go | `OPENCODE_API_KEY` |
 | Radius | `RADIUS_API_KEY` |
-| TypeSafe ([classifier models](models.md#use-classifier-models)) | `TYPESAFE_API_KEY` |
+| TypeSafe ([classifier models](/models/#use-classifier-models)) | `TYPESAFE_API_KEY` |
 | Hugging Face | `HF_TOKEN` |
 | Fireworks | `FIREWORKS_API_KEY` |
 | Together AI | `TOGETHER_API_KEY` |
@@ -125,7 +125,7 @@ With a key, Pi lists only the OpenRouter chat models that key may use, with the 
 
 Pi refreshes the list in the background at startup in interactive mode, when `/model` opens, after `/login`, and on `pi update --models`. The last list is saved and used offline and in `pi -p` and RPC mode. After switching keys outside `/login`, the previous key's list stays until the next refresh.
 
-Regional endpoints filter models to their region. To use one, set the base URL in [`models.json`](models.md#configure-a-compatible-endpoint):
+Regional endpoints filter models to their region. To use one, set the base URL in [`models.json`](/models/#configure-a-compatible-endpoint):
 
 ```json
 {
@@ -162,7 +162,7 @@ export AZURE_OPENAI_DEPLOYMENT_NAME_MAP=gpt-5.4=my-gpt-deployment,deepseek-v4-pr
 
 `AZURE_OPENAI_API_VERSION` overrides the API version for OpenAI models (default `v1`).
 
-To use a Foundry model that Pi does not include, add it under `azure` in [`models.json`](models.md#configure-a-compatible-endpoint) with `api: "openai-completions"`. Custom models require a `baseUrl`; `AZURE_OPENAI_BASE_URL` and `AZURE_OPENAI_RESOURCE_NAME` take priority over it when set:
+To use a Foundry model that Pi does not include, add it under `azure` in [`models.json`](/models/#configure-a-compatible-endpoint) with `api: "openai-completions"`. Custom models require a `baseUrl`; `AZURE_OPENAI_BASE_URL` and `AZURE_OPENAI_RESOURCE_NAME` take priority over it when set:
 
 ```json
 {

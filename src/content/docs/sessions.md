@@ -35,7 +35,7 @@ Other modes exit with an error.
 
 Use `/name` or `--name` to assign a recognizable session name. Run `/session` to verify the current session file, ID, message count, token usage, and cost.
 
-The session picker lets you search, rename, and delete sessions. It can also show paths, change sorting, and limit results to named sessions. See [Keybindings](keybindings.md#sessions) for its shortcuts.
+The session picker lets you search, rename, and delete sessions. It can also show paths, change sorting, and limit results to named sessions. See [Keybindings](/keybindings/#sessions) for its shortcuts.
 
 ## Choose how to branch
 
@@ -51,19 +51,19 @@ In `/tree`, select a user message to put its text back in the editor. Edit and s
 
 When you leave a branch, Pi can summarize it and attach that summary to the branch you enter. This preserves relevant work from the abandoned path without including every message from it.
 
-For the persisted tree and entry types, see [Session Format](session-format.md).
+For the persisted tree and entry types, see [Session Format](/session-format/).
 
 ## Manage conversation context
 
-The model receives the active branch, not every branch in the session file. Pi combines that history with the system prompt, discovered context files, available tools, and loaded skill descriptions. [How Pi Works](how-pi-works.md#context) describes how those inputs are assembled.
+The model receives the active branch, not every branch in the session file. Pi combines that history with the system prompt, discovered context files, available tools, and loaded skill descriptions. [How Pi Works](/how-pi-works/#context) describes how those inputs are assembled.
 
 The footer shows current context usage. When the active context approaches the model's limit, Pi normally compacts older history automatically. Compaction adds a summary and keeps recent messages. It does not delete the original session entries.
 
-Run `/compact` to compact manually. You can add instructions when the summary should preserve a particular topic or decision. Configure automatic compaction and retained history through [Settings](settings.md#compaction).
+Run `/compact` to compact manually. You can add instructions when the summary should preserve a particular topic or decision. Configure automatic compaction and retained history through [Settings](/settings/#compaction).
 
 Compaction can fail if the provider is unavailable or cannot accept the summarization request. Correct the provider problem and run `/compact` again. Disabling automatic compaction does not disable the manual command.
 
-See [Compaction Reference](compaction.md) for thresholds, retained boundaries, branch-summary behavior, and extension hooks.
+See [Compaction Reference](/compaction/) for thresholds, retained boundaries, branch-summary behavior, and extension hooks.
 
 ## Control session storage
 
@@ -73,7 +73,7 @@ Use `--no-session` for an ephemeral run. An ephemeral session cannot be resumed 
 
 ## Export or share a session
 
-Use `/export` to write the current session as HTML or JSONL. Use `/share` to upload it and get a viewer link. By default, Pi uses a Radius artifact when Radius authentication is configured; otherwise, it uses a private GitHub gist. Set [`sessionShareDestination`](settings.md#sessions-and-context) to `gist` or `radius` to force one destination.
+Use `/export` to write the current session as HTML or JSONL. Use `/share` to upload it and get a viewer link. By default, Pi uses a Radius artifact when Radius authentication is configured; otherwise, it uses a private GitHub gist. Set [`sessionShareDestination`](/settings/#sessions-and-context) to `gist` or `radius` to force one destination.
 
 Review exported or shared sessions first. They can contain prompts, model responses, tool arguments, command output, file contents, and extension messages.
 

@@ -4,13 +4,13 @@ title: "Keybindings"
 
 # Keybindings Reference
 
-Pi exposes named actions, such as `app.session.new`, that can be assigned keybindings. You can change default assignments or bind unassigned actions in Pi's [user configuration](configuration.md#agent-directory).
+Pi exposes named actions, such as `app.session.new`, that can be assigned keybindings. You can change default assignments or bind unassigned actions in Pi's [user configuration](/configuration/#agent-directory).
 
 Run `/hotkeys` to see the active shortcuts for the main editor and application.
 
 ## Assign keybindings
 
-Create `<agent-dir>/keybindings.json`. The agent directory defaults to `~/.pi/agent` and is described in [Agent directory](configuration.md#agent-directory).
+Create `<agent-dir>/keybindings.json`. The agent directory defaults to `~/.pi/agent` and is described in [Agent directory](/configuration/#agent-directory).
 
 Map each action identifier to one key or a list of keys:
 

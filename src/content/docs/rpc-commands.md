@@ -4,7 +4,7 @@ title: "RPC Commands"
 
 # RPC Commands
 
-This reference lists commands accepted on stdin in [RPC mode](rpc.md). Each command and response is one JSON object. Shared message values use the [message types](message-types.md).
+This reference lists commands accepted on stdin in [RPC mode](/rpc/). Each command and response is one JSON object. Shared message values use the [message types](/message-types/).
 
 ## Prompting
 
@@ -207,7 +207,7 @@ Response:
 }
 ```
 
-Messages are `AgentMessage` objects (see [Message Types](message-types.md)).
+Messages are `AgentMessage` objects (see [Message Types](/message-types/)).
 
 ## Model
 
@@ -861,4 +861,4 @@ Model commands return the complete configured model definition. Costs are in US 
 }
 ```
 
-For model configuration, see [Configure a compatible endpoint](models.md#configure-a-compatible-endpoint). For TypeScript, use the exported `Model` type from `@earendil-works/pi-ai`.
+For model configuration, see [Configure a compatible endpoint](/models/#configure-a-compatible-endpoint). For TypeScript, use the exported `Model` type from `@earendil-works/pi-ai`.

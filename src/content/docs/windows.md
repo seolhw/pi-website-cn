@@ -6,7 +6,7 @@ title: "Run Pi on Windows"
 
 Run Pi either as a native Windows process or inside Windows Subsystem for Linux (WSL). Native Windows uses Git Bash by default for Bash commands and can optionally expose PowerShell to the model. Pi inside WSL uses the Linux environment and its Bash installation.
 
-Follow the main [Quickstart](quickstart.md) to install and authenticate Pi. Use this page to choose and configure its command environment.
+Follow the main [Quickstart](/quickstart/) to install and authenticate Pi. Use this page to choose and configure its command environment.
 
 ## Choose native Windows or WSL
 
@@ -58,7 +58,7 @@ To replace the model-facing `bash` tool with `powershell`, add this to `~/.pi/ag
 
 Restart Pi, then ask it to run a harmless PowerShell command. The `!` and `!!` editor commands continue to use Bash. The `powershell` tool is available only when Pi runs as a native Windows process.
 
-See [Settings](settings.md#tools) for other tool combinations.
+See [Settings](/settings/#tools) for other tool combinations.
 
 ## WSL
 
@@ -78,7 +78,7 @@ Set `shellPath` when Bash is installed somewhere Pi does not discover automatica
 
 JSON uses backslashes for escape sequences. When you write a Windows path with backslashes, write each backslash twice, as shown above.
 
-See [Configure shell commands](shell-aliases.md) for command prefixes, aliases, and the complete shell-resolution behavior.
+See [Configure shell commands](/shell-aliases/) for command prefixes, aliases, and the complete shell-resolution behavior.
 
 ## Choose a terminal
 
@@ -98,7 +98,7 @@ Last updated: October 2026.
 
 ## Configure Windows Terminal
 
-Windows Terminal reserves or rewrites some modified keys. See [Windows Terminal](terminal-setup.md#windows-terminal) to configure `Shift+Enter` and `Alt+Enter`, and [Keybindings](keybindings.md) for Pi's Windows and WSL shortcut defaults.
+Windows Terminal reserves or rewrites some modified keys. See [Windows Terminal](/terminal-setup/#windows-terminal) to configure `Shift+Enter` and `Alt+Enter`, and [Keybindings](/keybindings/) for Pi's Windows and WSL shortcut defaults.
 
 ## Known issues
 

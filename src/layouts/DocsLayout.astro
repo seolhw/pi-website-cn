@@ -1,0 +1,86 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import SidebarNav from '../components/SidebarNav.astro';
+
+interface Heading { depth: number; slug: string; text: string }
+interface Props {
+  title: string;
+  description?: string;
+  activeSlug: string;
+  headings: Heading[];
+}
+
+const { title, description = '', activeSlug, headings } = Astro.props;
+const toc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
+const sourcePath = activeSlug === 'overview' ? 'index.md' : `${activeSlug}.md`;
+const sourceUrl = `https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/${sourcePath}`;
+---
+
+<BaseLayout title={`${title} · Pi`} description={description}>
+  <main class="content-shell docs-page">
+    <section class:list={['docs-layout', { 'docs-layout-no-toc': toc.length === 0 }]}>
+      <div class="docs-mobile-tools">
+        <details class="surface-panel docs-mobile-disclosure">
+          <summary>文档导航</summary>
+          <div class="docs-mobile-disclosure-body"><SidebarNav activeSlug={activeSlug} /></div>
+        </details>
+        {toc.length > 0 && (
+          <details class="surface-panel docs-mobile-disclosure">
+            <summary>本页内容</summary>
+            <div class="docs-mobile-disclosure-body">
+              <nav class="docs-toc-links" aria-label="本页内容">
+                {toc.map((heading) => (
+                  <a class:list={['docs-toc-link', { 'docs-toc-link-depth-3': heading.depth === 3 }]} href={`#${heading.slug}`}>
+                    {heading.text}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </details>
+        )}
+      </div>
+
+      <aside class="docs-nav-rail">
+        <section class="surface-panel content-card docs-side-card docs-nav-card">
+          <header class="content-card-header"><h2 class="content-card-title">文档</h2></header>
+          <div class="content-card-body"><SidebarNav activeSlug={activeSlug} /></div>
+        </section>
+      </aside>
+
+      <div class="docs-main-column">
+        <section class="surface-panel content-card docs-article-card">
+          <div class="content-card-body">
+            <header class="docs-article-header">
+              <div class="docs-article-title-row">
+                <h1 class="docs-page-title">{title}</h1>
+                <div class="docs-article-meta">
+                  <span>Pi 中文文档</span>
+                  <span class="docs-article-meta-separator" aria-hidden="true">·</span>
+                  <a class="docs-article-action" href={sourceUrl} target="_blank" rel="noopener noreferrer" aria-label="查看上游文档源码">源码 ↗</a>
+                </div>
+              </div>
+            </header>
+            <div class="rich-text docs-prose markdown-content"><slot /></div>
+          </div>
+        </section>
+      </div>
+
+      {toc.length > 0 && (
+        <aside class="docs-toc-rail">
+          <section class="surface-panel content-card docs-side-card docs-toc-card">
+            <header class="content-card-header"><h2 class="content-card-title">本页内容</h2></header>
+            <div class="content-card-body">
+              <nav class="docs-toc-links" aria-label="本页内容">
+                {toc.map((heading) => (
+                  <a class:list={['docs-toc-link', { 'docs-toc-link-depth-3': heading.depth === 3 }]} href={`#${heading.slug}`}>
+                    {heading.text}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </section>
+        </aside>
+      )}
+    </section>
+  </main>
+</BaseLayout>

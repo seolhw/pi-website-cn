@@ -12,13 +12,13 @@ Provider extensions run inside Pi and can inspect credentials, prompts, tool def
 
 | Requirement | Use |
 |---|---|
-| Add models behind a supported API | [`models.json`](models.md#configure-a-compatible-endpoint) |
+| Add models behind a supported API | [`models.json`](/models/#configure-a-compatible-endpoint) |
 | Change an existing provider endpoint or headers | `models.json` or a small provider extension |
 | Discover models dynamically | A provider with `refreshModels` |
 | Add a `/login` flow | A provider with native or legacy OAuth configuration |
 | Implement an unsupported wire protocol | A provider with `stream` or `streamSimple` |
 
-A provider extension is an [extension](extensions.md), so it follows the same loading, trust, reload, and error behavior.
+A provider extension is an [extension](/extensions/), so it follows the same loading, trust, reload, and error behavior.
 
 ## Register a provider
 
@@ -228,4 +228,4 @@ Test at least:
 
 The provider tests under [`packages/ai/test`](https://github.com/earendil-works/pi/tree/main/packages/ai/test) define the behavior expected from built-in providers. Adapt the relevant suites rather than relying only on manual prompts.
 
-Run the extension directly while developing, then move it to a discovered extension location or distribute it through a [Pi package](packages.md). Use `/reload` after changing a discovered provider extension in an active session.
+Run the extension directly while developing, then move it to a discovered extension location or distribute it through a [Pi package](/packages/). Use `/reload` after changing a discovered provider extension in an active session.

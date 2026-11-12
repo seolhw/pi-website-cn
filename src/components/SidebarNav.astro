@@ -1,0 +1,36 @@
+---
+import { sidebar, type SidebarGroup, type SidebarLink } from '../data/sidebar';
+
+interface Props { activeSlug: string }
+const { activeSlug } = Astro.props;
+---
+
+<nav class="docs-nav-groups" aria-label="文档导航">
+  {sidebar.map((group: SidebarGroup) => (
+    <section class="docs-nav-group">
+      <h2>{group.label}</h2>
+      <div class="docs-nav-links">
+        {group.items.map((item: SidebarGroup | SidebarLink) => 'items' in item ? (
+          <>
+            <h3 class="docs-nav-section-title">{item.label}</h3>
+            {item.items.map((link: SidebarGroup | SidebarLink) => 'slug' in link && (
+              <a
+                class="docs-nav-link"
+                class:list={{ 'is-active': link.slug === activeSlug }}
+                href={`/${link.slug}/`}
+                aria-current={link.slug === activeSlug ? 'page' : undefined}
+              >{link.label}</a>
+            ))}
+          </>
+        ) : (
+          <a
+            class="docs-nav-link"
+            class:list={{ 'is-active': item.slug === activeSlug }}
+            href={`/${item.slug}/`}
+            aria-current={item.slug === activeSlug ? 'page' : undefined}
+          >{item.label}</a>
+        ))}
+      </div>
+    </section>
+  ))}
+</nav>

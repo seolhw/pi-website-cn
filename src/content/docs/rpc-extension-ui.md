@@ -4,7 +4,7 @@ title: "RPC Extension UI"
 
 # RPC Extension UI
 
-Extensions can request user interaction through `ctx.ui`. In RPC mode, supported calls become a request/response subprotocol alongside normal [RPC commands](rpc-commands.md) and [session events](json.md).
+Extensions can request user interaction through `ctx.ui`. In RPC mode, supported calls become a request/response subprotocol alongside normal [RPC commands](/rpc-commands/) and [session events](/json/).
 
 There are two categories of extension UI methods:
 
@@ -201,4 +201,4 @@ Dismiss any dialog method. The extension receives `undefined` (for select/input/
 
 See the checked [RPC extension UI client](../examples/rpc-extension-ui.ts) and its [demo extension](../examples/extensions/rpc-demo.ts).
 
-The exported request and response unions are defined in [`rpc-types.ts`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/modes/rpc/rpc-types.ts). See [Extensions](extensions.md#ui-and-modes) for mode-independent extension guidance.
+The exported request and response unions are defined in [`rpc-types.ts`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/modes/rpc/rpc-types.ts). See [Extensions](/extensions/#ui-and-modes) for mode-independent extension guidance.

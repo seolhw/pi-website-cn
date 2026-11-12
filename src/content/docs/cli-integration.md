@@ -8,7 +8,7 @@ By default, running `pi` opens the interactive terminal interface. When input or
 
 All four modes use the same agent, sessions, resources, and tools. The mode determines how input enters Pi, how output is exposed, and whether the process remains available for more commands.
 
-The SDK is not a CLI mode. It embeds the agent directly in a Node.js or Bun process. See the [SDK](sdk.md) when direct TypeScript access is preferable to a process boundary.
+The SDK is not a CLI mode. It embeds the agent directly in a Node.js or Bun process. See the [SDK](/sdk/) when direct TypeScript access is preferable to a process boundary.
 
 ## Choose a mode
 
@@ -19,7 +19,7 @@ The SDK is not a CLI mode. It embeds the agent directly in a Node.js or Bun proc
 | JSON | JSONL events on stdout | One invocation | A process needs structured progress from a run |
 | RPC | JSONL commands, responses, and events | Long-lived | A process needs bidirectional control |
 
-CLI options still select the working directory, model, tools, resources, and session persistence independently of the mode. See [Command Line](cli.md) for the complete startup options.
+CLI options still select the working directory, model, tools, resources, and session persistence independently of the mode. See [Command Line](/cli/) for the complete startup options.
 
 ## Print to stdout
 
@@ -53,7 +53,7 @@ Streaming `message_update` records contain deltas rather than a growing message 
 
 `agent_end` can be followed by automatic recovery or queued work. `agent_settled` marks the end of automatic work for the current run.
 
-Stdout is reserved for JSONL. Diagnostics and application logging are written to stderr. See [JSON Event Stream](json.md) for framing, event shapes, and reconstruction rules.
+Stdout is reserved for JSONL. Diagnostics and application logging are written to stderr. See [JSON Event Stream](/json/) for framing, event shapes, and reconstruction rules.
 
 ## Control Pi with RPC
 
@@ -81,7 +81,7 @@ The [RPC client example](../examples/rpc-client.ts) sends one prompt, streams te
 
 The client requires a path to a runnable Pi CLI. The repository example points at `dist/cli.js`, so the package must be built before that example runs from a checkout.
 
-If you are building a client without `RpcClient`, start with [RPC Protocol](rpc.md), then use [RPC Commands](rpc-commands.md) and [JSON Event Stream](json.md) as the wire references.
+If you are building a client without `RpcClient`, start with [RPC Protocol](/rpc/), then use [RPC Commands](/rpc-commands/) and [JSON Event Stream](/json/) as the wire references.
 
 ## Fork and rebrand Pi
 
@@ -102,9 +102,9 @@ Change the top-level `bin` field to set the executable name. These settings affe
 
 - [RPC client](../examples/rpc-client.ts): typed Node.js integration
 - [RPC extension UI](../examples/rpc-extension-ui.ts): custom terminal client with extension dialogs
-- [Command Line](cli.md): startup options and mode selection
-- [JSON Event Stream](json.md): JSON event reference
-- [RPC Protocol](rpc.md): RPC lifecycle, framing, errors, and shutdown
-- [RPC Commands](rpc-commands.md): command and response reference
-- [RPC Extension UI](rpc-extension-ui.md): extension interaction subprotocol
+- [Command Line](/cli/): startup options and mode selection
+- [JSON Event Stream](/json/): JSON event reference
+- [RPC Protocol](/rpc/): RPC lifecycle, framing, errors, and shutdown
+- [RPC Commands](/rpc-commands/): command and response reference
+- [RPC Extension UI](/rpc-extension-ui/): extension interaction subprotocol
 - [SDK examples](../examples/sdk/): in-process TypeScript integrations

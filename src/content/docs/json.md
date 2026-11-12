@@ -10,9 +10,9 @@ JSON mode emits structured progress for one invocation:
 pi --mode json "Review this repository"
 ```
 
-Pi writes one session header followed by session events, then exits after the supplied prompts finish. RPC mode emits the same session-event shapes but has no session header because it is a bidirectional, long-lived protocol. See [RPC Mode](rpc.md).
+Pi writes one session header followed by session events, then exits after the supplied prompts finish. RPC mode emits the same session-event shapes but has no session header because it is a bidirectional, long-lived protocol. See [RPC Mode](/rpc/).
 
-This page is the canonical reference for events shared by JSON and RPC mode. Message values use the [shared message types](message-types.md).
+This page is the canonical reference for events shared by JSON and RPC mode. Message values use the [shared message types](/message-types/).
 
 ## Framing and process I/O
 
@@ -24,13 +24,13 @@ Read stdout continuously. A reader that stops consuming records can stall Pi whe
 
 ## Session header
 
-The first JSON-mode record is the current [session header](session-format.md#sessionheader):
+The first JSON-mode record is the current [session header](/session-format/#sessionheader):
 
 ```json
 {"type":"session","version":3,"id":"uuid","timestamp":"2024-12-03T14:00:00.000Z","cwd":"/path"}
 ```
 
-RPC mode does not emit this record. Use [`get_state`](rpc-commands.md#get_state) for its current session ID and file.
+RPC mode does not emit this record. Use [`get_state`](/rpc-commands/#get_state) for its current session ID and file.
 
 ## Event sequence
 
@@ -127,7 +127,7 @@ Use `toolCallId` to correlate the lifecycle. `partialResult` is the latest parti
 | `session_info_changed` | `name` | The session display name changed. An absent `name` means it was cleared. |
 | `thinking_level_changed` | `level` | The active thinking level changed. |
 
-The `entry` value uses a persisted [session entry type](session-format.md#entry-types).
+The `entry` value uses a persisted [session entry type](/session-format/#entry-types).
 
 ## Compaction events
 
@@ -160,7 +160,7 @@ The `entry` value uses a persisted [session entry type](session-format.md#entry-
 
 If compaction was aborted, `result` is absent and `aborted` is true. If it failed, `result` is absent, `aborted` is false, and `errorMessage` describes the failure. Successful overflow recovery sets `willRetry` to true before Pi retries the prompt.
 
-See [Compaction and Branch Summaries](compaction.md) for result semantics.
+See [Compaction and Branch Summaries](/compaction/) for result semantics.
 
 ## Retry events
 
@@ -185,7 +185,7 @@ For a branch summary, `source` is `"branchSummary"` and `reason` is absent. The 
 
 ## RPC-only events
 
-A direct RPC [`bash`](rpc-commands.md#bash) command emits one `bash_execution_update` for each output chunk. Its optional `id` matches the command ID. The final command response can contain truncated output, but these events stream all output:
+A direct RPC [`bash`](/rpc-commands/#bash) command emits one `bash_execution_update` for each output chunk. Its optional `id` matches the command ID. The final command response can contain truncated output, but these events stream all output:
 
 ```json
 {"type":"bash_execution_update","id":"req-1","delta":"total 48\n"}
@@ -197,7 +197,7 @@ RPC also adds `extension_error` when an extension handler throws:
 {"type":"extension_error","extensionPath":"/path/to/extension.ts","event":"tool_call","error":"Error message"}
 ```
 
-Extension UI records are a separate RPC subprotocol, not `AgentSessionEvent` values. See [RPC Extension UI](rpc-extension-ui.md).
+Extension UI records are a separate RPC subprotocol, not `AgentSessionEvent` values. See [RPC Extension UI](/rpc-extension-ui/).
 
 ## TypeScript types
 

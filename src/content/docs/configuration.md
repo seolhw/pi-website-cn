@@ -4,35 +4,35 @@ title: "Configure Pi"
 
 # Configuration
 
-Pi supports user-level and project configuration. User-level configuration lives in the agent directory, which defaults to `~/.pi/agent`. Project configuration lives in `.pi` under the working directory and loads after [project trust](security.md#understand-project-trust) is granted. The only exception is `sessionDir`, which Pi reads before resolving trust so it can locate sessions.
+Pi supports user-level and project configuration. User-level configuration lives in the agent directory, which defaults to `~/.pi/agent`. Project configuration lives in `.pi` under the working directory and loads after [project trust](/security/#understand-project-trust) is granted. The only exception is `sessionDir`, which Pi reads before resolving trust so it can locate sessions.
 
 In interactive mode, use `/settings` to change common preferences. For other options, ask Pi to update the configuration or edit the relevant files directly. Run `/reload` after manually changing settings, keybindings, instructions, or resources.
 
 ## Agent directory
 
-The agent directory is shown as `<agent-dir>` below. Set its location with the `PI_CODING_AGENT_DIR` environment variable or the SDK's [`agentDir`](sdk.md) option.
+The agent directory is shown as `<agent-dir>` below. Set its location with the `PI_CODING_AGENT_DIR` environment variable or the SDK's [`agentDir`](/sdk/) option.
 
 | Path | Responsibility |
 |---|---|
-| `<agent-dir>/settings.json` | User-level [settings](settings.md), including preferences, defaults, resource paths, and Pi package declarations. |
-| `<agent-dir>/keybindings.json` | Custom terminal UI and application [keybindings](keybindings.md). |
-| `<agent-dir>/mcp.json` | [MCP servers](mcp.md) available in every project. |
-| `<agent-dir>/models.json` | [Compatible endpoints, models, and model overrides](models.md#configure-a-compatible-endpoint). |
+| `<agent-dir>/settings.json` | User-level [settings](/settings/), including preferences, defaults, resource paths, and Pi package declarations. |
+| `<agent-dir>/keybindings.json` | Custom terminal UI and application [keybindings](/keybindings/). |
+| `<agent-dir>/mcp.json` | [MCP servers](/mcp/) available in every project. |
+| `<agent-dir>/models.json` | [Compatible endpoints, models, and model overrides](/models/#configure-a-compatible-endpoint). |
 | `<agent-dir>/auth.json` | Saved API keys and OAuth credentials. |
 | `<agent-dir>/AGENTS.override.md`, `AGENTS.md`, `AGENTS.MD`, `CLAUDE.md`, or `CLAUDE.MD` | User instructions applied across working directories. |
 | `<agent-dir>/SYSTEM.md` | Replaces Pi’s default system prompt. |
 | `<agent-dir>/APPEND_SYSTEM.md` | Adds instructions to Pi’s system prompt. |
-| `<agent-dir>/extensions/` | User [extensions](extensions.md). |
-| `<agent-dir>/skills/` | User [skills](skills.md) and supporting files. |
-| `<agent-dir>/prompts/` | User [prompt templates](prompt-templates.md) exposed as slash commands. |
-| `<agent-dir>/themes/` | User [theme](themes.md) files. |
+| `<agent-dir>/extensions/` | User [extensions](/extensions/). |
+| `<agent-dir>/skills/` | User [skills](/skills/) and supporting files. |
+| `<agent-dir>/prompts/` | User [prompt templates](/prompt-templates/) exposed as slash commands. |
+| `<agent-dir>/themes/` | User [theme](/themes/) files. |
 
 ## Project `.pi` directory
 
 | Path | Responsibility |
 |---|---|
-| `.pi/settings.json` | Project-level [settings](settings.md), resource paths, and Pi package declarations. |
-| `.pi/mcp.json` | Project [MCP servers](mcp.md). |
+| `.pi/settings.json` | Project-level [settings](/settings/), resource paths, and Pi package declarations. |
+| `.pi/mcp.json` | Project [MCP servers](/mcp/). |
 | `.pi/SYSTEM.md` | Replaces the system prompt for the project. |
 | `.pi/APPEND_SYSTEM.md` | Adds project-specific instructions to the system prompt. |
 | `.pi/extensions/` | Project extensions. |

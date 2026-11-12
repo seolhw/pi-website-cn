@@ -9,7 +9,8 @@ const methods = [
 ---
 
 <div class="install-box install-switcher" data-install-switcher>
-	<div class="install-tabs" role="tablist" aria-label="安装方式">
+	<div class="install-tabs has-active-indicator" role="tablist" aria-label="安装方式">
+		<span class="install-tabs-indicator" aria-hidden="true"></span>
 		{methods.map(({ id, label }, index) => (
 			<button
 				class:list={['install-tab', { 'is-active': index === 1 }]}
@@ -39,6 +40,13 @@ const methods = [
 		const tabs = Array.from(switcher.querySelectorAll<HTMLButtonElement>('[data-install-tab]'));
 		const panels = Array.from(switcher.querySelectorAll<HTMLElement>('[data-install-panel]'));
 		const copy = switcher.querySelector<HTMLButtonElement>('[data-copy-install]');
+		const indicator = switcher.querySelector<HTMLElement>('.install-tabs-indicator');
+		const updateIndicator = () => {
+			const activeTab = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
+			if (!activeTab || !indicator) return;
+			indicator.style.setProperty('--install-indicator-x', `${activeTab.offsetLeft}px`);
+			indicator.style.setProperty('--install-indicator-width', `${activeTab.offsetWidth}px`);
+		};
 
 		tabs.forEach((tab, index) => {
 			tab.addEventListener('keydown', (event) => {
@@ -62,8 +70,11 @@ const methods = [
 				panels.forEach((panel) => {
 					panel.hidden = panel.dataset.installPanel !== selected;
 				});
+				updateIndicator();
 			});
 		});
+		window.addEventListener('resize', updateIndicator);
+		requestAnimationFrame(updateIndicator);
 		const preferredId = /Windows/i.test(navigator.userAgent) ? 'powershell' : 'curl';
 		tabs.find((tab) => tab.dataset.installTab === preferredId)?.click();
 
@@ -89,7 +100,7 @@ const methods = [
 		padding: 0;
 		overflow: hidden;
 		text-align: left;
-		border: 1px solid var(--sl-color-hairline-shade);
+		border: 1px solid var(--color-border-strong);
 		border-radius: 4px;
 		background: var(--install-panel);
 		box-shadow: 0 4px 40px var(--install-box-shadow);
@@ -103,10 +114,32 @@ const methods = [
 		padding: 0;
 		overflow-x: auto;
 		overscroll-behavior-x: contain;
-		border-bottom: 1px solid var(--sl-color-hairline-shade);
-		background: #252f3d08;
+		border-bottom: 1px solid var(--color-border);
+		background: color-mix(in srgb, var(--color-text) 3%, transparent);
 		scrollbar-width: thin;
 	}
+
+	.install-tabs-indicator {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		width: var(--install-indicator-width, 0px);
+		background: color-mix(in srgb, var(--color-link) 8%, transparent);
+		transform: translateX(var(--install-indicator-x, 0px));
+		transition: transform 220ms ease, width 220ms ease;
+		pointer-events: none;
+	}
+	.install-tabs-indicator::after {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		height: 2px;
+		background: var(--color-link);
+		content: '';
+	}
+	@media (prefers-reduced-motion: reduce) { .install-tabs-indicator { transition: none; } }
 
 	.install-tab {
 		position: relative;
@@ -120,28 +153,19 @@ const methods = [
 		flex: 0 0 auto;
 		padding: 0.55rem 1.25rem;
 		border: 0;
-		border-right: 1px solid var(--sl-color-hairline-shade);
+		border-right: 1px solid var(--color-border-strong);
 		background: transparent;
-		color: var(--sl-color-gray-3);
-		font: 700 0.78rem var(--sl-font-mono);
+		color: var(--color-muted-strong);
+		font: 700 0.78rem var(--font-ui-mono);
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		cursor: pointer;
 	}
 
 	.install-tab.is-active {
-		color: var(--sl-color-text);
+		color: var(--color-text);
 	}
 
-	.install-tab.is-active::after {
-		content: '';
-		position: absolute;
-		right: 0;
-		bottom: 0;
-		left: 0;
-		height: 2px;
-		background: #6a9fcc;
-	}
 
 	.install-command-row {
 		display: flex;
@@ -158,24 +182,24 @@ const methods = [
 		padding: 0 !important;
 		border: 0 !important;
 		background: transparent !important;
-		color: var(--sl-color-text);
-		font: 0.9rem/1.5 var(--sl-font-mono);
+		color: var(--color-text);
+		font: 0.9rem/1.5 var(--font-mono);
 		overflow-wrap: anywhere;
 	}
 
 	.install-copy {
 		flex: 0 0 auto;
 		padding: 0.6rem 0.85rem;
-		border: 1px solid var(--sl-color-hairline-shade);
+		border: 1px solid var(--color-border-strong);
 		background: transparent;
-		color: var(--sl-color-text);
-		font: 600 var(--sl-text-2xs) var(--sl-font-mono);
+		color: var(--color-text);
+		font: 600 var(--text-2xs) var(--font-ui-mono);
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
 		cursor: pointer;
 	}
 
-	.install-copy:hover { border-color: var(--sl-color-accent); }
+	.install-copy:hover { border-color: var(--color-accent); }
 
 	@media (max-width: 40rem) {
 		.install-tab { padding: 0.72rem 0.9rem; font-size: 0.78rem; }

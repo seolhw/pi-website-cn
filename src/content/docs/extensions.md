@@ -154,7 +154,7 @@ Additional paths via `settings.json`:
 }
 ```
 
-Settings also accept built-in extensions as `builtin:<name>` entries; see [Settings](settings.md#resources). To share extensions via npm or git as Pi packages, see [packages.md](packages.md).
+Settings also accept built-in extensions as `builtin:<name>` entries; see [Settings](/settings/#resources). To share extensions via npm or git as Pi packages, see [packages.md](/packages/).
 
 ## Available Imports
 
@@ -171,7 +171,7 @@ Pi maps these imports to its own copies, so extensions share Pi's classes and re
 
 npm dependencies work too. Add a `package.json` next to your extension (or in a parent directory), run `npm install`, and imports from `node_modules/` are resolved automatically.
 
-For distributed Pi packages installed with `pi install` (npm or git), runtime deps must be in `dependencies`; `devDependencies` are not installed. Do not list the host-provided packages above in `dependencies`. See [Declare dependencies](packages.md#declare-dependencies).
+For distributed Pi packages installed with `pi install` (npm or git), runtime deps must be in `dependencies`; `devDependencies` are not installed. Do not list the host-provided packages above in `dependencies`. See [Declare dependencies](/packages/#declare-dependencies).
 
 ### Tool parameter schemas and TypeBox
 
@@ -472,7 +472,7 @@ Fired when an extension registers or unregisters an MCP server after extensions 
 
 ### Session Events
 
-See [Session Format](session-format.md) for session storage internals and the SessionManager API.
+See [Session Format](/session-format/) for session storage internals and the SessionManager API.
 
 #### session_start
 
@@ -537,7 +537,7 @@ Do cleanup work in `session_shutdown`, then reestablish any in-memory state in `
 
 #### session_before_compact / session_compact / session_compact_failed
 
-Fired on compaction. See [compaction.md](compaction.md) for details.
+Fired on compaction. See [compaction.md](/compaction/) for details.
 
 ```typescript
 pi.on("session_before_compact", async (event, ctx) => {
@@ -578,7 +578,7 @@ pi.on("session_compact_failed", async (event, ctx) => {
 
 #### session_before_tree / session_tree
 
-Fired on `/tree` navigation. See [Sessions](sessions.md) for tree navigation concepts.
+Fired on `/tree` navigation. See [Sessions](/sessions/) for tree navigation concepts.
 
 ```typescript
 pi.on("session_before_tree", async (event, ctx) => {
@@ -818,7 +818,7 @@ All three events, `tool_call`, and `tool_result` carry `parentToolCallId` when a
 
 #### context
 
-Fired before each LLM call. Modify messages non-destructively. See [Session Format](session-format.md) for message types.
+Fired before each LLM call. Modify messages non-destructively. See [Session Format](/session-format/) for message types.
 
 ```typescript
 pi.on("context", async (event, ctx) => {
@@ -832,7 +832,7 @@ pi.on("context", async (event, ctx) => {
 
 #### context_with_system
 
-Fired before each LLM call, after every `context` handler has run and Pi has restored the prompt and tool state. `event.messages` is the full transcript, including the leading system message and any mid-conversation prompt or tool patches (see [Session Format](session-format.md#sessionmessageentry)). The returned messages are sent as they are: this hook owns the prompt and tool declarations for the request.
+Fired before each LLM call, after every `context` handler has run and Pi has restored the prompt and tool state. `event.messages` is the full transcript, including the leading system message and any mid-conversation prompt or tool patches (see [Session Format](/session-format/#sessionmessageentry)). The returned messages are sent as they are: this hook owns the prompt and tool declarations for the request.
 
 ```typescript
 import { getCurrentSystemMessage } from "@earendil-works/pi-ai";
@@ -1178,7 +1178,7 @@ Current run mode: `"tui"`, `"rpc"`, `"json"`, or `"print"`. Use `ctx.mode === "t
 
 ### ctx.hasUI
 
-`true` in TUI and RPC modes. `false` in print mode (`-p`) and JSON mode. Use this to guard dialog methods (`select`, `confirm`, `input`, `editor`) and fire-and-forget methods (`notify`, `setStatus`, `setWidget`, `setTitle`, `setEditorText`) that work in both TUI and RPC modes. In RPC mode, some TUI-specific methods are no-ops or return defaults (see [RPC Extension UI](rpc-extension-ui.md)).
+`true` in TUI and RPC modes. `false` in print mode (`-p`) and JSON mode. Use this to guard dialog methods (`select`, `confirm`, `input`, `editor`) and fire-and-forget methods (`notify`, `setStatus`, `setWidget`, `setTitle`, `setEditorText`) that work in both TUI and RPC modes. In RPC mode, some TUI-specific methods are no-ops or return defaults (see [RPC Extension UI](/rpc-extension-ui/)).
 
 ### ctx.cwd
 
@@ -1206,7 +1206,7 @@ Use this before reading project-local extension configuration that should only b
 
 ### ctx.sessionManager
 
-Read-only access to session state: `getCwd()`, `getSessionDir()`, `getSessionId()`, `getSessionFile()`, `getSessionName()`, `getHeader()`, `getEntries()`, `getEntry()`, `getBranch()`, `getTree()`, `getLeafId()`, `getLeafEntry()`, `getLabel()`, `buildContextEntries()`, and `buildSessionProjection()`. See [Session Format](session-format.md) for entry types.
+Read-only access to session state: `getCwd()`, `getSessionDir()`, `getSessionId()`, `getSessionFile()`, `getSessionName()`, `getHeader()`, `getEntries()`, `getEntry()`, `getBranch()`, `getTree()`, `getLeafId()`, `getLeafEntry()`, `getLabel()`, `buildContextEntries()`, and `buildSessionProjection()`. See [Session Format](/session-format/) for entry types.
 
 For `tool_call`, this state is synchronized through the current assistant message before handlers run. In parallel tool execution mode it is still not guaranteed to include sibling tool results from the same assistant message.
 
@@ -1229,7 +1229,7 @@ Use `ctx.modelRegistry.streamSimple(model, context, options)` for provider-neutr
 
 `streamSimple()` returns an `AssistantMessageEventStream`. Iterate it for response events and await `.result()` for the final message. Setup failures produce error events and error results.
 
-For non-chat models, `findOfType()`, `getModelsOfType()`, `getAvailableOfType()`, and `getModelOfType()` look up image and classifier models, and `classify()` and `generateImages()` call them. See [Use classifier models](models.md#use-classifier-models) and [Use image models](models.md#use-image-models).
+For non-chat models, `findOfType()`, `getModelsOfType()`, `getAvailableOfType()`, and `getModelOfType()` look up image and classifier models, and `classify()` and `generateImages()` call them. See [Use classifier models](/models/#use-classifier-models) and [Use image models](/models/#use-image-models).
 
 ### ctx.signal
 
@@ -1868,7 +1868,7 @@ pi.appendEntry("status-card", { title: "Indexed files", count: 17 });
 
 ### pi.registerShortcut(shortcut, options)
 
-Register a keyboard shortcut. See [keybindings.md](keybindings.md) for the shortcut format and built-in keybindings.
+Register a keyboard shortcut. See [keybindings.md](/keybindings/) for the shortcut format and built-in keybindings.
 
 ```typescript
 pi.registerShortcut("ctrl+shift+p", {
@@ -1943,7 +1943,7 @@ Typical `sourceInfo` values:
 
 ### pi.setModel(model)
 
-Set the model for the current session. The change is recorded in session history and restored when that session is resumed, but it does not change the configured `defaultProvider` or `defaultModel` used by new sessions. Returns `false` if authentication is not configured for the model's provider. See [models.md](models.md) for configuring custom models.
+Set the model for the current session. The change is recorded in session history and restored when that session is resumed, but it does not change the configured `defaultProvider` or `defaultModel` used by new sessions. Returns `false` if authentication is not configured for the model's provider. See [models.md](/models/) for configuring custom models.
 
 ```typescript
 const model = ctx.modelRegistry.find("anthropic", "claude-sonnet-4-5");
@@ -2099,7 +2099,7 @@ The object form accepts a complete pi-ai `Provider`, including native `auth`, `g
 - `oauth` - OAuth provider config for `/login` support. When provided, the provider appears in the login menu.
 - `streamSimple` - Custom streaming implementation for non-standard APIs.
 
-See [custom-provider.md](custom-provider.md) for advanced topics: custom streaming APIs, OAuth details, model definition reference.
+See [custom-provider.md](/custom-provider/) for advanced topics: custom streaming APIs, OAuth details, model definition reference.
 
 ### pi.unregisterProvider(name)
 
@@ -2118,7 +2118,7 @@ pi.registerCommand("my-setup-teardown", {
 
 ### pi.registerVirtualModel(model) / pi.unregisterVirtualModel(provider, id)
 
-Register a selectable catalog entry that routes each request to a physical model. `ctx.model` and the session's model selection name the virtual model; assistant messages record the physical model and thinking level the router picked. Registering the same provider and ID again replaces the virtual model. See [Virtual Models](virtual-models.md).
+Register a selectable catalog entry that routes each request to a physical model. `ctx.model` and the session's model selection name the virtual model; assistant messages record the physical model and thinking level the router picked. Registering the same provider and ID again replaces the virtual model. See [Virtual Models](/virtual-models/).
 
 ### pi.registerMcpServer(name, config) / pi.unregisterMcpServer(name) / pi.getMcpServers()
 
@@ -2450,7 +2450,7 @@ const bashTool = createBashTool(cwd, {
 });
 ```
 
-See [Shell tool session environment](environment-variables.md#shell-tool-session-environment) for variable semantics. See [examples/extensions/ssh.ts](../examples/extensions/ssh.ts) for a complete SSH example with `--ssh` flag.
+See [Shell tool session environment](/environment-variables/#shell-tool-session-environment) for variable semantics. See [examples/extensions/ssh.ts](../examples/extensions/ssh.ts) for a complete SSH example with `--ssh` flag.
 
 ### Output Truncation
 
@@ -2526,7 +2526,7 @@ export default function (pi: ExtensionAPI) {
 
 ### Custom Rendering
 
-Tools can provide `renderCall` and `renderResult` for custom TUI display. See [tui.md](tui.md) for the full component API and [tool-execution.ts](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/modes/interactive/components/tool-execution.ts) for how tool rows are composed.
+Tools can provide `renderCall` and `renderResult` for custom TUI display. See [tui.md](/tui/) for the full component API and [tool-execution.ts](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/modes/interactive/components/tool-execution.ts) for how tool rows are composed.
 
 By default, tool output is wrapped in a `Box` that handles background and horizontal padding from the `outputPad` setting. Tool renderers are also used in HTML exports. A defined `renderCall` or `renderResult` must return a `Component`. If a slot renderer is not defined, `tool-execution.ts` uses fallback rendering for that slot.
 
@@ -2630,7 +2630,7 @@ Use namespaced keybinding ids:
 - Coding-agent ids use the `app.*` namespace, for example `app.tools.expand`, `app.editor.external`, `app.session.rename`
 - Shared TUI ids use the `tui.*` namespace, for example `tui.select.confirm`, `tui.select.cancel`, `tui.input.tab`
 
-For the exhaustive list of keybinding ids and defaults, see [keybindings.md](keybindings.md). `keybindings.json` uses those same namespaced ids.
+For the exhaustive list of keybinding ids and defaults, see [keybindings.md](/keybindings/). `keybindings.json` uses those same namespaced ids.
 
 Custom editors and `ctx.ui.custom()` components receive `keybindings: KeybindingsManager` as an injected argument. They should use that injected manager directly instead of calling `getKeybindings()` or `setKeybindings()`.
 
@@ -2803,7 +2803,7 @@ The `usage` of nested results, at every depth, is added to the calling tool's re
 
 ## MCP Servers
 
-`pi.registerMcpServer(name, config)` adds an MCP server for the current session. `config` has the shape of an `mcpServers` entry in [`mcp.json`](mcp.md): `command`, `args`, `env`, and `cwd` for stdio servers, `url`, `headers`, and `oauth` for HTTP servers, plus `exposure`, `toolExposure`, `description`, `enabled`, and `timeout`.
+`pi.registerMcpServer(name, config)` adds an MCP server for the current session. `config` has the shape of an `mcpServers` entry in [`mcp.json`](/mcp/): `command`, `args`, `env`, and `cwd` for stdio servers, `url`, `headers`, and `oauth` for HTTP servers, plus `exposure`, `toolExposure`, `description`, `enabled`, and `timeout`.
 
 ```typescript
 pi.registerMcpServer("jira", { url: "https://mcp.example.com/jira", exposure: "codemode" });
@@ -2812,7 +2812,7 @@ pi.unregisterMcpServer("jira");
 
 Servers registered while the extension loads connect when the session starts, together with the `mcp.json` servers; servers registered later connect right away, and `pi.unregisterMcpServer()` closes the connection and makes the server's tools unreachable. Registrations are not saved: register again on every load, for example based on the extension's own settings. A server in `mcp.json` with the same name takes precedence, and `/mcp` shows the override. Registering the same name again replaces the extension's earlier registration; names registered by another extension, invalid names, and invalid configs throw.
 
-The built-in MCP support connects registered servers. When nothing does, because another extension replaced it (see [MCP](mcp.md#replace-the-built-in-mcp-support)), each registration is reported as an extension error. Other MCP extensions can connect registered servers too: read them with `pi.getMcpServers()` on `session_start` and handle the `mcp_servers_change` event for later changes.
+The built-in MCP support connects registered servers. When nothing does, because another extension replaced it (see [MCP](/mcp/#replace-the-built-in-mcp-support)), each registration is reported as an extension error. Other MCP extensions can connect registered servers too: read them with `pi.getMcpServers()` on `session_start` and handle the `mcp_servers_change` event for later changes.
 
 <a id="interact-with-the-user"></a>
 
@@ -2820,7 +2820,7 @@ The built-in MCP support connects registered servers. When nothing does, because
 
 Extensions can interact with users via `ctx.ui` methods and customize how messages/tools render.
 
-For custom components, focus, overlays, themes, and rendering performance, see [Terminal UI](tui.md). The examples it lists show selection lists, settings toggles, cancellable loaders, footers, and widgets.
+For custom components, focus, overlays, themes, and rendering performance, see [Terminal UI](/tui/). The examples it lists show selection lists, settings toggles, cancellable loaders, footers, and widgets.
 
 ### Dialogs
 
@@ -3078,7 +3078,7 @@ The callback receives:
 - `keybindings` - App keybinding manager (for checking shortcuts)
 - `done(value)` - Call to close component and return value
 
-The factory can also return a `Promise` of a component. See [Terminal UI](tui.md#build-a-minimal-custom-screen) for a complete custom screen with cached rendering.
+The factory can also return a `Promise` of a component. See [Terminal UI](/tui/#build-a-minimal-custom-screen) for a complete custom screen with cached rendering.
 
 #### Overlay Mode (Experimental)
 
@@ -3212,7 +3212,7 @@ pi.appendEntry("my-card", { status: "done" });
 
 ### Theme Colors
 
-All render functions receive a `theme` object. See [themes.md](themes.md) for creating custom themes and the full color palette.
+All render functions receive a `theme` object. See [themes.md](/themes/) for creating custom themes and the full color palette.
 
 ```typescript
 // Foreground colors
@@ -3234,7 +3234,7 @@ theme.strikethrough(text)
 theme.style(text, { fg: "success", bg: "toolSuccessBg", bold: true })
 ```
 
-`theme.colors` exposes concrete colors and `theme.appearance` is `"dark"` or `"light"`. See [Apply themes correctly](tui.md#apply-themes-correctly).
+`theme.colors` exposes concrete colors and `theme.appearance` is `"dark"` or `"light"`. See [Apply themes correctly](/tui/#apply-themes-correctly).
 
 For syntax highlighting in custom tool renderers:
 
@@ -3266,7 +3266,7 @@ const highlighted = highlightCode(code, lang);
 | Mode | `ctx.mode` | `ctx.hasUI` | Notes |
 |------|------------|-------------|-------|
 | Interactive | `"tui"` | `true` | Full TUI with terminal rendering |
-| RPC (`--mode rpc`) | `"rpc"` | `true` | Dialogs and notifications via JSON protocol; `custom()` returns `undefined`, component factories are ignored. See [RPC Extension UI](rpc-extension-ui.md) |
+| RPC (`--mode rpc`) | `"rpc"` | `true` | Dialogs and notifications via JSON protocol; `custom()` returns `undefined`, component factories are ignored. See [RPC Extension UI](/rpc-extension-ui/) |
 | JSON (`--mode json`) | `"json"` | `false` | Event stream to stdout; UI methods are no-ops |
 | Print (`-p`) | `"print"` | `false` | Extensions run but can't prompt |
 

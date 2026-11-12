@@ -6,7 +6,7 @@ title: "Use the SDK"
 
 `@earendil-works/pi-coding-agent` embeds Pi in a Node.js or Bun process. It provides direct TypeScript access to the agent, sessions, tools, models, and resources used by the command-line application.
 
-Use the SDK for in-process TypeScript integration. For a language-independent or isolated subprocess, see [CLI Integration](cli-integration.md).
+Use the SDK for in-process TypeScript integration. For a language-independent or isolated subprocess, see [CLI Integration](/cli-integration/).
 
 ```typescript
 import { createAgentSession } from "@earendil-works/pi-coding-agent";
@@ -53,7 +53,7 @@ const { session } = await createAgentSession({
 });
 ```
 
-See the checked [sessions example](../examples/sdk/11-sessions.ts) for creating, opening, continuing, listing, and forking sessions. [Session File Format](session-format.md) defines the persisted JSONL contract, and [Message Types](message-types.md) defines transcript values. For exact methods and signatures, use the exported TypeScript declarations or [`session-manager.ts`](../src/core/session-manager.ts).
+See the checked [sessions example](../examples/sdk/11-sessions.ts) for creating, opening, continuing, listing, and forking sessions. [Session File Format](/session-format/) defines the persisted JSONL contract, and [Message Types](/message-types/) defines transcript values. For exact methods and signatures, use the exported TypeScript declarations or [`session-manager.ts`](../src/core/session-manager.ts).
 
 `cwd` selects the workspace used for project resource discovery, context files, session grouping, and built-in tool paths. Pass it explicitly when the target differs from `process.cwd()`.
 
@@ -144,8 +144,8 @@ See the focused examples for [models](../examples/sdk/02-custom-model.ts), [tool
 
 ## Resources
 
-- [Choose a Model](models.md) covers model selection and compatible endpoints; [Providers](providers.md) covers credentials and provider-specific setup.
-- [Configuration](configuration.md) explains normal discovery and settings; [Settings](settings.md) lists every setting.
-- [Sessions and Context](sessions.md) explains session behavior; [Session Format](session-format.md) defines persisted entries; [Message Types](message-types.md) defines shared transcript values.
-- [Extensions](extensions.md), [Skills](skills.md), and [Prompt Templates](prompt-templates.md) document resources supplied through a `ResourceLoader`.
-- [CLI Integration](cli-integration.md) covers print, JSON, and RPC alternatives to an in-process SDK integration.
+- [Choose a Model](/models/) covers model selection and compatible endpoints; [Providers](/providers/) covers credentials and provider-specific setup.
+- [Configuration](/configuration/) explains normal discovery and settings; [Settings](/settings/) lists every setting.
+- [Sessions and Context](/sessions/) explains session behavior; [Session Format](/session-format/) defines persisted entries; [Message Types](/message-types/) defines shared transcript values.
+- [Extensions](/extensions/), [Skills](/skills/), and [Prompt Templates](/prompt-templates/) document resources supplied through a `ResourceLoader`.
+- [CLI Integration](/cli-integration/) covers print, JSON, and RPC alternatives to an in-process SDK integration.

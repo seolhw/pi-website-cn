@@ -20,13 +20,13 @@ Browse the [model catalog](https://pi.dev/models) for current providers, model I
 
 ## Authenticate
 
-Run `/login` and select a provider. Pi stores credentials in [`auth.json`](configuration.md#agent-directory). Run `/logout` to remove stored credentials for a provider.
+Run `/login` and select a provider. Pi stores credentials in [`auth.json`](/configuration/#agent-directory). Run `/logout` to remove stored credentials for a provider.
 
-You can instead provide an API key through the provider's environment variable. This is useful in CI and other environments where Pi should not write credentials. [Providers](providers.md) lists the variables and provider-specific setup.
+You can instead provide an API key through the provider's environment variable. This is useful in CI and other environments where Pi should not write credentials. [Providers](/providers/) lists the variables and provider-specific setup.
 
 When several credential sources are configured, Pi uses a runtime `--api-key` first, then a stored `auth.json` credential, an `apiKey` from `models.json`, and finally the provider's environment variables or ambient cloud credentials. Provider extensions can define their own authentication behavior.
 
-Keep `auth.json` and any credential commands private. Project settings and extensions can execute inside the Pi process after you trust a project. Review [Security](security.md) before loading configuration from an untrusted directory.
+Keep `auth.json` and any credential commands private. Project settings and extensions can execute inside the Pi process after you trust a project. Review [Security](/security/) before loading configuration from an untrusted directory.
 
 ## Select a model
 
@@ -34,7 +34,7 @@ Run `/model` to search available models. The picker shows models whose providers
 
 Run `/thinking` to select the thinking level for the current model. Press `Ctrl+S` there to save the startup level. Pi limits the choices to levels supported by the selected model.
 
-`Ctrl+P` cycles through available models. Use `/scoped-models` to control that cycle and save the selection, or configure model patterns through [Settings](settings.md#model-cycling).
+`Ctrl+P` cycles through available models. Use `/scoped-models` to control that cycle and save the selection, or configure model patterns through [Settings](/settings/#model-cycling).
 
 A session records model and thinking-level changes. Resuming the session restores them without changing defaults for new sessions.
 
@@ -42,13 +42,13 @@ A session records model and thinking-level changes. Resuming the session restore
 
 Pi integrates directly with the llama.cpp router. The router discovers GGUF files and loads models on demand. Pi's `/llama` command manages the router, while `/model` selects one of its loaded models.
 
-Follow [Local Models with llama.cpp](llama-cpp.md) for server startup, model layout, downloads, and connection troubleshooting.
+Follow [Local Models with llama.cpp](/llama-cpp/) for server startup, model layout, downloads, and connection troubleshooting.
 
 For Ollama, LM Studio, vLLM, SGLang, and other compatible servers, [configure a compatible endpoint](#configure-a-compatible-endpoint) in `models.json`.
 
 ## Configure a compatible endpoint
 
-Use [`models.json`](configuration.md#agent-directory) when an endpoint speaks an API Pi already supports. This includes most Ollama, LM Studio, vLLM, SGLang, and proxy deployments.
+Use [`models.json`](/configuration/#agent-directory) when an endpoint speaks an API Pi already supports. This includes most Ollama, LM Studio, vLLM, SGLang, and proxy deployments.
 
 ```json
 {
@@ -80,7 +80,7 @@ To route a built-in provider through a proxy, set only its `baseUrl`. Its models
 }
 ```
 
-[Models Configuration](models-configuration.md) lists every field.
+[Models Configuration](/models-configuration/) lists every field.
 
 ### Describe model input and caching
 
@@ -113,7 +113,7 @@ Use `promptCache` to declare the provider's best-effort cache lifetime in second
 { "id": "claude-sonnet-5", "promptCache": { "short": 300, "long": 3600 } }
 ```
 
-Choose the conservative end of any published range. A model without a lifetime for the active tier is not eligible for cache warming. A `modelOverrides` entry can set `inputLimits` or `promptCache` for a built-in or extension model, including a model accessed through a validated proxy. See [`cacheWarming`](settings.md#model-and-thinking).
+Choose the conservative end of any published range. A model without a lifetime for the active tier is not eligible for cache warming. A `modelOverrides` entry can set `inputLimits` or `promptCache` for a built-in or extension model, including a model accessed through a validated proxy. See [`cacheWarming`](/settings/#model-and-thinking).
 
 ### Configure sampling by thinking level
 
@@ -157,11 +157,11 @@ Classifier models do not chat. They answer typed questions about JSON state: pic
 | `openai` | `gpt-6-luna` | `OPENAI_API_KEY` |
 | `github-copilot` | `microsoft-decision-1` | `COPILOT_GITHUB_TOKEN` or `/login` |
 
-Chat models on a [llama.cpp router](llama-cpp.md#classification) are also listed as classifier models.
+Chat models on a [llama.cpp router](/llama-cpp/#classification) are also listed as classifier models.
 
 OpenAI's Decisions API needs an API key. Sign in with ChatGPT credentials do not work with it, so `gpt-6-luna` is not listed as available while `openai` is logged in through `/login`, even when `OPENAI_API_KEY` is set; log out of `openai` to use the key. The API rejects inputs above 922K tokens, but requests that run longer than about five seconds, currently above roughly 600K input tokens, fail with a gateway timeout.
 
-Classifier models do not appear in `/model`. The model reaches them through the [`codemode`](cli.md#enable-codemode) tool, which is off unless an MCP server turned it on. Enable it with `"defaultTools": ["+codemode"]` in [settings](settings.md#tools). Scripts then list classifier models with `models.getAvailableOfType("classifier")` and call `models.classify(model, { state, questions })`:
+Classifier models do not appear in `/model`. The model reaches them through the [`codemode`](/cli/#enable-codemode) tool, which is off unless an MCP server turned it on. Enable it with `"defaultTools": ["+codemode"]` in [settings](/settings/#tools). Scripts then list classifier models with `models.getAvailableOfType("classifier")` and call `models.classify(model, { state, questions })`:
 
 ```js
 const jev = await models.getModelOfType("classifier", "typesafe", "jev-latest");
@@ -178,21 +178,21 @@ const result = await models.classify(jev, {
 return result.answers;
 ```
 
-[Codemode](codemode.md#classify) describes the question and answer types.
+[Codemode](/codemode/#classify) describes the question and answer types.
 
 Classifier models whose `input` includes `"image"` also judge images passed in `images`; other classifier models return an error for them. Image input works with GPT-6 Luna, with Jev from `typesafe` and `cloudflare-workers-ai`, with Clef from `cloudflare-workers-ai`, and with the OpenRouter models whose catalog lists image input. Jev takes PNG and JPEG images, and image input is experimental on TypeSafe's own API. Clef takes PNG, JPEG, and WebP images, at most four per request. Jev from `vercel-ai-gateway` and `opencode` takes text only.
 
-Each System One service takes images in its own request format, set by the model's `compat.imageInput`. Built-in models set it, so overriding a provider's `baseUrl` keeps it. A custom provider that proxies another service's classifiers sets it in its provider-level `compat` in `models.json` (see [System One compatibility](models-configuration.md#typesafe-system-one)). OpenRouter in particular answers requests in TypeSafe's format without an error but drops the images.
+Each System One service takes images in its own request format, set by the model's `compat.imageInput`. Built-in models set it, so overriding a provider's `baseUrl` keeps it. A custom provider that proxies another service's classifiers sets it in its provider-level `compat` in `models.json` (see [System One compatibility](/models-configuration/#typesafe-system-one)). OpenRouter in particular answers requests in TypeSafe's format without an error but drops the images.
 
 When the service reports token counts, as all System One services do, `result.usage` carries them with their cost. Pi adds the usage of a script's classifier calls to the `codemode` tool result, so it counts toward the session cost in the footer and `/session`. The cost uses the model's catalog price; models without one, such as TypeSafe's direct `jev-latest`, report tokens at no cost.
 
-Extensions call classifiers through `ctx.modelRegistry.classify()`, without codemode. [Virtual models](virtual-models.md#route-requests) can use them to route requests; see the `jev-router.ts` example.
+Extensions call classifiers through `ctx.modelRegistry.classify()`, without codemode. [Virtual models](/virtual-models/#route-requests) can use them to route requests; see the `jev-router.ts` example.
 
 ## Use image models
 
 Image models generate images from a prompt and optional input images. Pi lists OpenRouter's image models, such as `google/gemini-2.5-flash-image` and `black-forest-labs/flux.2-pro`, under the `openrouter` provider; they use the same `OPENROUTER_API_KEY` or `/login` credential as its chat models.
 
-Like classifier models, image models do not appear in `/model`; the model reaches them through the [`codemode`](cli.md#enable-codemode) tool. Scripts list them with `models.getAvailableOfType("image")` and call `models.generateImages(model, { input })`. The result's `output` holds base64 image blocks, which `image()` attaches to the `codemode` result so the model sees them:
+Like classifier models, image models do not appear in `/model`; the model reaches them through the [`codemode`](/cli/#enable-codemode) tool. Scripts list them with `models.getAvailableOfType("image")` and call `models.generateImages(model, { input })`. The result's `output` holds base64 image blocks, which `image()` attaches to the `codemode` result so the model sees them:
 
 ```js
 const painter = await models.getModelOfType("image", "openrouter", "google/gemini-2.5-flash-image");
@@ -203,13 +203,13 @@ if (result.stopReason !== "stop") return result.errorMessage;
 for (const block of result.output) if (block.type === "image") image(block);
 ```
 
-`input` can also contain `{ type: "image", data, mimeType }` blocks to edit or use as references. Pi adds the usage of a script's image calls to the `codemode` tool result, like classifier calls. Generated images are not saved to disk. [Codemode](codemode.md#generate-images) describes the full API.
+`input` can also contain `{ type: "image", data, mimeType }` blocks to edit or use as references. Pi adds the usage of a script's image calls to the `codemode` tool result, like classifier calls. Generated images are not saved to disk. [Codemode](/codemode/#generate-images) describes the full API.
 
 Extensions generate images through `ctx.modelRegistry.generateImages()`, without codemode.
 
 ## Add a custom provider
 
-Use an extension when the provider needs custom streaming, model discovery, or authentication behavior. See [Custom Providers](custom-provider.md) for the extension workflow.
+Use an extension when the provider needs custom streaming, model discovery, or authentication behavior. See [Custom Providers](/custom-provider/) for the extension workflow.
 
 ## Troubleshooting
 
@@ -223,7 +223,7 @@ Check whether the key came from an environment variable rather than `auth.json`.
 
 ### Sign-in opens a browser on a remote machine
 
-Complete the provider's headless authentication flow when available. Some providers let you paste the final redirect URL or authorization code back into Pi. See [Authenticate interactively](providers.md#authenticate-interactively).
+Complete the provider's headless authentication flow when available. Some providers let you paste the final redirect URL or authorization code back into Pi. See [Authenticate interactively](/providers/#authenticate-interactively).
 
 ### A compatible endpoint rejects requests
 

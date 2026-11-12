@@ -1,180 +1,50 @@
 ---
 title: Pi
 description: Pi 是一个极简的 agent harness。让工作流适应 Pi，而不是反过来。
-template: splash
 ---
 
-import InstallSwitcher from '../../components/InstallSwitcher.astro';
-import '../../styles/home.css';
-
-<div class="hero">
-
-<img class="hero-logo" src="/pi-mark.svg" alt="Pi 标志" width="112" height="112" />
-
-<h1 class="hero-title">agent harness 有很多<br />但这一款属于 <span class="hero-title-accent">你</span></h1>
-
-<p class="hero-lead">Pi 是一个极简的 agent harness。让工作流适应 Pi，而不是反过来。</p>
-
-<div class="install">
-	<InstallSwitcher />
+<div class="section" data-story-index="0">
+  <p class="section-label">01 / 可定制</p>
+  <h2 class="section-title">改动 harness，而不是工作流</h2>
+  <p>Pi 不是一个封闭的产品。需要一个命令、工具、Provider、工作流或者 UI 调整？让 Pi 现场为自己构建并修改。</p>
+  <p>让 Pi 就地修改扩展，运行 <code>/reload</code> 后继续工作。觉得有用，就分享给其他人。</p>
 </div>
 
+<div class="section" data-story-index="1">
+  <p class="section-label">02 / 模型选择</p>
+  <h2 class="section-title">15+ 个 Provider，数百种模型</h2>
+  <p>支持 Anthropic、OpenAI、Google、Azure、Bedrock、Mistral、Groq、xAI、Ollama 等服务，可通过 API Key 或 OAuth 认证。</p>
+  <p>使用 <code>/model</code> 或 <code>Ctrl+L</code> 在会话中切换模型，也可以用 <code>Ctrl+P</code> 循环切换收藏模型。</p>
 </div>
 
-<div class="demo">
-	<div class="demo-frame">
-		<div class="demo-bar"><strong>PI - MAKE IT YOURS <span aria-hidden="true">●</span></strong></div>
-		<div class="demo-body"><p><span class="demo-prompt">$</span> SCROLL TO CONTINUE</p></div>
-	</div>
+<div class="section" data-story-index="2">
+  <p class="section-label">03 / 会话历史</p>
+  <h2 class="section-title">树状、可分享的历史记录</h2>
+  <p>会话以树形结构保存。使用 <code>/tree</code> 回到任意历史节点继续，所有分支都保存在同一个文件中。</p>
+  <p>通过 <code>/export</code> 导出 HTML，或用 <code>/share</code> 生成可分享的链接。</p>
 </div>
 
-## 为什么选 Pi？
-
-Pi 是一个极简的 agent harness。用[扩展](/docs/extensions/)、[skills](/docs/skills/)、[提示模板](/docs/prompt-templates/)和[主题](/docs/themes/)定制 Pi，并打包成 [Pi 包](/docs/packages/)通过 npm 或 git 分享。
-
-Pi 自带强大的默认能力，但刻意不内置 sub-agents、plan mode 这类功能。想要什么，直接让 Pi 自己构建，或者安装一个符合你工作方式的包。
-
-四种运行模式：交互式、print/JSON、[RPC 与 SDK](/docs/sdk/)。真实集成案例：[OpenClaw](https://github.com/openclaw/openclaw)。
-
-<p class="why-cta"><a href="/docs/">阅读文档 <span aria-hidden="true">→</span></a></p>
-
-<div class="feature-stories">
-	<section class="feature-story">
-		<div class="story-copy">
-			<p class="story-kicker">01 / 可定制</p>
-			<h2>改动 harness，而不是工作流</h2>
-			<p>Pi 不是一个封闭的产品。需要一个命令、工具、Provider、工作流或者 UI 调整？让 Pi 现场为自己构建并修改。</p>
-			<p>让 Pi 就地修改扩展，运行 <code>/reload</code> 后继续工作。觉得有用，就分享给其他人。</p>
-		</div>
-		<figure class="story-demo"><figcaption>PI · CUSTOM WORKFLOW</figcaption><pre><span>$</span> pi
-<span>›</span> 为我创建一个提交与推送工作流
-<span class="story-muted">● 正在编写 TypeScript 扩展…</span>
-<span class="story-success">✓ 扩展已载入，输入 /commit 开始使用</span></pre></figure>
-	</section>
-	<section class="feature-story">
-		<div class="story-copy">
-			<p class="story-kicker">02 / 模型选择</p>
-			<h2>15+ 个 Provider，数百种模型</h2>
-			<p>支持 Anthropic、OpenAI、Google、Azure、Bedrock、Mistral、Groq、xAI、Ollama 等服务，可通过 API Key 或 OAuth 认证。</p>
-			<p>使用 <code>/model</code> 或 <code>Ctrl+L</code> 在会话中切换模型，也可以用 <code>Ctrl+P</code> 循环切换收藏模型。</p>
-		</div>
-		<figure class="story-demo"><figcaption>PI · MODEL SELECTOR</figcaption><pre><span>$</span> pi
-<span>›</span> /model
-<span class="story-muted">选择 Provider 和模型</span>
-  Anthropic · Claude Sonnet
-  OpenAI · GPT
-<span class="story-success">✓ 切换模型，继续当前会话</span></pre></figure>
-	</section>
-	<section class="feature-story">
-		<div class="story-copy">
-			<p class="story-kicker">03 / 会话历史</p>
-			<h2>树状、可分享的历史记录</h2>
-			<p>会话以树形结构保存。使用 <code>/tree</code> 回到任意历史节点继续，所有分支都保存在同一个文件中。</p>
-			<p>通过 <code>/export</code> 导出 HTML，或用 <code>/share</code> 生成可分享的链接。</p>
-		</div>
-		<figure class="story-demo"><figcaption>PI · SESSION TREE</figcaption><pre><span>$</span> pi
-  ├─ 分析现有实现
-  ├─ 修改方案 A
-  │  └─ 添加测试
-  └─ <span class="story-active">当前分支</span>
-<span>›</span> /tree
-<span class="story-success">✓ 选择节点并从此处继续</span></pre></figure>
-	</section>
-	<section class="feature-story">
-		<div class="story-copy">
-			<p class="story-kicker">04 / 上下文工程</p>
-			<h2>掌控上下文，而非被上下文限制</h2>
-			<p>极简的系统提示词与可扩展性，让你掌控哪些信息进入上下文窗口，以及如何管理它们。</p>
-			<p><code>AGENTS.md</code>、<code>SYSTEM.md</code>、压缩策略、Skills 与动态上下文注入，都可以按项目定制。</p>
-		</div>
-		<figure class="story-demo"><figcaption>PI · PROJECT CONTEXT</figcaption><pre><span>AGENTS.md</span>   项目工作指令
-<span>SYSTEM.md</span>   自定义系统提示词
-<span>Skills</span>      按需加载能力
-<span>Compaction</span> 可配置的上下文压缩
-<span class="story-success">✓ 只加载当前任务需要的上下文</span></pre></figure>
-	</section>
-	<section class="feature-story">
-		<div class="story-copy">
-			<p class="story-kicker">05 / 实时引导</p>
-			<h2>引导当前任务，或排队后续任务</h2>
-			<p>Agent 工作时也可以继续发送消息。按 <code>Enter</code> 立即引导当前运行，按 <code>Alt+Enter</code> 将后续任务加入队列。</p>
-		</div>
-		<figure class="story-demo"><figcaption>PI · STEER OR FOLLOW UP</figcaption><pre><span class="story-muted">● 正在运行测试…</span>
-<span>›</span> 先检查失败原因，再继续
-<span class="story-muted">Enter：引导当前运行</span>
-<span class="story-muted">Alt+Enter：完成后发送</span>
-<span class="story-success">✓ 无需等待即可调整方向</span></pre></figure>
-	</section>
-	<section class="feature-story">
-		<div class="story-copy">
-			<p class="story-kicker">06 / 多种运行方式</p>
-			<h2>交互、脚本、RPC 与 SDK</h2>
-			<p>使用完整终端 UI 进行交互；使用 print/JSON 模式运行脚本；通过 RPC 控制独立 Pi 进程；或者通过 SDK 将 Pi 嵌入应用。</p>
-		</div>
-		<figure class="story-demo"><figcaption>PI · FOUR MODES</figcaption><pre><span>$</span> pi                  <span class="story-muted">交互模式</span>
-<span>$</span> pi -p "query"       <span class="story-muted">Print</span>
-<span>$</span> pi --mode json      <span class="story-muted">JSON 事件流</span>
-<span class="story-success">RPC / SDK · 集成到你的应用</span></pre></figure>
-	</section>
-	<section class="feature-story">
-		<div class="story-copy">
-			<p class="story-kicker">07 / 原语，而非功能</p>
-			<h2>构建你自己的工作流</h2>
-			<p>Extensions 是 TypeScript 模块，可访问工具、命令、快捷键、事件和完整 TUI。你可以自己实现 sub-agents、plan mode、权限门禁，或安装社区的 Pi 包。</p>
-		</div>
-		<figure class="story-demo"><figcaption>PI · EXTENSION API</figcaption><pre><span>tools</span>       自定义工具
-<span>commands</span>   斜杠命令
-<span>shortcuts</span>  快捷键
-<span>events</span>     生命周期钩子
-<span>UI</span>         完整 TUI 控制
-<span class="story-success">✓ 组合原语，做成你的工作流</span></pre></figure>
-	</section>
+<div class="section" data-story-index="3">
+  <p class="section-label">04 / 上下文工程</p>
+  <h2 class="section-title">掌控上下文，而非被上下文限制</h2>
+  <p>极简的系统提示词与可扩展性，让你掌控哪些信息进入上下文窗口，以及如何管理它们。</p>
+  <p><code>AGENTS.md</code>、<code>SYSTEM.md</code>、压缩策略、Skills 与动态上下文注入，都可以按项目定制。</p>
 </div>
 
-## 我们刻意没有做
-
-Pi 极度可扩展，因此不需要规定你的工作流。其他工具内置的功能，都可以通过[扩展](/docs/extensions/)、[skills](/docs/skills/)或者第三方 [Pi 包](/docs/packages/)补齐。
-
-<div class="not-built">
-	<div>
-		<h3>~没有 MCP~ 现在有 MCP + Codemode</h3>
-		<p>MCP 已内置，Codemode 让 agent 在 JavaScript 沙箱里组合工具调用，同时也仍然支持 MCP 扩展。</p>
-	</div>
-	<div>
-		<h3>没有 sub-agents</h3>
-		<p>用 tmux 启动多个 Pi 实例，或者用扩展自己实现，也可以安装别人做好的包。</p>
-	</div>
-	<div>
-		<h3>没有权限弹窗</h3>
-		<p>在容器里运行，或者根据你的安全要求，用扩展实现自己的确认流程。</p>
-	</div>
-	<div>
-		<h3>没有 plan mode</h3>
-		<p>把计划写进文件，或者用扩展构建，或者直接安装一个包。</p>
-	</div>
-	<div>
-		<h3>没有内置待办</h3>
-		<p>用一个 TODO.md 文件，或者用扩展写一套你喜欢的方案。</p>
-	</div>
-	<div>
-		<h3>没有后台 bash</h3>
-		<p>用 tmux。完整可观测，可以直接交互。</p>
-	</div>
+<div class="section" data-story-index="4">
+  <p class="section-label">05 / 实时引导</p>
+  <h2 class="section-title">引导当前任务，或排队后续任务</h2>
+  <p>Agent 工作时也可以继续发送消息。按 <code>Enter</code> 立即引导当前运行，按 <code>Alt+Enter</code> 将后续任务加入队列。</p>
 </div>
 
-## 参与 Pi 社区
+<div class="section" data-story-index="5">
+  <p class="section-label">06 / 多种运行方式</p>
+  <h2 class="section-title">交互、脚本、RPC 与 SDK</h2>
+  <p>使用完整终端 UI 进行交互；使用 print/JSON 模式运行脚本；通过 RPC 控制独立 Pi 进程；或者通过 SDK 将 Pi 嵌入应用。</p>
+</div>
 
-<div class="community">
-	<div>
-		<h3>Issues</h3>
-		<p>在 <a href="https://github.com/earendil-works/pi/issues">GitHub</a> 上反馈 bug 和需求。</p>
-	</div>
-	<div>
-		<h3>Discord</h3>
-		<p>加入<a href="https://discord.com/invite/nKXTsAcmbT">社区服务器</a>讨论与分享。</p>
-	</div>
-	<div>
-		<h3>文档</h3>
-		<p><a href="/docs/">阅读文档</a>，或者<a href="https://github.com/earendil-works/pi/tree/main/packages/coding-agent/docs">浏览 GitHub 源码</a>。</p>
-	</div>
+<div class="section" data-story-index="6">
+  <p class="section-label">07 / 原语，而非功能</p>
+  <h2 class="section-title">构建你自己的工作流</h2>
+  <p>Extensions 是 TypeScript 模块，可访问工具、命令、快捷键、事件和完整 TUI。你可以自己实现 sub-agents、plan mode、权限门禁，或安装社区的 Pi 包。</p>
 </div>

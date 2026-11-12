@@ -12,15 +12,15 @@ Pi uses extended-key protocols so terminals can distinguish combinations such as
 
 | Symptom | Start here |
 |---|---|
-| `Shift+Enter` submits instead of inserting a line | Your terminal's section below; for tmux, see [Run Pi in tmux](tmux.md) |
+| `Shift+Enter` submits instead of inserting a line | Your terminal's section below; for tmux, see [Run Pi in tmux](/tmux/) |
 | `Alt+Enter` does not queue a follow-up | [WezTerm](#wezterm), [Alacritty](#alacritty), or [Windows Terminal](#windows-terminal) |
 | Fullscreen scrolling is unusually slow | [iTerm2](#iterm2) |
 | Links work but show no hover preview | [Ghostty](#ghostty) |
 | Inline images or colors are not detected | [Override detected capabilities](#override-detected-capabilities) |
 | An IME candidate window appears in the wrong place | [WezTerm](#wezterm) or [IntelliJ IDEA](#intellij-idea-integrated-terminal) |
-| Modified keys fail only inside tmux | [Run Pi in tmux](tmux.md) |
+| Modified keys fail only inside tmux | [Run Pi in tmux](/tmux/) |
 
-Use `/hotkeys` to inspect Pi's active shortcuts. See [Keybindings](keybindings.md) to change them.
+Use `/hotkeys` to inspect Pi's active shortcuts. See [Keybindings](/keybindings/) to change them.
 
 ## Kitty
 
@@ -170,7 +170,7 @@ Add these bindings to Zed's `keymap.json`:
 
 ## Windows Terminal
 
-Windows Terminal uses Pi's Windows and WSL shortcut defaults. See [Keybindings](keybindings.md) for the complete list.
+Windows Terminal uses Pi's Windows and WSL shortcut defaults. See [Keybindings](/keybindings/) for the complete list.
 
 ### Forward Shift+Enter
 
@@ -191,7 +191,7 @@ Fully close and reopen Windows Terminal, then verify that `Shift+Enter` inserts 
 
 Windows Terminal binds `Alt+Enter` to fullscreen by default. Pi therefore uses `Ctrl+Q` for follow-ups on Windows and WSL.
 
-To use `Alt+Enter` instead, configure Windows Terminal to forward the key and bind `app.message.followUp` to `alt+enter` in Pi's `keybindings.json`. See [Keybindings](keybindings.md#assign-keybindings).
+To use `Alt+Enter` instead, configure Windows Terminal to forward the key and bind `app.message.followUp` to `alt+enter` in Pi's `keybindings.json`. See [Keybindings](/keybindings/#assign-keybindings).
 
 ## xfce4-terminal and Terminator
 
@@ -222,7 +222,7 @@ Pi automatically detects OSC 8 hyperlinks, inline image protocols, and truecolor
 
 Settings take precedence over environment variables. An unset value or `auto` preserves automatic detection.
 
-Only force a capability supported by the complete terminal path. Unsupported escape sequences can corrupt rendering. See [Environment Variables](environment-variables.md#pi-process-configuration) and [Settings](settings.md) for the canonical value definitions.
+Only force a capability supported by the complete terminal path. Unsupported escape sequences can corrupt rendering. See [Environment Variables](/environment-variables/#pi-process-configuration) and [Settings](/settings/) for the canonical value definitions.
 
 ## Program status
 

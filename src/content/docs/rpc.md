@@ -6,11 +6,11 @@ title: "RPC Protocol"
 
 RPC mode runs Pi as a long-lived subprocess controlled through JSON records on stdin and stdout. Use it for language-independent integrations, process isolation, IDEs, and custom user interfaces.
 
-For an in-process Node.js or Bun integration, prefer the [SDK](sdk.md). For a subprocess-based TypeScript integration, prefer the exported `RpcClient`, which starts Pi, correlates responses, exposes typed command methods, and delivers events to listeners.
+For an in-process Node.js or Bun integration, prefer the [SDK](/sdk/). For a subprocess-based TypeScript integration, prefer the exported `RpcClient`, which starts Pi, correlates responses, exposes typed command methods, and delivers events to listeners.
 
 | Interface | Process boundary | Control model | Best fit |
 |---|---|---|---|
-| [SDK](sdk.md) | In process | Direct TypeScript methods and events | Node.js or Bun hosts that want complete API access |
+| [SDK](/sdk/) | In process | Direct TypeScript methods and events | Node.js or Bun hosts that want complete API access |
 | RPC | Child process | JSONL commands, responses, and events | Other languages, isolated processes, IDEs, or custom clients |
 
 ## Start RPC mode
@@ -19,9 +19,9 @@ For an in-process Node.js or Bun integration, prefer the [SDK](sdk.md). For a su
 pi --mode rpc --no-session
 ```
 
-Normal CLI options still select the working folder, model, tools, resources, and session behavior. Common choices include `--provider`, `--model`, `--name`, `--no-session`, and `--session-dir`. See [Command Line](cli.md) for the complete, version-specific interface; `pi --help` is authoritative for the installed version.
+Normal CLI options still select the working folder, model, tools, resources, and session behavior. Common choices include `--provider`, `--model`, `--name`, `--no-session`, and `--session-dir`. See [Command Line](/cli/) for the complete, version-specific interface; `pi --help` is authoritative for the installed version.
 
-RPC mode rejects `@file` prompt arguments. Send prompts through the [`prompt`](rpc-commands.md#prompt) command instead.
+RPC mode rejects `@file` prompt arguments. Send prompts through the [`prompt`](/rpc-commands/#prompt) command instead.
 
 ## Protocol records
 
@@ -34,7 +34,7 @@ The protocol has four record families:
 | stdout | Session event | Stream run, message, tool, queue, compaction, and retry activity |
 | Both | Extension UI record | Forward supported extension interactions between Pi and the client |
 
-See [RPC Commands](rpc-commands.md), [JSON Event Stream](json.md), and [RPC Extension UI](rpc-extension-ui.md) for the canonical record definitions.
+See [RPC Commands](/rpc-commands/), [JSON Event Stream](/json/), and [RPC Extension UI](/rpc-extension-ui/) for the canonical record definitions.
 
 ### Correlate commands and responses
 
@@ -47,7 +47,7 @@ Every command accepts an optional string `id`. A matching response repeats it:
 
 Use unique IDs whenever more than one command can be outstanding. Command handling is asynchronous, so clients should correlate by ID rather than response order.
 
-Session events generally have no command ID because they describe session activity. `bash_execution_update` is the exception: when the originating [`bash`](rpc-commands.md#bash) command has an ID, its output events repeat that ID.
+Session events generally have no command ID because they describe session activity. `bash_execution_update` is the exception: when the originating [`bash`](/rpc-commands/#bash) command has an ID, its output events repeat that ID.
 
 An `extension_ui_response` uses the ID supplied by its `extension_ui_request`. It does not produce a normal command response.
 
@@ -68,9 +68,9 @@ A successful `prompt` response means the prompt was accepted, queued, or handled
 {"id":"req-2","type":"response","command":"prompt","success":true,"data":{"disposition":"started"}}
 ```
 
-`data.disposition` reports what happened to the prompt. If it is `"handled"`, no run started for this prompt, so don't wait for `agent_settled`. See [RPC Commands](rpc-commands.md#prompt) for all values.
+`data.disposition` reports what happened to the prompt. If it is `"handled"`, no run started for this prompt, so don't wait for `agent_settled`. See [RPC Commands](/rpc-commands/#prompt) for all values.
 
-Continue consuming [events](json.md) after that response. `agent_end` marks the end of one low-level agent run, but retries, overflow recovery, compaction, steering, or follow-up work can still follow. Wait for `agent_settled` when the client needs to know Pi will not continue automatically.
+Continue consuming [events](/json/) after that response. `agent_end` marks the end of one low-level agent run, but retries, overflow recovery, compaction, steering, or follow-up work can still follow. Wait for `agent_settled` when the client needs to know Pi will not continue automatically.
 
 Subscribe before sending a prompt to avoid missing a fast completion. `RpcClient.promptAndWait()` does this internally. If using separate `RpcClient` calls, install the event listener before `prompt()` and call `waitForIdle()` only while a run is active.
 
@@ -139,11 +139,11 @@ For maintained TypeScript clients, use the checked [RPC client example](../examp
 
 ## Reference
 
-- [RPC Commands](rpc-commands.md): every stdin command and response
-- [JSON Event Stream](json.md): shared stdout session events and streaming reconstruction
-- [RPC Extension UI](rpc-extension-ui.md): dialogs, notifications, responses, and limitations
-- [Message Types](message-types.md): messages and content blocks used by responses and events
-- [Session File Format](session-format.md): entries returned by session commands
+- [RPC Commands](/rpc-commands/): every stdin command and response
+- [JSON Event Stream](/json/): shared stdout session events and streaming reconstruction
+- [RPC Extension UI](/rpc-extension-ui/): dialogs, notifications, responses, and limitations
+- [Message Types](/message-types/): messages and content blocks used by responses and events
+- [Session File Format](/session-format/): entries returned by session commands
 - [`rpc-types.ts`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/modes/rpc/rpc-types.ts): exported TypeScript protocol definitions
 - [`RpcClient`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/modes/rpc/rpc-client.ts): subprocess client implementation
 
@@ -185,15 +185,15 @@ The detailed references formerly on this page now have dedicated pages. These an
 <a id="set_session_name"></a>
 <a id="get_commands"></a>
 
-Command details moved to [RPC Commands](rpc-commands.md).
+Command details moved to [RPC Commands](/rpc-commands/).
 
 <a id="message_update-streaming"></a>
 <a id="bash_execution_update"></a>
 <a id="compaction_start--compaction_end"></a>
 <a id="summarization_retry_scheduled--summarization_retry_attempt_start--summarization_retry_finished"></a>
 
-Event details moved to [JSON Event Stream](json.md).
+Event details moved to [JSON Event Stream](/json/).
 
 <a id="extension-ui-protocol"></a>
 
-Extension interaction details moved to [RPC Extension UI](rpc-extension-ui.md).
+Extension interaction details moved to [RPC Extension UI](/rpc-extension-ui/).

@@ -1,0 +1,244 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import InstallSwitcher from '../components/InstallSwitcher.astro';
+import '../styles/home.css';
+
+const entry = await getEntry('home', 'index');
+if (!entry) throw new Error('首页内容 src/content/docs/index.mdx 未加载');
+const { Content } = await render(entry);
+---
+
+<BaseLayout title="Pi · 中文文档" description={entry.data.description}>
+  <link slot="head" rel="stylesheet" href="/asciinema/asciinema-player.css" />
+  <link slot="head" rel="stylesheet" href="/asciinema/pi-theme.css" />
+  <main class="page-shell page-shell--home">
+    <header class="hero hero-zone" id="landingIntroCopy">
+      <div class="hero-heading-group">
+        <button class="hero-logo-stage" id="heroLogoStage" type="button" aria-label="播放 Pi 标志动画">
+          <span class="hero-logo-wrap">
+            <img class="hero-logo-fallback" src="/pi-mark.svg" alt="" width="80" height="80" />
+            <canvas class="hero-logo" id="heroLogo" width="160" height="180" aria-hidden="true"></canvas>
+          </span>
+        </button>
+        <h1 class="hero-subtitle">
+          <span class="hero-subtitle-line">Agent harness 有很多</span>
+          <span class="hero-subtitle-line">但这一款属于 <em class="hero-subtitle-accent">你</em></span>
+        </h1>
+      </div>
+      <p class="hero-orient">Pi 是一个极简的 agent harness。<br />让工作流适应 Pi，而不是反过来。</p>
+      <InstallSwitcher />
+    </header>
+
+    <div class="home-story-grid">
+      <div class="landing-stage">
+        <figure class="surface-panel figure-frame landing-demo-figure">
+          <div class="landing-demo-column">
+            <div class="landing-demo-frame landing-demo-frame--hero" id="landingDemoFrame">
+              <div class="landing-demo-scroll-cue" aria-hidden="true">↓ 滚动以继续</div>
+              <div class="asciinema-mount" id="demo" aria-label="Pi 终端演示"></div>
+              <div class="demo-terminal" id="demoFallback" aria-live="polite">
+                <div class="demo-terminal-header"><span>PI</span><span>MAKE IT YOURS</span><span class="terminal-status" aria-hidden="true">●</span></div>
+                <pre class="terminal-scene is-active" data-terminal-scene="0"><span class="terminal-prompt">$</span> pi
+<span class="terminal-muted">›</span> 为我创建一个提交与推送工作流
+<span class="terminal-muted">● 正在编写 TypeScript 扩展…</span>
+<span class="terminal-success">✓ 扩展已载入，输入 /commit 开始使用</span></pre>
+                <pre class="terminal-scene" data-terminal-scene="1"><span class="terminal-prompt">$</span> pi
+<span class="terminal-muted">›</span> /model
+  Anthropic · Claude Sonnet
+  OpenAI · GPT
+<span class="terminal-success">✓ 切换模型，继续当前会话</span></pre>
+                <pre class="terminal-scene" data-terminal-scene="2"><span class="terminal-prompt">$</span> pi
+  ├─ 分析现有实现
+  ├─ 修改方案 A
+  │  └─ 添加测试
+  └─ <span class="terminal-current">当前分支</span>
+<span class="terminal-muted">›</span> /tree
+<span class="terminal-success">✓ 选择节点并从此处继续</span></pre>
+                <pre class="terminal-scene" data-terminal-scene="3"><span>AGENTS.md</span>   项目工作指令
+<span>SYSTEM.md</span>   自定义系统提示词
+<span>Skills</span>      按需加载能力
+<span>Compaction</span> 可配置的上下文压缩
+<span class="terminal-success">✓ 只加载当前任务需要的上下文</span></pre>
+                <pre class="terminal-scene" data-terminal-scene="4"><span class="terminal-muted">● 正在运行测试…</span>
+<span class="terminal-muted">›</span> 先检查失败原因，再继续
+<span class="terminal-muted">Enter：引导当前运行</span>
+<span class="terminal-muted">Alt+Enter：完成后发送</span>
+<span class="terminal-success">✓ 无需等待即可调整方向</span></pre>
+                <pre class="terminal-scene" data-terminal-scene="5"><span class="terminal-prompt">$</span> pi                  <span class="terminal-muted">交互模式</span>
+<span class="terminal-prompt">$</span> pi -p "query"       <span class="terminal-muted">Print</span>
+<span class="terminal-prompt">$</span> pi --mode json      <span class="terminal-muted">JSON 事件流</span>
+<span class="terminal-success">RPC / SDK · 集成到你的应用</span></pre>
+                <pre class="terminal-scene" data-terminal-scene="6"><span>tools</span>       自定义工具
+<span>commands</span>   斜杠命令
+<span>shortcuts</span>  快捷键
+<span>events</span>     生命周期钩子
+<span>UI</span>         完整 TUI 控制
+<span class="terminal-success">✓ 组合原语，做成你的工作流</span></pre>
+              </div>
+            </div>
+            <figcaption class="landing-demo-caption"><p class="landing-demo-caption-text">Pi · 可扩展的终端 Agent</p></figcaption>
+          </div>
+        </figure>
+      </div>
+
+      <div class="landing-copy">
+        <div class="landing-sections"><Content /></div>
+      </div>
+    </div>
+
+    <section class="home-extras">
+      <div class="home-extra-section">
+        <p class="section-label">PI / PHILOSOPHY</p>
+        <h2 class="section-title">我们刻意没有做</h2>
+        <p>Pi 极度可扩展，因此不需要规定你的工作流。其他工具内置的功能，都可以通过<a href="/extensions/">扩展</a>、<a href="/skills/">skills</a>或者第三方 <a href="/packages/">Pi 包</a>补齐。</p>
+        <div class="home-callout-grid">
+          <article><h3>~没有 MCP~ 现在有 MCP + Codemode</h3><p>MCP 已内置，Codemode 让 agent 在 JavaScript 沙箱里组合工具调用，同时也仍然支持 MCP 扩展。</p></article>
+          <article><h3>没有 sub-agents</h3><p>用 tmux 启动多个 Pi 实例，或者用扩展自己实现，也可以安装别人做好的包。</p></article>
+          <article><h3>没有权限弹窗</h3><p>在容器里运行，或者根据你的安全要求，用扩展实现自己的确认流程。</p></article>
+          <article><h3>没有 plan mode</h3><p>把计划写进文件，或者用扩展构建，或者直接安装一个包。</p></article>
+          <article><h3>没有内置待办</h3><p>用一个 TODO.md 文件，或者用扩展写一套你喜欢的方案。</p></article>
+          <article><h3>没有后台 bash</h3><p>用 tmux。完整可观测，可以直接交互。</p></article>
+        </div>
+      </div>
+      <div class="home-extra-section community-section">
+        <p class="section-label">PI / COMMUNITY</p>
+        <h2 class="section-title">参与 Pi 社区</h2>
+        <div class="home-callout-grid home-callout-grid--three-up">
+          <article><h3>Issues</h3><p>在 <a href="https://github.com/earendil-works/pi/issues">GitHub</a> 上反馈 bug 和需求。</p></article>
+          <article><h3>Discord</h3><p>加入<a href="https://discord.com/invite/nKXTsAcmbT">社区服务器</a>讨论与分享。</p></article>
+          <article><h3>文档</h3><p><a href="/overview/">阅读文档</a>，或者<a href="https://github.com/earendil-works/pi/tree/main/packages/coding-agent/docs">浏览 GitHub 源码</a>。</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script is:inline src="/asciinema/asciinema-player.min.js"></script>
+</BaseLayout>
+
+<script>
+  const homeShell = document.querySelector<HTMLElement>('.page-shell--home');
+  const storySections = Array.from(document.querySelectorAll<HTMLElement>('.landing-copy .section'));
+  const terminalScenes = Array.from(document.querySelectorAll<HTMLElement>('[data-terminal-scene]'));
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const activateStory = (index: number) => {
+    storySections.forEach((section, sectionIndex) => section.classList.toggle('is-active', sectionIndex === index));
+    terminalScenes.forEach((scene, sceneIndex) => scene.classList.toggle('is-active', sceneIndex === index));
+  };
+
+  if (storySections.length) {
+    activateStory(0);
+    document.querySelector('.landing-copy')?.classList.add('has-scroll-sync');
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible) activateStory(storySections.indexOf(visible.target as HTMLElement));
+    }, { rootMargin: '-38% 0px -38% 0px', threshold: [0, 0.2, 0.5, 0.8] });
+    storySections.forEach((section) => observer.observe(section));
+  }
+
+  const logoButton = document.querySelector<HTMLButtonElement>('#heroLogoStage');
+  const logoCanvas = document.querySelector<HTMLCanvasElement>('#heroLogo');
+  const logoContext = logoCanvas?.getContext('2d');
+  const logoImage = new Image();
+  const pixelSource = document.createElement('canvas');
+  pixelSource.width = 4;
+  pixelSource.height = 4;
+  const pixelContext = pixelSource.getContext('2d', { willReadFrequently: true });
+  const CELL = 20;
+  const LOGO_X = 2;
+  const LOGO_Y = 3;
+  let pixelData: ImageData | undefined;
+
+  const paintLogo = (progress = 1) => {
+    if (!logoCanvas || !logoContext || !pixelData) return;
+    logoContext.clearRect(0, 0, logoCanvas.width, logoCanvas.height);
+    logoContext.imageSmoothingEnabled = false;
+    for (let row = 0; row < 4; row++) {
+      for (let column = 0; column < 4; column++) {
+        const offset = (row * 4 + column) * 4;
+        if (pixelData.data[offset + 3] === 0) continue;
+        const color = `rgb(${pixelData.data[offset]}, ${pixelData.data[offset + 1]}, ${pixelData.data[offset + 2]})`;
+        const delay = ((row + column) % 3) * 0.08;
+        const cellProgress = Math.max(0, Math.min(1, (progress - delay) / (1 - delay)));
+        const eased = 1 - Math.pow(1 - cellProgress, 3);
+        const drift = prefersReducedMotion ? 0 : (1 - eased) * ((column % 2 ? 1 : -1) * (1 + row % 2));
+        const x = LOGO_X + column + drift;
+        const y = LOGO_Y + row - (1 - eased) * (2 + ((row + column) % 2));
+        logoContext.fillStyle = color;
+        logoContext.fillRect(Math.round(x) * CELL, Math.round(y) * CELL, CELL, CELL);
+      }
+    }
+  };
+
+  const finishLogo = () => {
+    paintLogo(1);
+    logoButton?.classList.remove('is-playing');
+  };
+
+  if (logoCanvas && logoContext && pixelContext) {
+    logoImage.onload = () => {
+      pixelContext.imageSmoothingEnabled = false;
+      pixelContext.clearRect(0, 0, 4, 4);
+      pixelContext.drawImage(logoImage, 0, 0, 4, 4);
+      pixelData = pixelContext.getImageData(0, 0, 4, 4);
+      logoButton?.classList.add('is-logo-ready');
+      paintLogo(1);
+    };
+    logoImage.src = '/pi-mark.svg';
+  }
+
+  logoButton?.addEventListener('click', () => {
+    if (prefersReducedMotion || !pixelData) return;
+    logoButton.classList.add('is-playing');
+    const startedAt = performance.now();
+    const drawFrame = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / 850);
+      paintLogo(progress);
+      if (progress < 1) requestAnimationFrame(drawFrame);
+      else finishLogo();
+    };
+    requestAnimationFrame(drawFrame);
+  });
+
+  homeShell?.classList.add('is-home-sections-visible');
+
+  const demoFrame = document.querySelector<HTMLElement>('#landingDemoFrame');
+  const demoMount = document.querySelector<HTMLElement>('#demo');
+  const Player = (window as Window & { AsciinemaPlayer?: { create: (src: string, mount: HTMLElement, options: Record<string, unknown>) => { play: () => void; pause: () => void } } }).AsciinemaPlayer;
+  const mountRecordedDemo = async () => {
+    if (!Player || !demoFrame || !demoMount || typeof DecompressionStream === 'undefined') return;
+    try {
+      const response = await fetch('/recordings/default.cast.data');
+      if (!response.ok || !response.body) throw new Error('Terminal recording unavailable');
+      const decompressed = response.body.pipeThrough(new DecompressionStream('gzip'));
+      const recording = await new Response(decompressed).blob();
+      const recordingUrl = URL.createObjectURL(recording);
+      const player = Player.create(recordingUrl, demoMount, {
+        theme: document.documentElement.dataset.theme === 'light' ? 'solarized-light' : 'dracula',
+        fit: 'width',
+        idleTimeLimit: 2,
+        autoPlay: window.scrollY > 1,
+        controls: false,
+        loop: true,
+        terminalFontFamily: 'Commit Mono',
+        terminalLineHeight: 1.4,
+      });
+      demoFrame.classList.add('has-player');
+      const syncPlayback = () => {
+        const shouldPlay = window.scrollY > 1;
+        demoFrame.classList.toggle('is-scroll-cue-dismissed', shouldPlay);
+        if (shouldPlay) player.play();
+        else player.pause();
+      };
+      window.addEventListener('scroll', syncPlayback, { passive: true });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) player.pause();
+        else syncPlayback();
+      });
+      syncPlayback();
+    } catch (error) {
+      console.warn('Pi terminal demo could not be loaded; using the static fallback.', error);
+    }
+  };
+  void mountRecordedDemo();
+</script>

@@ -24,7 +24,7 @@ The working folder controls resource discovery and the default location for tool
 
 Whichever option you choose, only provide the files and services required for the task. Keep credentials outside the environment where possible, or use narrowly scoped, short-lived credentials. Restrict network access when commands do not need it.
 
-For setup instructions and the limitations of each isolation method, see [Run Pi in an isolated environment](containerization.md).
+For setup instructions and the limitations of each isolation method, see [Run Pi in an isolated environment](/containerization/).
 
 <a id="project-trust"></a>
 

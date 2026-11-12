@@ -6,7 +6,7 @@ title: "Build Terminal UI Components"
 
 `@earendil-works/pi-tui` provides the terminal component system used by Pi. Extensions use it when built-in dialogs, notifications, status text, and widgets are not enough for the interaction they need.
 
-Start with `ctx.ui` methods from an [extension](extensions.md#interact-with-the-user). Build a custom component only when the UI needs its own rendering, keyboard or mouse input, focus, layout, or lifecycle.
+Start with `ctx.ui` methods from an [extension](/extensions/#interact-with-the-user). Build a custom component only when the UI needs its own rendering, keyboard or mouse input, focus, layout, or lifecycle.
 
 ## Choose an integration point
 
@@ -139,7 +139,7 @@ export default function (pi: ExtensionAPI) {
 
 This component does not display a text cursor, so it does not need `Focusable`. A component containing `Input` or `Editor` must implement `Focusable` and propagate its `focused` value to that child.
 
-Custom components do not report pi as waiting for the user, because `ctx.ui.custom()` also hosts loaders and other non-blocking UI. When a component waits for an answer, pass `blocked: { kind: "question", message: "Pick a color" }` so terminals that support [program status](terminal-setup.md#program-status) show pi as blocked. `kind` is `"question"`, `"permission"`, or `"auth"`. An inline component reports blocked while it is visible: a newer dialog or component shown in its place reports its own status instead. An overlay reports blocked from when it is shown until it calls `done()`, also while it is hidden with `setHidden()` or covered by another overlay. When several blocking prompts are open, the most recently shown one supplies `kind` and `message`.
+Custom components do not report pi as waiting for the user, because `ctx.ui.custom()` also hosts loaders and other non-blocking UI. When a component waits for an answer, pass `blocked: { kind: "question", message: "Pick a color" }` so terminals that support [program status](/terminal-setup/#program-status) show pi as blocked. `kind` is `"question"`, `"permission"`, or `"auth"`. An inline component reports blocked while it is visible: a newer dialog or component shown in its place reports its own status instead. An overlay reports blocked from when it is shown until it calls `done()`, also while it is hidden with `setHidden()` or covered by another overlay. When several blocking prompts are open, the most recently shown one supplies `kind` and `message`.
 
 Pass `overlay: true` to draw above existing content. Overlay options control size, anchors, offsets, margins, and responsive visibility. An overlay handle can change focus or temporarily hide and show the overlay with `setHidden()` while the interaction remains active.
 
@@ -177,7 +177,7 @@ Do not permanently store strings with theme colors unless `invalidate()` rebuild
 
 Theme callbacks evaluated during rendering do not need special rebuilding. Stateless components can also calculate themed output on every render.
 
-Use [Themes](themes.md) to create terminal palettes. Use Pi’s `getMarkdownTheme()` when rendering Markdown that should match the active application theme.
+Use [Themes](/themes/) to create terminal palettes. Use Pi’s `getMarkdownTheme()` when rendering Markdown that should match the active application theme.
 
 ## Keep rendering responsive
 
@@ -198,4 +198,4 @@ The checked extension examples cover the main patterns:
 - [`widget-placement.ts`](../examples/extensions/widget-placement.ts) places persistent content around the editor.
 - [`doom-overlay/`](../examples/extensions/doom-overlay/) demonstrates a continuously rendered overlay.
 
-The public exports are defined in [`packages/tui/src/index.ts`](https://github.com/earendil-works/pi/blob/main/packages/tui/src/index.ts). See [Extensions](extensions.md) for extension lifecycle, state, tools, events, and mode behavior.
+The public exports are defined in [`packages/tui/src/index.ts`](https://github.com/earendil-works/pi/blob/main/packages/tui/src/index.ts). See [Extensions](/extensions/) for extension lifecycle, state, tools, events, and mode behavior.
