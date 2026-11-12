@@ -1,0 +1,285 @@
+/* Fonts and layout values observed in pi.dev/style.css through REA. */
+@font-face {
+	font-family: 'Plantin MT Pro';
+	src: url('https://pi.dev/fonts/PlantinNowVariable-Upright.woff2') format('woff2');
+	font-weight: 200 800;
+	font-style: normal;
+	font-display: block;
+}
+
+@font-face {
+	font-family: 'Plantin MT Pro';
+	src: url('https://pi.dev/fonts/PlantinNowVariable-Italic.woff2') format('woff2');
+	font-weight: 200 800;
+	font-style: italic;
+	font-display: block;
+}
+
+@font-face {
+	font-family: 'Commit Mono';
+	src: url('https://pi.dev/fonts/CommitMono-300-Regular.otf') format('opentype');
+	font-weight: 300;
+	font-style: normal;
+	font-display: block;
+}
+
+@font-face {
+	font-family: 'Commit Mono';
+	src: url('https://pi.dev/fonts/CommitMono-400-Regular.otf') format('opentype');
+	font-weight: 400;
+	font-style: normal;
+	font-display: block;
+}
+
+/* Pi official warm-paper / blue-gray color system */
+:root {
+	color-scheme: light;
+	--sl-font: 'Plantin MT Pro', 'Plantin MT Std', Plantin, Georgia, serif;
+	--sl-font-mono: 'Commit Mono', 'SFMono-Regular', ui-monospace, Menlo, Monaco, Consolas, monospace;
+	--page-grid-cell: 20px;
+	--nav-panel-background: linear-gradient(180deg, #f3f2f0f4, #ebe7e4ee), linear-gradient(90deg, #eacd7c20, #4b607c12);
+	--nav-panel-border: #b3ada7cf;
+	--nav-panel-highlight: #f3f2f0;
+	--install-panel: #f4f2f0;
+	--install-box-shadow: rgb(92 87 82 / 0.1216);
+	--sl-color-accent-low: #ebe7e4;
+	--sl-color-accent: #844f3b;
+	--sl-color-accent-high: #5c3529;
+	--sl-color-text-accent: #844f3b;
+	--sl-color-bg: #ebe7e4;
+	--sl-color-bg-nav: #ebe7e4;
+	--sl-color-bg-sidebar: #f0f2f3;
+	--page-grid-minor: #252f3d08;
+	--page-grid-major: #252f3d12;
+	--page-grid-cross: #252f3d1d;
+	--sl-color-hairline-shade: #d5cec8;
+	--sl-color-hairline: #e1dcd7;
+	--sl-content-width: 48rem;
+	--sl-sidebar-width: 16rem;
+	--sl-nav-height: 7.2rem;
+	--article-panel-bg: #f4f2f0;
+	--article-panel-border: #5c575240;
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--sl-color-accent-low: #252f3d;
+	--sl-color-accent: #6a9fcc;
+	--sl-color-accent-high: #a8c9e6;
+	--sl-color-text-accent: #8eb9dc;
+	--sl-color-bg: #161d27;
+	--sl-color-bg-nav: #161d27;
+	--sl-color-bg-sidebar: #212730;
+	--article-panel-bg: #212730;
+	--article-panel-border: #757d8975;
+	--nav-panel-background: linear-gradient(180deg, #212730f7, #0d1116e8), linear-gradient(90deg, #4b607c24, #2f5f8a14);
+	--nav-panel-border: #495059bd;
+	--nav-panel-highlight: #9fa4ab47;
+	--install-panel: #212730;
+	--install-box-shadow: rgb(159 164 171 / 0.1216);
+	--page-grid-cross: var(--page-grid-major);
+	--page-grid-minor: hsl(218 60% 80% / 0.009375);
+	--page-grid-major: hsl(218 60% 80% / 0.02625);
+	--sl-color-hairline-shade: #495059;
+	--sl-color-hairline: #333b46;
+}
+
+html {
+	font-size: 18px;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	-webkit-text-size-adjust: none;
+	text-size-adjust: none;
+}
+
+body {
+	--grid-gap: calc(var(--page-grid-cell) / 5);
+	background-color: var(--sl-color-bg);
+	background-image:
+		linear-gradient(var(--page-grid-minor) 0 1px, transparent 1px var(--grid-gap)),
+		linear-gradient(to right, var(--page-grid-minor) 0 1px, transparent 1px var(--grid-gap)),
+		linear-gradient(var(--page-grid-major) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
+		linear-gradient(to right, var(--page-grid-major) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
+		radial-gradient(circle at center, transparent calc(var(--grid-gap) / 2), var(--sl-color-bg) calc(var(--grid-gap) / 2) 100%),
+		linear-gradient(var(--page-grid-cross) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
+		linear-gradient(to right, var(--page-grid-cross) 0 1px, transparent 1px calc(var(--grid-gap) * 5));
+	background-size:
+		var(--grid-gap) var(--grid-gap), var(--grid-gap) var(--grid-gap),
+		calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5), calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
+		calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5), calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
+		calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5);
+	background-position: 0 0, 0 0, 0 0, 0 0, calc(var(--grid-gap) * -2.5) calc(var(--grid-gap) * -2.5), 0 0, 0 0;
+	background-attachment: fixed;
+	font-family: var(--sl-font);
+	line-height: 1.6;
+}
+
+/* Site title in the navigation uses the same 8×9-grid mark scale as pi.dev. */
+.site-title img {
+	height: 2.44444444rem;
+	width: 2.44444444rem;
+}
+
+.sidebar-content,
+.sidebar-content a,
+.sidebar-content summary { font-family: var(--sl-font-mono); }
+
+/* 文档正文：复刻 pi.dev 的衬线标题与纸面卡片 */
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3 {
+	letter-spacing: -0.01em;
+}
+
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+h1#_top {
+	font-family: var(--sl-font);
+	font-style: italic;
+	font-weight: 500;
+	color: #252f3d;
+}
+
+:root[data-theme='dark'] .sl-markdown-content h1,
+:root[data-theme='dark'] .sl-markdown-content h2,
+:root[data-theme='dark'] h1#_top { color: #ebe7e4; }
+
+:root[data-has-sidebar] .main-pane > main > .content-panel {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: var(--sl-content-width);
+	margin-inline: auto;
+}
+
+:root[data-has-sidebar] .main-pane .content-panel {
+	padding: 0;
+	border: 1px solid var(--article-panel-border);
+	border-radius: 0;
+	background: var(--article-panel-bg);
+}
+
+:root[data-has-sidebar] .main-pane > main:has(.sl-markdown-content > .sl-heading-wrapper.level-h1) > .content-panel:first-child {
+	display: none;
+}
+
+:root[data-has-sidebar] .main-pane .content-panel .sl-container {
+	box-sizing: border-box;
+	padding: clamp(1.15rem, 2.4vw, 1.7rem);
+}
+
+:root[data-has-sidebar] .sl-markdown-content {
+	font-size: clamp(0.98rem, 1.25vw, 1.08rem);
+}
+
+.sl-markdown-content > .sl-heading-wrapper.level-h1 {
+	display: flex;
+	align-items: flex-start;
+	padding-bottom: 1.15rem;
+	margin: 0 0 1.35rem;
+	border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+.sl-markdown-content > .sl-heading-wrapper.level-h1 h1 {
+	margin: 0;
+	font-size: clamp(1.7rem, 3.5vw, 2.65rem);
+	font-weight: 400;
+	line-height: 0.98;
+	letter-spacing: -0.035em;
+}
+
+.sl-markdown-content h2 {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: clamp(1.55rem, 3vw, 2.35rem);
+	font-weight: 400;
+	line-height: 1.05;
+	letter-spacing: -0.025em;
+}
+
+.sl-markdown-content h3 {
+	margin: 0;
+	font-size: clamp(1.18rem, 2vw, 1.45rem);
+	font-weight: 560;
+	line-height: 1.05;
+	letter-spacing: -0.025em;
+}
+
+.sl-markdown-content h4 {
+	margin: 0;
+	font-family: var(--sl-font-mono);
+	font-size: 1.02rem;
+	font-weight: 560;
+	letter-spacing: -0.01em;
+}
+
+.sl-markdown-content .sl-heading-wrapper.level-h2 {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 2.1rem 0 0.75rem;
+	padding-top: 1.15rem;
+	border-top: 1px solid var(--sl-color-hairline);
+}
+
+.sl-markdown-content .sl-heading-wrapper.level-h3,
+.sl-markdown-content .sl-heading-wrapper.level-h4 {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.sl-markdown-content .sl-heading-wrapper.level-h3 { margin: 1.55rem 0 0.55rem; }
+.sl-markdown-content .sl-heading-wrapper.level-h4 { margin: 1.25rem 0 0.45rem; }
+
+@media (min-width: 72rem) {
+	:root[data-has-toc] .right-sidebar {
+		padding-top: calc(var(--sl-nav-height) + 1rem);
+	}
+
+	:root[data-has-sidebar] .main-pane > main > .content-panel {
+		--article-card-width: min(var(--sl-content-width), calc(100vw - 2 * var(--sl-sidebar-width)));
+		width: var(--article-card-width);
+		max-width: none;
+		margin-inline-start: max(0px, calc((100vw - var(--article-card-width)) / 2 - var(--sl-sidebar-width)));
+		margin-inline-end: 0;
+	}
+}
+
+#starlight__sidebar .group-label .large {
+	font-family: var(--sl-font-mono);
+	font-size: 0.63rem;
+	font-weight: 400;
+	letter-spacing: 0.12em;
+	line-height: 1.35;
+	text-transform: uppercase;
+}
+
+#starlight__sidebar .sidebar-content a {
+	font-size: 0.722222rem;
+	line-height: 1.35;
+}
+
+#starlight__sidebar .sidebar-content a[aria-current='page'] {
+	position: relative;
+	border-color: transparent;
+	border-radius: 0;
+	background: transparent;
+	color: var(--sl-color-text);
+}
+
+#starlight__sidebar .sidebar-content a[aria-current='page']::before {
+	content: '';
+	position: absolute;
+	top: -1px;
+	bottom: -1px;
+	left: -1px;
+	width: 3px;
+	background: var(--sl-color-accent);
+}
+
+.sl-markdown-content code:not(:where(.not-content *)) {
+	border: 1px solid var(--sl-color-hairline-shade);
+}
+
+

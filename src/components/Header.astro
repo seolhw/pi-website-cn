@@ -1,0 +1,164 @@
+---
+import LanguageSelect from "virtual:starlight/components/LanguageSelect";
+import SiteTitle from "virtual:starlight/components/SiteTitle";
+import ThemeSelect from "virtual:starlight/components/ThemeSelect";
+
+const navLinks = [
+	{ label: "文档", href: "/docs/" },
+	{ label: "更新日志", href: "https://pi.dev/changelog" },
+	{ label: "模型", href: "https://pi.dev/models" },
+	{ label: "包", href: "https://pi.dev/packages" },
+	{ label: "Radius", href: "https://radius.earendil.com/" },
+];
+
+---
+
+<div class="announcement-strip">
+	<span>Pi 1.0 与 Pi Durable 已发布</span>
+	<a href="https://earendil.com/posts/pi-1-0/">了解详情 <span aria-hidden="true">→</span></a>
+</div>
+<div class="header">
+	<div class="title-wrapper sl-flex"><SiteTitle /></div>
+	<nav class="site-nav sl-hidden md:sl-flex" aria-label="主导航">
+		{navLinks.map(({ label, href }) => <a href={href}>{label}</a>)}
+	</nav>
+	<div class="sl-hidden md:sl-flex print:hidden right-group">
+		<ThemeSelect />
+		<LanguageSelect />
+	</div>
+</div>
+
+<style>
+	@layer starlight.core {
+		:global(header.header) {
+			position: sticky;
+			top: 0;
+			z-index: 20;
+			height: auto;
+			min-height: 0;
+			background: transparent !important;
+		}
+
+		.announcement-strip {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.6rem;
+			padding: 0.3rem 1rem;
+			border-bottom: 1px solid var(--sl-color-hairline);
+			background: #f0f2f3;
+			color: var(--sl-color-text);
+			font-family: var(--sl-font);
+			font-size: 1.22rem;
+			font-style: italic;
+			text-align: center;
+		}
+
+		.announcement-strip a {
+			color: var(--sl-color-text-accent);
+			white-space: nowrap;
+		}
+
+		:global(.sl-menu-button) { top: 5rem; }
+
+		.header {
+			position: relative;
+			display: flex !important;
+			flex-wrap: nowrap;
+			width: min(100%, 96rem);
+			box-sizing: border-box;
+			margin: 0.7rem auto 0;
+			padding: 0.7rem 0.95rem;
+			border: 1px solid var(--nav-panel-border);
+			border-top-color: var(--nav-panel-highlight);
+			background: var(--nav-panel-background);
+			gap: 1rem;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.title-wrapper {
+			overflow: clip;
+			padding: 0.25rem;
+			margin: -0.25rem;
+			min-width: 0;
+		}
+
+		.site-nav {
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			gap: clamp(0.65rem, 1.5vw, 1.25rem);
+			align-items: center;
+			flex-shrink: 0;
+		}
+
+		.site-nav a {
+			font-family: var(--sl-font-mono);
+			font-size: 0.76rem;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			line-height: 1;
+			text-transform: uppercase;
+			color: var(--sl-color-text);
+			text-decoration: none;
+			white-space: nowrap;
+		}
+
+		.site-nav a:hover {
+			color: var(--sl-color-text-accent);
+		}
+
+		.right-group,
+		.social-icons {
+			gap: 0.75rem;
+			align-items: center;
+			flex-shrink: 0;
+		}
+
+		.social-icons a {
+			display: flex;
+			color: var(--sl-color-text);
+		}
+
+		.social-icons a:hover {
+			color: var(--sl-color-text-accent);
+		}
+
+		.social-icons::after {
+			content: '';
+			height: 2rem;
+			border-inline-end: 1px solid var(--sl-color-gray-5);
+		}
+
+		@media (min-width: 50rem) {
+			:global(:root[data-has-sidebar]) {
+				--__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
+			}
+			:global(:root:not([data-has-toc])) {
+				--__toc-width: 0rem;
+			}
+			.header {
+				display: flex !important;
+				flex-wrap: nowrap;
+				--__sidebar-width: max(0rem, var(--sl-content-inline-start, 0rem) - var(--sl-nav-pad-x));
+				--__main-column-fr: calc(
+					(
+							100% + var(--__sidebar-pad, 0rem) - var(--__toc-width, var(--sl-sidebar-width)) -
+								(2 * var(--__toc-width, var(--sl-nav-pad-x))) - var(--sl-content-inline-start, 0rem) -
+								var(--sl-content-width)
+						) / 2
+				);
+				display: grid;
+				grid-template-columns:
+					minmax(
+						calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))),
+						auto
+					)
+					1fr
+					auto;
+				align-content: center;
+			}
+		}
+	}
+</style>

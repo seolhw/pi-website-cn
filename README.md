@@ -1,49 +1,43 @@
-# Starlight Starter Kit: Basics
+# Pi 中文文档站
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+本项目是基于 Astro 与 Starlight 构建的 Pi 中文文档站，目标是以 [pi.dev](https://pi.dev) 为参照，提供中文内容，并尽可能保持原站的信息结构与使用体验。
 
-```
-pnpm create astro@latest -- --template starlight
-```
+本站为社区中文版本，并非 Pi 官方站点。产品名称、命令、代码、配置项和 API 标识通常保留英文，以确保可直接使用；文档内容以 Pi 官方资料为依据，持续翻译、校对和同步。
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 本地开发
 
-## 🚀 Project Structure
+需要 Node.js 与 pnpm。安装依赖后启动开发服务器：
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+```sh
+pnpm install
+pnpm dev
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+根据项目约定，也可以在后台启动 Astro 开发服务器：
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+```sh
+astro dev --background
+```
 
-Static assets, like favicons, can be placed in the `public/` directory.
+## 常用命令
 
-## 🧞 Commands
+| 命令 | 说明 |
+| --- | --- |
+| `pnpm dev` | 启动本地开发服务器 |
+| `pnpm build` | 构建生产站点至 `dist/` |
+| `pnpm preview` | 本地预览生产构建 |
+| `pnpm astro ...` | 执行 Astro CLI 命令 |
 
-All commands are run from the root of the project, from a terminal:
+## 项目结构
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+- `src/content/docs/`：站点页面与文档内容
+- `src/components/`：站点自定义组件
+- `src/styles/`：全局及首页样式
+- `src/pi/coding-agent/docs/`：随项目保存的 Pi 上游文档副本
+- `astro.config.mjs`：Starlight 配置与文档导航
 
-## 👀 Want to learn more?
+## 内容维护
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+翻译或修改文档时，请以对应的 Pi 官方文档为依据，保留命令、代码示例和技术标识符，并检查页面链接及构建结果。发现上游更新时，同步核对对应中文页面。
+
+上游项目：[earendil-works/pi](https://github.com/earendil-works/pi) · 官方文档：[pi.dev](https://pi.dev)

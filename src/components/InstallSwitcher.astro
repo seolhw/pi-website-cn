@@ -1,0 +1,186 @@
+---
+const methods = [
+	{ id: 'curl', label: 'curl', command: 'curl -fsSL https://pi.dev/install.sh | sh' },
+	{ id: 'powershell', label: 'PowerShell', command: 'powershell -c "irm https://pi.dev/install.ps1 | iex"' },
+	{ id: 'npm', label: 'npm', command: 'npm install -g --ignore-scripts @earendil-works/pi-coding-agent' },
+	{ id: 'pnpm', label: 'pnpm', command: 'pnpm add -g --ignore-scripts @earendil-works/pi-coding-agent' },
+	{ id: 'bun', label: 'bun', command: 'bun add -g --ignore-scripts @earendil-works/pi-coding-agent' },
+];
+---
+
+<div class="install-box install-switcher" data-install-switcher>
+	<div class="install-tabs" role="tablist" aria-label="安装方式">
+		{methods.map(({ id, label }, index) => (
+			<button
+				class:list={['install-tab', { 'is-active': index === 1 }]}
+				type="button"
+				role="tab"
+				aria-selected={index === 1 ? 'true' : 'false'}
+				id={`install-tab-${id}`}
+				aria-controls={`install-panel-${id}`}
+				data-install-tab={id}
+			>
+				{label}
+			</button>
+		))}
+	</div>
+	<div class="install-command-row">
+		{methods.map(({ id, command }, index) => (
+			<code id={`install-panel-${id}`} class="shell-prompt" role="tabpanel" aria-labelledby={`install-tab-${id}`} data-install-panel={id} hidden={index !== 1}>
+				{command}
+			</code>
+		))}
+		<button class="install-copy" type="button" data-copy-install aria-live="polite">复制</button>
+	</div>
+</div>
+
+<script>
+	document.querySelectorAll<HTMLElement>('[data-install-switcher]').forEach((switcher) => {
+		const tabs = Array.from(switcher.querySelectorAll<HTMLButtonElement>('[data-install-tab]'));
+		const panels = Array.from(switcher.querySelectorAll<HTMLElement>('[data-install-panel]'));
+		const copy = switcher.querySelector<HTMLButtonElement>('[data-copy-install]');
+
+		tabs.forEach((tab, index) => {
+			tab.addEventListener('keydown', (event) => {
+				let nextIndex: number | undefined;
+				if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+				if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+				if (event.key === 'Home') nextIndex = 0;
+				if (event.key === 'End') nextIndex = tabs.length - 1;
+				if (nextIndex === undefined) return;
+				event.preventDefault();
+				tabs[nextIndex].focus();
+				tabs[nextIndex].click();
+			});
+			tab.addEventListener('click', () => {
+				const selected = tab.dataset.installTab;
+				tabs.forEach((item) => {
+					const active = item === tab;
+					item.classList.toggle('is-active', active);
+					item.setAttribute('aria-selected', String(active));
+				});
+				panels.forEach((panel) => {
+					panel.hidden = panel.dataset.installPanel !== selected;
+				});
+			});
+		});
+		const preferredId = /Windows/i.test(navigator.userAgent) ? 'powershell' : 'curl';
+		tabs.find((tab) => tab.dataset.installTab === preferredId)?.click();
+
+		copy?.addEventListener('click', async () => {
+			const activePanel = panels.find((panel) => !panel.hidden);
+			if (!activePanel || !copy) return;
+			try {
+				await navigator.clipboard.writeText(activePanel.textContent?.trim() ?? '');
+				copy.textContent = '已复制';
+				window.setTimeout(() => (copy.textContent = '复制'), 1400);
+			} catch {
+				copy.textContent = '复制失败';
+				window.setTimeout(() => (copy.textContent = '复制'), 1400);
+			}
+		});
+	});
+</script>
+
+<style>
+	.install-switcher {
+		display: block;
+		max-width: 100%;
+		padding: 0;
+		overflow: hidden;
+		text-align: left;
+		border: 1px solid var(--sl-color-hairline-shade);
+		border-radius: 4px;
+		background: var(--install-panel);
+		box-shadow: 0 4px 40px var(--install-box-shadow);
+	}
+
+	.install-tabs {
+		position: relative;
+		display: flex;
+		align-items: stretch;
+		gap: 0;
+		padding: 0;
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		border-bottom: 1px solid var(--sl-color-hairline-shade);
+		background: #252f3d08;
+		scrollbar-width: thin;
+	}
+
+	.install-tab {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		align-self: stretch;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		margin: 0;
+		flex: 0 0 auto;
+		padding: 0.55rem 1.25rem;
+		border: 0;
+		border-right: 1px solid var(--sl-color-hairline-shade);
+		background: transparent;
+		color: var(--sl-color-gray-3);
+		font: 700 0.78rem var(--sl-font-mono);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+
+	.install-tab.is-active {
+		color: var(--sl-color-text);
+	}
+
+	.install-tab.is-active::after {
+		content: '';
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		height: 2px;
+		background: #6a9fcc;
+	}
+
+	.install-command-row {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 1rem;
+		padding: 1.5rem;
+		background: var(--install-panel);
+	}
+
+	.install-command-row code.shell-prompt {
+		flex: 1;
+		min-width: 0;
+		padding: 0 !important;
+		border: 0 !important;
+		background: transparent !important;
+		color: var(--sl-color-text);
+		font: 0.9rem/1.5 var(--sl-font-mono);
+		overflow-wrap: anywhere;
+	}
+
+	.install-copy {
+		flex: 0 0 auto;
+		padding: 0.6rem 0.85rem;
+		border: 1px solid var(--sl-color-hairline-shade);
+		background: transparent;
+		color: var(--sl-color-text);
+		font: 600 var(--sl-text-2xs) var(--sl-font-mono);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+
+	.install-copy:hover { border-color: var(--sl-color-accent); }
+
+	@media (max-width: 40rem) {
+		.install-tab { padding: 0.72rem 0.9rem; font-size: 0.78rem; }
+		.install-command-row { align-items: stretch; flex-direction: column; gap: 0.85rem; padding: 0.9rem; }
+		.install-command-row code.shell-prompt { font-size: 0.86rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+		.install-copy { margin-top: -0.25rem; }
+	}
+</style>
