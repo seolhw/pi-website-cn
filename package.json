@@ -6,6 +6,8 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "check": "astro check --tsconfig tsconfig.astro.json && tsc --noEmit",
+    "biome:check": "biome check src",
     "preview": "astro preview",
     "astro": "astro",
     "generate-types": "wrangler types",
@@ -17,5 +19,10 @@
     "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.3.6",
     "wrangler": "^4.161.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@biomejs/biome": "^2.6.7",
+    "typescript": "6.0.3"
   }
 }

@@ -38,7 +38,7 @@ const { Content } = await render(entry);
           <div class="landing-demo-column">
             <div class="landing-demo-frame landing-demo-frame--hero" id="landingDemoFrame">
               <div class="landing-demo-scroll-cue" aria-hidden="true">↓ 滚动以继续</div>
-              <div class="asciinema-mount" id="demo" aria-label="Pi 终端演示"></div>
+              <div class="asciinema-mount" id="demo" role="img" aria-label="Pi 终端演示"></div>
               <div class="demo-terminal" id="demoFallback" aria-live="polite">
                 <div class="demo-terminal-header"><span>PI</span><span>MAKE IT YOURS</span><span class="terminal-status" aria-hidden="true">●</span></div>
                 <pre class="terminal-scene is-active" data-terminal-scene="0"><span class="terminal-prompt">$</span> pi
@@ -124,8 +124,12 @@ const { Content } = await render(entry);
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const activateStory = (index: number) => {
-    storySections.forEach((section, sectionIndex) => section.classList.toggle('is-active', sectionIndex === index));
-    terminalScenes.forEach((scene, sceneIndex) => scene.classList.toggle('is-active', sceneIndex === index));
+    storySections.forEach((section, sectionIndex) => {
+      section.classList.toggle('is-active', sectionIndex === index);
+    });
+    terminalScenes.forEach((scene, sceneIndex) => {
+      scene.classList.toggle('is-active', sceneIndex === index);
+    });
   };
 
   if (storySections.length) {
@@ -135,7 +139,9 @@ const { Content } = await render(entry);
       const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
       if (visible) activateStory(storySections.indexOf(visible.target as HTMLElement));
     }, { rootMargin: '-38% 0px -38% 0px', threshold: [0, 0.2, 0.5, 0.8] });
-    storySections.forEach((section) => observer.observe(section));
+    storySections.forEach((section) => {
+      observer.observe(section);
+    });
   }
 
   const logoButton = document.querySelector<HTMLButtonElement>('#heroLogoStage');
@@ -162,7 +168,7 @@ const { Content } = await render(entry);
         const color = `rgb(${pixelData.data[offset]}, ${pixelData.data[offset + 1]}, ${pixelData.data[offset + 2]})`;
         const delay = ((row + column) % 3) * 0.08;
         const cellProgress = Math.max(0, Math.min(1, (progress - delay) / (1 - delay)));
-        const eased = 1 - Math.pow(1 - cellProgress, 3);
+        const eased = 1 - (1 - cellProgress) ** 3;
         const drift = prefersReducedMotion ? 0 : (1 - eased) * ((column % 2 ? 1 : -1) * (1 + row % 2));
         const x = LOGO_X + column + drift;
         const y = LOGO_Y + row - (1 - eased) * (2 + ((row + column) % 2));

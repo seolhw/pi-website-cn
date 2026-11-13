@@ -1,0 +1,135 @@
+---
+interface Option { value: string; label: string }
+interface Props {
+  label: string;
+  options: Option[];
+  value?: string;
+  name?: string;
+  className?: string;
+  dataKey?: string;
+  themePicker?: boolean;
+}
+const { label, options, value = '', name, className = '', dataKey, themePicker = false } = Astro.props;
+const selectedLabel = options.find((option) => option.value === value)?.label ?? options[0]?.label ?? '';
+const menuId = themePicker ? 'theme-mode-select-menu' : `select-menu-${name ?? dataKey ?? 'default'}`;
+---
+<div class:list={['ui-select', { 'ui-select-theme': themePicker }]} data-select-control data-theme-picker={themePicker ? '' : undefined}>
+  <select class="ui-select-native" data-select-native data-filter={dataKey} data-theme-select={themePicker ? '' : undefined} name={name} tabindex="-1" aria-hidden="true">
+    {options.map((option) => <option value={option.value} selected={option.value === value}>{option.label}</option>)}
+  </select>
+  <button class:list={['ui-select-trigger', className]} type="button" role="combobox" aria-label={label} aria-haspopup="listbox" aria-expanded="false" aria-controls={menuId} data-select-trigger data-theme-trigger={themePicker ? '' : undefined}>
+    <span class="ui-select-value" data-select-value>{selectedLabel}</span>
+    <svg class="ui-select-chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="m3 4.5 3 3 3-3" /></svg>
+  </button>
+  <div id={menuId} class="ui-select-menu" role="listbox" aria-label={label} data-select-menu hidden></div>
+</div>
+
+<script>
+  const wrappers = [...document.querySelectorAll<HTMLElement>('[data-select-control]')];
+  const closeOthers = (except?: HTMLElement) => {
+    document.querySelectorAll<HTMLElement>('[data-select-control][data-open="true"]').forEach((item) => {
+      if (item !== except) {
+        item.dataset.open = 'false';
+        item.querySelector('[data-select-trigger]')?.setAttribute('aria-expanded', 'false');
+        const menu = item.querySelector<HTMLElement>('[data-select-menu]');
+        if (menu) menu.hidden = true;
+      }
+    });
+  };
+
+  for (const wrapper of wrappers) {
+    if (wrapper.dataset.selectInitialized === 'true') continue;
+    wrapper.dataset.selectInitialized = 'true';
+    const select = wrapper.querySelector<HTMLSelectElement>('[data-select-native]');
+    if (select?.hasAttribute('data-theme-select')) {
+      const savedMode = document.documentElement.dataset.themeMode;
+      if (savedMode && [...select.options].some((option) => option.value === savedMode)) select.value = savedMode;
+    }
+    const trigger = wrapper.querySelector<HTMLButtonElement>('[data-select-trigger]');
+    const label = wrapper.querySelector<HTMLElement>('[data-select-value]');
+    const menu = wrapper.querySelector<HTMLElement>('[data-select-menu]');
+    if (!select || !trigger || !label || !menu) continue;
+    if (!menu.id) menu.id = `ui-select-menu-${wrappers.indexOf(wrapper) + 1}`;
+    trigger.setAttribute('aria-controls', menu.id);
+
+    const render = () => {
+      const selected = select.selectedOptions[0];
+      label.textContent = selected?.textContent ?? '';
+      trigger.setAttribute('aria-valuetext', label.textContent);
+      menu.replaceChildren(...[...select.options].filter((option) => !option.disabled).map((option) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'ui-select-option';
+        item.setAttribute('role', 'option');
+        item.setAttribute('aria-selected', String(option.value === select.value));
+        item.dataset.selectValue = option.value;
+        item.innerHTML = '<span class="ui-select-option-label"></span><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m3.5 8.2 3 3 6-6" /></svg>';
+        const optionLabel = item.querySelector('.ui-select-option-label');
+        if (optionLabel) optionLabel.textContent = option.textContent ?? '';
+        item.addEventListener('click', () => {
+          select.value = option.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          wrapper.dataset.open = 'false';
+          trigger.setAttribute('aria-expanded', 'false');
+          menu.hidden = true;
+          trigger.focus({ preventScroll: true });
+        });
+        return item;
+      }));
+    };
+
+    const setOpen = (open: boolean, focusSelected = false) => {
+      closeOthers(wrapper);
+      wrapper.dataset.open = String(open);
+      trigger.setAttribute('aria-expanded', String(open));
+      menu.hidden = !open;
+      if (open && focusSelected) {
+        const selected = menu.querySelector<HTMLButtonElement>('[aria-selected="true"]');
+        (selected ?? menu.querySelector<HTMLButtonElement>('[role="option"]'))?.focus();
+      }
+    };
+
+    select.addEventListener('change', render);
+    select.addEventListener('ui-select-sync', render);
+    new MutationObserver(render).observe(select, { childList: true, subtree: true });
+    trigger.addEventListener('click', (event) => {
+      const opening = trigger.getAttribute('aria-expanded') !== 'true';
+      setOpen(opening, opening && event.detail === 0);
+    });
+    trigger.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        setOpen(true, true);
+      }
+    });
+    menu.addEventListener('keydown', (event) => {
+      const items = [...menu.querySelectorAll<HTMLButtonElement>('[role="option"]')];
+      const index = items.indexOf(document.activeElement as HTMLButtonElement);
+      let next: number | undefined;
+      if (event.key === 'ArrowDown') next = (index + 1) % items.length;
+      else if (event.key === 'ArrowUp') next = (index - 1 + items.length) % items.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = items.length - 1;
+      else if (event.key === 'Escape') {
+        event.preventDefault();
+        setOpen(false);
+        trigger.focus({ preventScroll: true });
+      }
+      if (next !== undefined && items.length) {
+        event.preventDefault();
+        items[next].focus();
+      }
+    });
+    render();
+  }
+
+  document.addEventListener('pointerdown', (event) => {
+    if (event.target instanceof Element && !event.target.closest('[data-select-control]')) closeOthers();
+  });
+  document.addEventListener('focusin', (event) => {
+    if (event.target instanceof Element) closeOthers(event.target.closest<HTMLElement>('[data-select-control]') ?? undefined);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeOthers();
+  });
+</script>

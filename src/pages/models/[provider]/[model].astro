@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/models.css';
+
+export const prerender = false;
+
+type ModelCost = { input?: number; output?: number; cacheRead?: number; cacheWrite?: number };
+type ModelRecord = {
+  id: string;
+  name?: string;
+  provider?: string;
+  api?: string;
+  baseUrl?: string;
+  reasoning?: boolean;
+  input?: string[];
+  cost?: ModelCost;
+  contextWindow?: number;
+  maxTokens?: number;
+  type?: string;
+  compat?: Record<string, unknown>;
+  description?: string;
+  [key: string]: unknown;
+};
+type Catalog = Record<string, Record<string, ModelRecord>>;
+
+const provider = Astro.params.provider ?? '';
+const modelSlug = Astro.params.model ?? '';
+const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+let model: ModelRecord | undefined;
+let loadFailed = false;
+try {
+  const response = await fetch('https://pi.dev/api/models', { headers: { Accept: 'application/json' } });
+  if (!response.ok) throw new Error(`Model catalog request failed: ${response.status}`);
+  const catalog = await response.json() as Catalog;
+  model = Object.values(catalog[provider] ?? {}).find((item) => slugify(item.id) === modelSlug);
+} catch {
+  loadFailed = true;
+}
+if (!model && !loadFailed) Astro.response.status = 404;
+if (loadFailed) Astro.response.status = 502;
+
+const title = model?.name || model?.id || '模型详情';
+const formatPrice = (value: number | undefined) => value == null || !Number.isFinite(Number(value))
+  ? '—'
+  : `$${Number(value).toLocaleString('en-US', { maximumFractionDigits: 6 })}`;
+const formatNumber = (value: number | undefined) => value == null ? '—' : Number(value).toLocaleString('en-US');
+const detailRows = model ? [
+  ['模型 ID', model.id],
+  ['服务商', model.provider || provider],
+  ['API 类型', model.api],
+  ['Base URL', model.baseUrl],
+  ['输入类型', model.input?.join('、')],
+  ['推理能力', model.reasoning == null ? undefined : model.reasoning ? '支持' : '不支持'],
+  ['上下文窗口', formatNumber(model.contextWindow)],
+  ['最大输出 Token', formatNumber(model.maxTokens)],
+  ['模型类型', model.type],
+].filter((row): row is [string, string] => Boolean(row[1])) : [];
+const compatRows = Object.entries(model?.compat ?? {}).sort(([a], [b]) => a.localeCompare(b));
+---
+
+<BaseLayout title={`${title} · 模型 · Pi`} description={`${title} 模型详情、上下文窗口、输入能力和价格。`}>
+  <main class="content-shell models-dashboard models-detail-view">
+    <header class="models-detail-hero">
+      <p class="models-detail-eyebrow">PI / MODEL CATALOG</p>
+      <h1 class="models-detail-title">{title}</h1>
+      {model && <p class="models-detail-subtitle">{model.provider || provider} / <code>{model.id}</code></p>}
+    </header>
+    <a class="models-back-link" href="/models/">← 返回模型目录</a>
+
+    {loadFailed ? (
+      <section class="surface-panel content-card models-detail-card">
+        <div class="content-card-body"><p>暂时无法加载模型详情，请稍后重试。</p></div>
+      </section>
+    ) : model ? (
+      <>
+        {model.description && <p class="models-detail-description">{model.description}</p>}
+        <section class="surface-panel content-card models-detail-card">
+          <header class="content-card-header"><h2 class="content-card-title">模型信息</h2></header>
+          <div class="content-card-body">
+            <dl class="models-detail-grid">
+              {detailRows.map(([label, value]) => <><dt>{label}</dt><dd>{value}</dd></>)}
+            </dl>
+            <details class="models-config-disclosure">
+              <summary>查看原始配置</summary>
+              <pre><code>{JSON.stringify(model, null, 2)}</code></pre>
+            </details>
+          </div>
+        </section>
+
+        <section class="surface-panel content-card models-detail-card">
+          <header class="content-card-header"><h2 class="content-card-title">价格</h2><span class="models-detail-unit">美元 / 百万 Token</span></header>
+          <div class="content-card-body models-detail-table-wrap">
+            <table class="models-detail-table">
+              <thead><tr><th>价格类型</th><th>每百万 Token</th></tr></thead>
+              <tbody>
+                <tr><th>输入</th><td>{formatPrice(model.cost?.input)}</td></tr>
+                <tr><th>输出</th><td>{formatPrice(model.cost?.output)}</td></tr>
+                <tr><th>缓存读取</th><td>{formatPrice(model.cost?.cacheRead)}</td></tr>
+                <tr><th>缓存写入</th><td>{formatPrice(model.cost?.cacheWrite)}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {compatRows.length > 0 && (
+          <section class="surface-panel content-card models-detail-card">
+            <header class="content-card-header"><h2 class="content-card-title">兼容性配置</h2></header>
+            <div class="content-card-body models-detail-table-wrap">
+              <table class="models-detail-table models-compat-table">
+                <thead><tr><th>功能标识</th><th>配置值</th></tr></thead>
+                <tbody>{compatRows.map(([key, value]) => <tr><th><code>{key}</code></th><td>{typeof value === 'boolean' ? value ? '是' : '否' : String(value)}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        <section class="surface-panel content-card models-detail-card">
+          <header class="content-card-header"><h2 class="content-card-title">相关链接</h2></header>
+          <div class="content-card-body models-detail-links">
+            <a href="/models/#model-guide">模型使用指南 ↗</a>
+            <a href={`https://pi.dev/models/${encodeURIComponent(provider)}/${modelSlug}`} target="_blank" rel="noopener noreferrer">Pi 官方模型页面 ↗</a>
+          </div>
+        </section>
+      </>
+    ) : (
+      <section class="surface-panel content-card models-detail-card">
+        <div class="content-card-body"><h2>找不到这个模型</h2><p>模型目录中没有该服务商或模型，请返回目录重新选择。</p><a href="/models/">返回模型目录</a></div>
+      </section>
+    )}
+  </main>
+</BaseLayout>

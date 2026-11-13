@@ -1,152 +1,172 @@
 /* Pi 中文站主题：颜色、字体、间距和响应式布局变量。 */
 @font-face {
-	font-family: 'Noto Sans SC';
-	src: url('../assets/fonts/NotoSansSC-Subset.woff2') format('woff2');
-	font-weight: 100 900;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Noto Sans SC";
+  src: url("../assets/fonts/NotoSansSC-Subset.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: 'Commit Mono';
-	src: url('https://pi.dev/fonts/CommitMono-300-Regular.otf') format('opentype');
-	font-weight: 300;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Commit Mono";
+  src: url("https://pi.dev/fonts/CommitMono-300-Regular.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: 'Commit Mono';
-	src: url('https://pi.dev/fonts/CommitMono-400-Regular.otf') format('opentype');
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Commit Mono";
+  src: url("https://pi.dev/fonts/CommitMono-400-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 :root {
-	color-scheme: light;
-	--font-body: 'Noto Sans SC', 'Noto Sans', sans-serif;
-	--font-mono: 'Commit Mono', 'Noto Sans SC', 'SFMono-Regular', ui-monospace, Menlo, Monaco, Consolas, monospace;
-	--font-ui-mono: 'Noto Sans SC', 'Noto Sans', sans-serif;
-	--text-2xs: 0.625rem;
-	--text-xs: 0.75rem;
-	--text-sm: 0.875rem;
-	--text-base: 1rem;
-	--page-grid-cell: 20px;
-	--page-grid-inset: -8rem;
-	--page-vignette-overlay: #ebe7e426;
-	--color-bg: #ebe7e4;
-	--color-panel: #f3f2f0;
-	--color-copy: #384251dc;
-	--color-article: #f4f2f0;
-	--color-text: #252f3d;
-	--color-muted: #5c5752c4;
-	--color-muted-strong: #394352d6;
-	--color-accent: #4b607c;
-	--color-link: #4b607c;
-	--color-border: #8b847d59;
-	--color-border-strong: #5c575240;
-	--article-panel-bg: var(--color-article);
-	--article-panel-border: #5c575240;
-	--nav-panel-background: linear-gradient(180deg, #f3f2f0f4, #ebe7e4ee), linear-gradient(90deg, #eacd7c20, #4b607c12);
-	--nav-panel-border: #b3ada7cf;
-	--nav-panel-highlight: #f3f2f0;
-	--install-panel: #f4f2f0;
-	--install-box-shadow: rgb(92 87 82 / 12.16%);
-	--page-grid-minor: #252f3d08;
-	--page-grid-major: #252f3d12;
-	--page-grid-cross: #252f3d1d;
-	--docs-content-width: 48rem;
-	--docs-sidebar-width: 16rem;
-	--site-header-height: 7.2rem;
+  color-scheme: light;
+  --font-body: "Noto Sans SC", "Noto Sans", sans-serif;
+  --font-mono: "Commit Mono", "Noto Sans SC", "SFMono-Regular", ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --font-ui-mono: "Noto Sans SC", "Noto Sans", sans-serif;
+  --text-2xs: 0.625rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --page-grid-cell: 20px;
+  --page-grid-inset: -8rem;
+  --page-vignette-overlay: #ebe7e426;
+  --color-bg: #ebe7e4;
+  --color-panel: #f3f2f0;
+  --color-copy: #384251dc;
+  --color-article: #f4f2f0;
+  --color-text: #252f3d;
+  --color-muted: #5c5752c4;
+  --color-muted-strong: #394352d6;
+  --color-accent: #4b607c;
+  --color-link: #4b607c;
+  --color-border: #8b847d59;
+  --color-border-strong: #5c575240;
+  --article-panel-bg: var(--color-article);
+  --article-panel-border: #5c575240;
+  --nav-panel-background: linear-gradient(180deg, #f3f2f0f4, #ebe7e4ee), linear-gradient(90deg, #eacd7c20, #4b607c12);
+  --nav-panel-border: #b3ada7cf;
+  --nav-panel-highlight: #f3f2f0;
+  --install-panel: #f4f2f0;
+  --install-box-shadow: rgb(92 87 82 / 12.16%);
+  --page-grid-minor: #252f3d08;
+  --page-grid-major: #252f3d12;
+  --page-grid-cross: #252f3d1d;
+  --docs-content-width: 48rem;
+  --docs-sidebar-width: 16rem;
+  --site-header-height: 7.2rem;
 }
 
-:root[data-theme='dark'] {
-	color-scheme: dark;
-	--color-bg: #161d27;
-	--page-vignette-overlay: #0d11161f;
-	--color-panel: #212730;
-	--color-article: #212730;
-	--color-text: #ebe7e4;
-	--color-copy: #ebe7e4bf;
-	--color-muted: #9fa4ab;
-	--color-muted-strong: #858d98;
-	--color-accent: #6a9fcc;
-	--color-link: #6a9fcc;
-	--color-border: #333b46;
-	--color-border-strong: #495059;
-	--article-panel-border: #757d8975;
-	--nav-panel-background: linear-gradient(180deg, #212730f7, #0d1116e8), linear-gradient(90deg, #4b607c24, #2f5f8a14);
-	--nav-panel-border: #495059bd;
-	--nav-panel-highlight: #9fa4ab47;
-	--install-panel: #212730;
-	--install-box-shadow: rgb(159 164 171 / 12.16%);
-	--page-grid-cross: var(--page-grid-major);
-	--page-grid-minor: hsl(218 60% 80% / 0.009375);
-	--page-grid-major: hsl(218 60% 80% / 0.02625);
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #161d27;
+  --page-vignette-overlay: #0d11161f;
+  --color-panel: #212730;
+  --color-article: #212730;
+  --color-text: #ebe7e4;
+  --color-copy: #ebe7e4bf;
+  --color-muted: #9fa4ab;
+  --color-muted-strong: #858d98;
+  --color-accent: #6a9fcc;
+  --color-link: #6a9fcc;
+  --color-border: #333b46;
+  --color-border-strong: #495059;
+  --article-panel-border: #757d8975;
+  --nav-panel-background: linear-gradient(180deg, #212730f7, #0d1116e8), linear-gradient(90deg, #4b607c24, #2f5f8a14);
+  --nav-panel-border: #495059bd;
+  --nav-panel-highlight: #9fa4ab47;
+  --install-panel: #212730;
+  --install-box-shadow: rgb(159 164 171 / 12.16%);
+  --page-grid-cross: var(--page-grid-major);
+  --page-grid-minor: hsl(218 60% 80% / 0.009375);
+  --page-grid-major: hsl(218 60% 80% / 0.02625);
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 html {
-	background-color: var(--color-bg);
-	font-size: 18px;
-	-webkit-font-smoothing: antialiased;
-	text-rendering: optimizeLegibility;
-	-webkit-text-size-adjust: none;
-	text-size-adjust: none;
-	scroll-behavior: smooth;
+  background-color: var(--color-bg);
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  scroll-behavior: smooth;
 }
 body {
-	margin: 0;
-	min-height: 100vh;
-	background-color: transparent;
-	color: var(--color-text);
-	font-family: var(--font-body);
-	line-height: 1.6;
+  margin: 0;
+  min-height: 100vh;
+  background-color: transparent;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.6;
 }
 body::before,
 body::after {
-	content: '';
-	position: fixed;
-	inset: var(--page-grid-inset);
-	z-index: 0;
-	pointer-events: none;
+  content: "";
+  position: fixed;
+  inset: var(--page-grid-inset);
+  z-index: 0;
+  pointer-events: none;
 }
 body::before {
-	--grid-gap: calc(var(--page-grid-cell) / 5);
-	background-color: var(--color-bg);
-	background-image:
-		linear-gradient(var(--page-grid-minor) 0 1px, transparent 1px var(--grid-gap)),
-		linear-gradient(to right, var(--page-grid-minor) 0 1px, transparent 1px var(--grid-gap)),
-		linear-gradient(var(--page-grid-major) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
-		linear-gradient(to right, var(--page-grid-major) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
-		radial-gradient(circle at center, transparent calc(var(--grid-gap) / 2), var(--color-bg) calc(var(--grid-gap) / 2) 100%),
-		linear-gradient(var(--page-grid-cross) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
-		linear-gradient(to right, var(--page-grid-cross) 0 1px, transparent 1px calc(var(--grid-gap) * 5));
-	background-size:
-		var(--grid-gap) var(--grid-gap), var(--grid-gap) var(--grid-gap),
-		calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5), calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
-		calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5), calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
-		calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5);
-	background-position: 0 0, 0 0, 0 0, 0 0, calc(var(--grid-gap) * -2.5) calc(var(--grid-gap) * -2.5), 0 0, 0 0;
+  --grid-gap: calc(var(--page-grid-cell) / 5);
+  background-color: var(--color-bg);
+  background-image:
+    linear-gradient(var(--page-grid-minor) 0 1px, transparent 1px var(--grid-gap)),
+    linear-gradient(to right, var(--page-grid-minor) 0 1px, transparent 1px var(--grid-gap)),
+    linear-gradient(var(--page-grid-major) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
+    linear-gradient(to right, var(--page-grid-major) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
+    radial-gradient(
+      circle at center,
+      transparent calc(var(--grid-gap) / 2),
+      var(--color-bg) calc(var(--grid-gap) / 2) 100%
+    ),
+    linear-gradient(var(--page-grid-cross) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
+    linear-gradient(to right, var(--page-grid-cross) 0 1px, transparent 1px calc(var(--grid-gap) * 5));
+  background-size:
+    var(--grid-gap) var(--grid-gap),
+    var(--grid-gap) var(--grid-gap),
+    calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
+    calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
+    calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
+    calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
+    calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5);
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    calc(var(--grid-gap) * -2.5) calc(var(--grid-gap) * -2.5),
+    0 0,
+    0 0;
 }
 body::after {
-	background: linear-gradient(to bottom, var(--page-vignette-overlay), var(--color-bg) 90%);
+  background: linear-gradient(to bottom, var(--page-vignette-overlay), var(--color-bg) 90%);
 }
 .site-content-layer {
-	position: relative;
-	z-index: 1;
+  position: relative;
+  z-index: 1;
 }
-a { color: var(--color-link); }
-button { font: inherit; }
+a {
+  color: var(--color-link);
+}
+button {
+  font: inherit;
+}
 .visually-hidden {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

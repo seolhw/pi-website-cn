@@ -1,18 +1,17 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SelectControl from '../components/SelectControl.astro';
 import { loadPackageCatalogPage } from '../lib/packages-catalog';
 import '../styles/packages.css';
 
 export const prerender = false;
 
 const nameFilter = Astro.url.searchParams.get('name')?.trim().slice(0, 120) ?? '';
-const packageType = ['extension', 'skill', 'theme', 'prompt'].includes(Astro.url.searchParams.get('type') ?? '')
-  ? Astro.url.searchParams.get('type')!
-  : '';
-const sort = ['downloads', 'recent', 'name'].includes(Astro.url.searchParams.get('sort') ?? '')
-  ? Astro.url.searchParams.get('sort')!
-  : 'downloads';
+const requestedType = Astro.url.searchParams.get('type') ?? '';
+const packageType = ['extension', 'skill', 'theme', 'prompt'].includes(requestedType) ? requestedType : '';
+const requestedSort = Astro.url.searchParams.get('sort') ?? '';
+const sort = ['downloads', 'recent', 'name'].includes(requestedSort) ? requestedSort : 'downloads';
 const page = Math.max(1, Math.min(200, Number.parseInt(Astro.url.searchParams.get('page') ?? '1', 10) || 1));
 const catalog = await loadPackageCatalogPage(Astro.url);
 const docs = await getCollection('docs');
@@ -91,24 +90,34 @@ const recentPages = catalog.recent;
             <span class="visually-hidden">按名称、说明或作者筛选</span>
             <input class="packages-input" type="search" name="name" placeholder="筛选软件包…" autocomplete="off" value={nameFilter} />
           </label>
-          <label>
-            <span class="visually-hidden">按软件包类型筛选</span>
-            <select class="packages-select" name="type">
-              <option value="" selected={packageType === ''}>所有类型</option>
-              <option value="extension" selected={packageType === 'extension'}>扩展</option>
-              <option value="skill" selected={packageType === 'skill'}>Skill</option>
-              <option value="theme" selected={packageType === 'theme'}>主题</option>
-              <option value="prompt" selected={packageType === 'prompt'}>提示模板</option>
-            </select>
-          </label>
-          <label>
-            <span class="visually-hidden">排序方式</span>
-            <select class="packages-select" name="sort">
-              <option value="downloads" selected={sort === 'downloads'}>下载量最高</option>
-              <option value="recent" selected={sort === 'recent'}>最近发布</option>
-              <option value="name" selected={sort === 'name'}>名称 A–Z</option>
-            </select>
-          </label>
+          <div>
+            <SelectControl
+              label="按软件包类型筛选"
+              name="type"
+              value={packageType}
+              className="packages-select"
+              options={[
+                { value: '', label: '所有类型' },
+                { value: 'extension', label: '扩展' },
+                { value: 'skill', label: 'Skill' },
+                { value: 'theme', label: '主题' },
+                { value: 'prompt', label: '提示模板' },
+              ]}
+            />
+          </div>
+          <div>
+            <SelectControl
+              label="排序方式"
+              name="sort"
+              value={sort}
+              className="packages-select"
+              options={[
+                { value: 'downloads', label: '下载量最高' },
+                { value: 'recent', label: '最近发布' },
+                { value: 'name', label: '名称 A–Z' },
+              ]}
+            />
+          </div>
           <div class="packages-form-actions">
             <button class="packages-button packages-button-primary" type="submit">搜索</button>
             <a class="packages-button" href="/packages/">重置</a>
@@ -138,11 +147,11 @@ const recentPages = catalog.recent;
                     {item.types.map((type) => <span class="packages-badge">{typeLabels[type] ?? type}</span>)}
                   </div>
                 )}
-                <div class="packages-links" aria-label={`${item.name} 的外部链接`}>
+                <nav class="packages-links" aria-label={`${item.name} 的外部链接`}>
                   {item.npmUrl && <a href={item.npmUrl} target="_blank" rel="noopener noreferrer"><span class="npm-mark" aria-hidden="true">npm</span> npm</a>}
                   {item.repositoryUrl && <a href={item.repositoryUrl} target="_blank" rel="noopener noreferrer"><span class="github-mark" aria-hidden="true">◉</span> 仓库</a>}
                   {item.reportUrl && <a href={item.reportUrl} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">⚑</span> 举报</a>}
-                </div>
+                </nav>
                 <div class="packages-install">
                   <code>{item.installCommand}</code>
                   <button class="packages-copy-button" type="button" data-copy-install={item.installCommand}>复制</button>

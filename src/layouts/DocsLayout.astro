@@ -146,7 +146,9 @@ const sourceUrl = activeSlug === 'changelog'
       try {
         const text = button
           ? button.parentElement?.querySelector('pre code')?.textContent ?? ''
-          : new URL(anchor.href, window.location.href).href;
+          : anchor
+            ? new URL(anchor.href, window.location.href).href
+            : '';
         await navigator.clipboard.writeText(text);
         control.classList.add('is-copied');
         control.setAttribute('aria-label', button ? '已复制代码' : '已复制链接');

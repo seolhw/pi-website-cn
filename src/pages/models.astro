@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SelectControl from '../components/SelectControl.astro';
 import '../styles/models.css';
 
 export const prerender = true;
@@ -28,16 +29,18 @@ const { Content: GuideContent } = await render(guide);
               <span class="visually-hidden">按名称筛选</span>
               <input class="models-text-control" type="search" data-model-name-filter aria-label="按模型名称筛选" placeholder="按模型名称筛选…" autocomplete="off" />
             </label>
-            <label class="models-filter-provider">
-              <span class="visually-hidden">按服务商筛选</span>
-              <select class="models-select-control" data-model-provider-filter aria-label="按服务商筛选">
-                <option value="">所有服务商</option>
-              </select>
-            </label>
+            <div class="models-filter-provider">
+              <SelectControl
+                label="按服务商筛选"
+                className="models-select-control"
+                dataKey="provider"
+                options={[{ value: '', label: '所有服务商' }]}
+              />
+            </div>
             <button class="models-reset-button" type="button" data-model-reset>重置</button>
           </div>
         </div>
-        <div class="models-table-region" role="region" aria-label="模型目录" tabindex="0">
+        <section class="models-table-region" aria-label="模型目录">
           <table class="models-table">
             <caption class="visually-hidden">模型目录</caption>
             <thead>
@@ -52,7 +55,7 @@ const { Content: GuideContent } = await render(guide);
             </thead>
             <tbody data-model-rows></tbody>
           </table>
-        </div>
+        </section>
         <p class="models-empty" data-model-empty hidden>没有匹配的模型。</p>
         <p class="models-load-error" data-model-error hidden>
           <span>无法加载模型目录，请检查网络后重试。</span>
@@ -84,7 +87,7 @@ const { Content: GuideContent } = await render(guide);
   type Catalog = Record<string, Record<string, CatalogModel>>;
 
   const nameInput = document.querySelector<HTMLInputElement>('[data-model-name-filter]');
-  const providerInput = document.querySelector<HTMLSelectElement>('[data-model-provider-filter]');
+  const providerInput = document.querySelector<HTMLSelectElement>('[data-filter="provider"]');
   const count = document.querySelector<HTMLElement>('[data-model-count]');
   const body = document.querySelector<HTMLTableSectionElement>('[data-model-rows]');
   const empty = document.querySelector<HTMLElement>('[data-model-empty]');
@@ -186,9 +189,7 @@ const { Content: GuideContent } = await render(guide);
     header.className = 'models-model-cell';
     const link = document.createElement('a');
     link.className = 'models-model-link';
-    link.href = `https://pi.dev/models/${encodeURIComponent(provider)}/${slugify(model.id)}`;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
+    link.href = `/models/${encodeURIComponent(provider)}/${slugify(model.id)}/`;
     link.textContent = model.name || model.id;
     const id = document.createElement('code');
     id.textContent = model.id;
@@ -253,6 +254,7 @@ const { Content: GuideContent } = await render(guide);
     const requestedProvider = params.get('provider') ?? '';
     if ([...providerInput.options].some((option) => option.value === requestedProvider)) {
       providerInput.value = requestedProvider;
+      providerInput.dispatchEvent(new Event('ui-select-sync'));
     }
     applyFilters();
   };
@@ -261,7 +263,10 @@ const { Content: GuideContent } = await render(guide);
   providerInput?.addEventListener('change', applyFilters);
   resetButton?.addEventListener('click', () => {
     if (nameInput) nameInput.value = '';
-    if (providerInput) providerInput.value = '';
+    if (providerInput) {
+      providerInput.value = '';
+      providerInput.dispatchEvent(new Event('ui-select-sync'));
+    }
     applyFilters();
     nameInput?.focus();
   });

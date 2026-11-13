@@ -34,6 +34,7 @@ const linkGroups = [
 						<nav class="footer-socials" aria-label={ariaLabel}>
 							{links.map(({ label: linkLabel, href, icon }) => (
 								<a href={href} title={linkLabel} aria-label={linkLabel}>
+									<span class="visually-hidden">{linkLabel}</span>
 									<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" focusable="false" height="18" viewBox="0 0 24 24" width="18" aria-hidden="true"><path d={icon} /></svg>
 								</a>
 							))}
