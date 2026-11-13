@@ -74,6 +74,9 @@ const navLinks = [
       const trigger = picker.querySelector<HTMLButtonElement>('[data-theme-trigger]');
       const label = picker.querySelector<HTMLElement>('[data-theme-current]');
       if (label) label.textContent = modeLabels[selectedMode];
+      picker.querySelectorAll<SVGElement>('[data-theme-icon]').forEach((icon) => {
+        icon.toggleAttribute('hidden', icon.dataset.themeIcon !== selectedMode);
+      });
       trigger?.setAttribute('aria-label', `主题模式：${modeLabels[selectedMode]}`);
       picker.querySelectorAll<HTMLButtonElement>('[data-theme-option]').forEach((option) => {
         option.setAttribute('aria-checked', String(option.dataset.themeOption === selectedMode));

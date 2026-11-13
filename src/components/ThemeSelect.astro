@@ -7,9 +7,16 @@
     aria-expanded="false"
     data-theme-trigger
   >
-    <svg class="theme-picker-symbol" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <svg class="theme-picker-symbol" viewBox="0 0 16 16" aria-hidden="true" focusable="false" data-theme-icon="system">
       <circle cx="8" cy="8" r="6" />
       <path d="M8 2v12" />
+    </svg>
+    <svg class="theme-picker-symbol" viewBox="0 0 16 16" aria-hidden="true" focusable="false" data-theme-icon="dark" hidden>
+      <path d="M13.3 10.1A5.7 5.7 0 0 1 5.9 2.7 5.8 5.8 0 1 0 13.3 10.1Z" />
+    </svg>
+    <svg class="theme-picker-symbol" viewBox="0 0 16 16" aria-hidden="true" focusable="false" data-theme-icon="light" hidden>
+      <circle cx="8" cy="8" r="3" />
+      <path d="M8 1v2m0 10v2M1 8h2m10 0h2M3.05 3.05l1.42 1.42m7.06 7.06 1.42 1.42m0-9.9-1.42 1.42m-7.06 7.06-1.42 1.42" />
     </svg>
     <span data-theme-current>跟随系统</span>
     <svg class="theme-picker-chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
@@ -67,6 +74,7 @@
     outline: 1px solid var(--color-link);
     outline-offset: 2px;
   }
+  .theme-picker-symbol[hidden] { display: none; }
   .theme-picker-symbol,
   .theme-picker-chevron,
   .theme-picker-menu button > svg {
@@ -87,8 +95,9 @@
     right: 0;
     z-index: 40;
     display: grid;
-    width: max-content;
-    min-width: 10.5rem;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     gap: 0.12rem;
     padding: 0.28rem;
     border: 1px solid var(--nav-panel-border);
@@ -123,7 +132,8 @@
   .theme-picker-menu button[aria-checked="true"] .theme-option-check { color: var(--color-link); opacity: 1; }
   @media (max-width: 767px) {
     .theme-picker-trigger { min-height: 2.15rem; font-size: 0.7rem; }
-    .theme-picker-menu { min-width: 11rem; }
+    .nav-sheet-theme-select .theme-picker { display: flex; width: 100%; }
+    .nav-sheet-theme-select .theme-picker-trigger { width: 100%; justify-content: space-between; }
   }
   @media (prefers-reduced-motion: reduce) {
     .theme-picker-trigger, .theme-picker-chevron { transition-duration: 0.01ms; }
