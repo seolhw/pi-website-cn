@@ -141,6 +141,6 @@ Pi 会解析链式变量引用。缺失变量或循环引用会导致主题无�
 
 将项目主题放入 `.pi/themes/`。只有在授予[项目权限](/security/#understand-project-trust)后，才会加载项目主题。
 
-也可以通过 `themes` 设置加载主题文件或目录，或将主题放入 Pi 软件包分发。详情请参阅[配置](/configuration/)、[设置](/settings/#resources)和 [Pi 软件包](/packages/)。
+也可以通过 `themes` 设置加载主题文件或目录，或将主题放入 Pi 软件包分发。详情请参阅[配置](/configuration/)、[设置](/settings/#resources)和 [Pi 软件包](/packages/#package-guide)。
 
 每个已加载主题的名称必须唯一。Pi 会将重复名称报告为资源冲突。

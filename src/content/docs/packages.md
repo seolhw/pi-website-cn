@@ -82,7 +82,7 @@ my-pi-package/
 
 路径相对于软件包根目录。数组支持 glob 模式和排除规则。如果资源根目录以点开头或是符号链接，而 glob 遍历无法发现它们，请直接列出路径。
 
-在 npm 软件包的 `keywords` 中添加 `pi-package`，该包就有资格出现在 [Pi 软件包目录](https://pi.dev/packages)中。可选的 `pi.image` 和 `pi.video` 字段还可以为目录页面添加预览内容。
+在 npm 软件包的 `keywords` 中添加 `pi-package`，该包就有资格出现在 [Pi 软件包目录](/packages/)中。可选的 `pi.image` 和 `pi.video` 字段还可以为目录页面添加预览内容。
 
 <a id="show-a-changelog"></a>
 ## 显示更新日志

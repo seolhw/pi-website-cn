@@ -65,7 +65,7 @@ description: 从 PDF 文件中提取文本和表格。用于阅读、转换或�
 
 Pi 也支持 Agent Skills 的标准目录 `~/.agents/skills/` 和 `.agents/skills/`。对于项目中的 `.agents/skills/`，Pi 会从当前工作目录向上搜索，遇到仓库根目录时停止。
 
-Pi 可以接受某些独立的 Markdown Skill，但包含 `SKILL.md` 的目录形式可移植性更好，应优先使用。其他可用位置请参阅[设置](/settings/#resources)和 [Pi 包](/packages/)。
+Pi 可以接受某些独立的 Markdown Skill，但包含 `SKILL.md` 的目录形式可移植性更好，应优先使用。其他可用位置请参阅[设置](/settings/#resources)和 [Pi 包](/packages/#package-guide)。
 
 项目 Skill 可以指示模型运行脚本或修改文件。授予项目权限前，请检查不熟悉的 Skill 及其支持文件。
 
@@ -95,6 +95,6 @@ Pi 不要求声明的名称必须与父目录名称一致，也不会因此发�
 
 从能够发现该 Skill 的位置运行 Pi，然后检查启动诊断信息和 `/skill:name` 命令。在活动会话中修改 Skill 后，请运行 `/reload`。
 
-使用 [Pi 包](/packages/)通过 npm 或 git 分发一个或多个 Skill。将环境设置要求写在 Skill 内，并在软件包中声明所需的运行时依赖。
+使用 [Pi 包](/packages/#package-guide)通过 npm 或 git 分发一个或多个 Skill。将环境设置要求写在 Skill 内，并在软件包中声明所需的运行时依赖。
 
 示例请参阅 [Anthropic Skill 集合](https://github.com/anthropics/skills)和 [Pi Skill 集合](https://github.com/badlogic/pi-skills)。

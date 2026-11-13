@@ -4,6 +4,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import InstallSwitcher from '../components/InstallSwitcher.astro';
 import '../styles/home.css';
 
+export const prerender = true;
+
 const entry = await getEntry('home', 'index');
 if (!entry) throw new Error('首页内容 src/content/docs/index.mdx 未加载');
 const { Content } = await render(entry);

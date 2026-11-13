@@ -24,7 +24,7 @@ export const sidebar: SidebarGroup[] = [
 				label: '运行 Pi',
 				items: [
 					{ label: '在终端中使用 Pi', slug: 'usage' },
-					{ label: '选择模型', slug: 'models' },
+					{ label: '模型目录与选择', slug: 'models' },
 					{ label: '管理会话与上下文', slug: 'sessions' },
 					{ label: '安全地运行 Pi', slug: 'security' },
 					{ label: '隔离 Pi', slug: 'containerization' },
@@ -44,7 +44,7 @@ export const sidebar: SidebarGroup[] = [
 					{ label: '创建提示模板', slug: 'prompt-templates' },
 					{ label: '添加 Skills', slug: 'skills' },
 					{ label: '创建主题', slug: 'themes' },
-					{ label: '使用 Pi 包', slug: 'packages' },
+					{ label: '包目录与使用指南', slug: 'packages' },
 					{ label: '连接 MCP 服务器', slug: 'mcp' },
 				],
 			},
@@ -64,6 +64,7 @@ export const sidebar: SidebarGroup[] = [
 	{
 		label: '参考',
 		items: [
+			{ label: '更新日志', slug: 'changelog' },
 			{ label: 'CLI', slug: 'cli' },
 			{ label: 'Codemode', slug: 'codemode' },
 			{ label: '斜杠命令', slug: 'slash-commands' },

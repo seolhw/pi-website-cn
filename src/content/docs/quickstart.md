@@ -71,7 +71,7 @@ pi
 
 选择一个 Provider，然后按提示使用订阅或保存 API Key。之后可运行 `/model`，选择其他可用模型。
 
-请参阅[选择模型与 Provider](/models/)，了解受支持的 Provider、环境变量认证、本地模型和自定义端点。
+请参阅[选择模型与 Provider](/models/#model-guide)，了解受支持的 Provider、环境变量认证、本地模型和自定义端点。
 
 ## 4. 给 Pi 一个任务
 
@@ -107,7 +107,7 @@ pi --continue
 
 - 阅读[交互式使用 Pi](/usage/)，了解输入、命令、快捷键和排队消息。
 - 通过[添加指令](/configuration/#context-files)，设置 Pi 在某个文件夹中工作时应遵循的规则。
-- [选择模型与 Provider](/models/)。
+- [选择模型与 Provider](/models/#model-guide)。
 
 ### 选择 Pi 的定制方式
 
@@ -121,7 +121,7 @@ pi --continue
 | 添加可执行工具、命令或事件处理程序 | [扩展](/extensions/) |
 | 构建自定义终端组件 | [终端 UI](/tui/) |
 | 接入尚不支持的模型服务 | [自定义 Provider](/custom-provider/) |
-| 安装或分发多种资源 | [Pi 包](/packages/) |
+| 安装或分发多种资源 | [Pi 包](/packages/#package-guide) |
 
 ## 卸载 Pi
 

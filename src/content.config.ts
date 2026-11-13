@@ -13,6 +13,10 @@ export const collections = {
 		loader: glob({ pattern: '**/*.md', base: './src/content/docs' }),
 		schema: pageSchema,
 	}),
+	changelog: defineCollection({
+		loader: glob({ pattern: 'CHANGELOG.md', base: './src/pi/coding-agent' }),
+		schema: pageSchema,
+	}),
 	home: defineCollection({
 		loader: glob({ pattern: 'index.mdx', base: './src/content/docs' }),
 		schema: pageSchema,

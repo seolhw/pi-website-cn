@@ -57,6 +57,6 @@ Review the staged changes. Focus on ${1:-correctness, security, and error handli
 
 将模板放入用户级或项目级提示模板目录。默认情况下，常规提示模板目录只加载其直接子目录中的 `.md` 文件。
 
-设置和 Pi 包可以选择嵌套目录中的 Markdown 文件；包清单还可以通过显式路径和 glob 限定发现范围。详情请参阅[设置](/settings/#resources)和 [Pi 包](/packages/)。
+设置和 Pi 包可以选择嵌套目录中的 Markdown 文件；包清单还可以通过显式路径和 glob 限定发现范围。详情请参阅[设置](/settings/#resources)和 [Pi 包](/packages/#package-guide)。
 
 授予项目权限后，项目模板才会成为编辑器中的命令。信任陌生项目之前，请先检查模板内容。详情请参阅[安全](/security/#understand-project-trust)。

@@ -13,7 +13,9 @@ interface Props {
 const { title, description = '', activeSlug, headings } = Astro.props;
 const toc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
 const sourcePath = activeSlug === 'overview' ? 'index.md' : `${activeSlug}.md`;
-const sourceUrl = `https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/${sourcePath}`;
+const sourceUrl = activeSlug === 'changelog'
+  ? 'https://github.com/earendil-works/pi/blob/main/packages/coding-agent/CHANGELOG.md'
+  : `https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/${sourcePath}`;
 ---
 
 <BaseLayout title={`${title} · Pi`} description={description}>

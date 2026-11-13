@@ -144,7 +144,7 @@ See the focused examples for [models](../examples/sdk/02-custom-model.ts), [tool
 
 ## Resources
 
-- [Choose a Model](/models/) covers model selection and compatible endpoints; [Providers](/providers/) covers credentials and provider-specific setup.
+- [Choose a Model](/models/#model-guide) covers model selection and compatible endpoints; [Providers](/providers/) covers credentials and provider-specific setup.
 - [Configuration](/configuration/) explains normal discovery and settings; [Settings](/settings/) lists every setting.
 - [Sessions and Context](/sessions/) explains session behavior; [Session Format](/session-format/) defines persisted entries; [Message Types](/message-types/) defines shared transcript values.
 - [Extensions](/extensions/), [Skills](/skills/), and [Prompt Templates](/prompt-templates/) document resources supplied through a `ResourceLoader`.

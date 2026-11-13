@@ -228,4 +228,4 @@ Test at least:
 
 The provider tests under [`packages/ai/test`](https://github.com/earendil-works/pi/tree/main/packages/ai/test) define the behavior expected from built-in providers. Adapt the relevant suites rather than relying only on manual prompts.
 
-Run the extension directly while developing, then move it to a discovered extension location or distribute it through a [Pi package](/packages/). Use `/reload` after changing a discovered provider extension in an active session.
+Run the extension directly while developing, then move it to a discovered extension location or distribute it through a [Pi package](/packages/#package-guide). Use `/reload` after changing a discovered provider extension in an active session.

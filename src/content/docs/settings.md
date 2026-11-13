@@ -27,7 +27,7 @@ title: "设置"
 
 只有在模型声明了缓存有效期，并且 Pi 估算可避免的缓存未命中成本至少为 0.05 美元时，才会执行缓存预热。刷新用量会计入会话总量，但不会占用模型上下文。`/session` 会显示下一步决策；扩展可以通过 `cache_warming_decision` 覆盖该决策。请参阅[提示缓存有效期](/models/#prompt-cache-lifetimes)。
 
-模型选择和思考控制请参阅[选择模型](/models/)。
+模型选择和思考控制请参阅[选择模型](/models/#model-guide)。
 
 <a id="interaction"></a>
 ## 交互
@@ -157,7 +157,7 @@ title: "设置"
 | `npmCommand` | `string[]` | `npm` | 查询和安装 npm 软件包时使用的命令及参数。 |
 | `selfUpdateCommand` | `string[]` | 无 | `pi update` 更新 Pi 本身时运行的命令及参数，可使用 `{packageName}`、`{version}` 和 `{installSpec}` 占位符。`PI_SELF_UPDATE_COMMAND` 优先级更高。**只能在 Agent 目录设置中配置。**请参阅[自定义更新命令](/cli/#custom-update-command)。 |
 
-Shell 配置请参阅[Shell 别名](/shell-aliases/)；包管理器行为请参阅 [Pi 软件包](/packages/)。
+Shell 配置请参阅[Shell 别名](/shell-aliases/)；包管理器行为请参阅 [Pi 软件包](/packages/#package-guide)。
 
 <a id="resources"></a>
 ## 资源
@@ -166,7 +166,7 @@ Shell 配置请参阅[Shell 别名](/shell-aliases/)；包管理器行为请参�
 
 | 设置 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| `packages` | array | `[]` | npm、git 或本地 Pi 软件包来源。请参阅 [Pi 软件包](/packages/)。 |
+| `packages` | array | `[]` | npm、git 或本地 Pi 软件包来源。请参阅 [Pi 软件包](/packages/#package-guide)。 |
 | `extensions` | `string[]` | `[]` | 扩展文件或目录。 |
 | `skills` | `string[]` | `[]` | Skill 文件或目录。 |
 | `prompts` | `string[]` | `[]` | 提示模板文件或目录。 |

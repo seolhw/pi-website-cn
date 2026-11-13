@@ -154,7 +154,7 @@ Additional paths via `settings.json`:
 }
 ```
 
-Settings also accept built-in extensions as `builtin:<name>` entries; see [Settings](/settings/#resources). To share extensions via npm or git as Pi packages, see [packages.md](/packages/).
+Settings also accept built-in extensions as `builtin:<name>` entries; see [Settings](/settings/#resources). To share extensions via npm or git as Pi packages, see [packages.md](/packages/#package-guide).
 
 ## Available Imports
 
@@ -1943,7 +1943,7 @@ Typical `sourceInfo` values:
 
 ### pi.setModel(model)
 
-Set the model for the current session. The change is recorded in session history and restored when that session is resumed, but it does not change the configured `defaultProvider` or `defaultModel` used by new sessions. Returns `false` if authentication is not configured for the model's provider. See [models.md](/models/) for configuring custom models.
+Set the model for the current session. The change is recorded in session history and restored when that session is resumed, but it does not change the configured `defaultProvider` or `defaultModel` used by new sessions. Returns `false` if authentication is not configured for the model's provider. See [models.md](/models/#model-guide) for configuring custom models.
 
 ```typescript
 const model = ctx.modelRegistry.find("anthropic", "claude-sonnet-4-5");

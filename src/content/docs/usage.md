@@ -58,7 +58,7 @@ Windows Terminal 会占用部分 Alt 快捷键。Windows 上的替代按键请�
 - `/login` 和 `/logout`：管理 Provider 认证。
 - `/settings`：修改常用偏好。
 
-提示模板、Skill 和扩展也可以向同一菜单添加命令。请参阅[选择模型](/models/)、[配置 Pi](/configuration/)或完整的[斜杠命令参考](/slash-commands/)。
+提示模板、Skill 和扩展也可以向同一菜单添加命令。请参阅[选择模型](/models/#model-guide)、[配置 Pi](/configuration/)或完整的[斜杠命令参考](/slash-commands/)。
 
 <a id="continue-or-start-over"></a>
 ## 继续会话或重新开始

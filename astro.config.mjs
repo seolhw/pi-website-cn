@@ -7,8 +7,9 @@ import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   site: 'https://pi.dev',
+  output: 'server',
   trailingSlash: 'always',
-  integrations: [mdx(), sitemap()],
+  integrations: [mdx(), sitemap({ customPages: ['https://pi.dev/packages/'] })],
 
   markdown: {
       shikiConfig: {

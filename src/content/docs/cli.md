@@ -64,7 +64,7 @@ RPC mode rejects `@file` arguments. JSON and RPC modes reserve stdout for protoc
 pi --model sonnet:high
 ```
 
-See [Choose a Model](/models/) for model selection and [Providers](/providers/) for credentials.
+See [Choose a Model](/models/#model-guide) for model selection and [Providers](/providers/) for credentials.
 
 - `--provider <name>`<br>
   Restricts `--model` lookup to one provider. It requires `--model`.
@@ -195,7 +195,7 @@ Scripts run in a QuickJS sandbox and reach the other tools through `tools.<name>
 pi --extension ./review.ts
 ```
 
-See [Configuration](/configuration/) for conventional directories and project trust, [Settings](/settings/#resources) for configured paths, and [Pi Packages](/packages/) for package sources.
+See [Configuration](/configuration/) for conventional directories and project trust, [Settings](/settings/#resources) for configured paths, and [Pi Packages](/packages/#package-guide) for package sources.
 
 - `-e`, `--extension <path>`<br>
   Loads an extension file or directory, or a built-in extension such as `builtin:mcp`, and is repeatable.
@@ -259,7 +259,7 @@ Extensions may register additional long-form options. Unknown short options are 
 pi install npm:@scope/package
 ```
 
-See [Pi Packages](/packages/) for source formats, filtering, installation, and project scope.
+See [Pi Packages](/packages/#package-guide) for source formats, filtering, installation, and project scope.
 
 ### Common tasks
 

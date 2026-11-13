@@ -1,0 +1,273 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/models.css';
+
+export const prerender = true;
+
+const docs = await getCollection('docs');
+const guide = docs.find((entry) => entry.id === 'models');
+if (!guide) throw new Error('未找到模型使用指南');
+const { Content: GuideContent } = await render(guide);
+---
+
+<BaseLayout title="模型目录 · Pi" description="浏览 Pi AI SDK 模型目录，按模型名称或服务商筛选，并查看上下文长度与价格。">
+  <main class="content-shell models-dashboard">
+    <section class="surface-panel content-card data-table-card">
+      <header class="content-card-header models-card-header">
+        <h1 class="content-card-title">模型目录</h1>
+        <div class="models-card-actions">
+          <a class="models-guide-jump" href="#model-guide">模型使用指南</a>
+          <span class="data-table-count" data-model-count aria-live="polite">正在加载模型…</span>
+        </div>
+      </header>
+      <div class="content-card-body models-catalog-body">
+        <div class="models-sticky-controls">
+          <div class="models-action-bar">
+            <label class="models-filter-name">
+              <span class="visually-hidden">按名称筛选</span>
+              <input class="models-text-control" type="search" data-model-name-filter aria-label="按模型名称筛选" placeholder="按模型名称筛选…" autocomplete="off" />
+            </label>
+            <label class="models-filter-provider">
+              <span class="visually-hidden">按服务商筛选</span>
+              <select class="models-select-control" data-model-provider-filter aria-label="按服务商筛选">
+                <option value="">所有服务商</option>
+              </select>
+            </label>
+            <button class="models-reset-button" type="button" data-model-reset>重置</button>
+          </div>
+        </div>
+        <div class="models-table-region" role="region" aria-label="模型目录" tabindex="0">
+          <table class="models-table">
+            <caption class="visually-hidden">模型目录</caption>
+            <thead>
+              <tr>
+                <th scope="col">模型</th>
+                <th class="models-number" scope="col">上下文</th>
+                <th class="models-number" scope="col">输入 $/M</th>
+                <th class="models-number" scope="col">输出 $/M</th>
+                <th class="models-number" scope="col">缓存读取 $/M</th>
+                <th class="models-number" scope="col">缓存写入 $/M</th>
+              </tr>
+            </thead>
+            <tbody data-model-rows></tbody>
+          </table>
+        </div>
+        <p class="models-empty" data-model-empty hidden>没有匹配的模型。</p>
+        <p class="models-load-error" data-model-error hidden>
+          <span>无法加载模型目录，请检查网络后重试。</span>
+          <button class="models-reset-button" type="button" data-model-retry>重试</button>
+        </p>
+      </div>
+    </section>
+
+    <section class="surface-panel content-card models-guide-card" id="model-guide">
+      <header class="content-card-header models-guide-header">
+        <h2 class="content-card-title">模型使用与配置指南</h2>
+      </header>
+      <div class="content-card-body">
+        <div class="rich-text docs-prose markdown-content models-guide-content"><GuideContent /></div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  type ModelCost = { input?: number; output?: number; cacheRead?: number; cacheWrite?: number };
+  type CatalogModel = {
+    id: string;
+    name?: string;
+    provider?: string;
+    contextWindow?: number;
+    cost?: ModelCost;
+  };
+  type Catalog = Record<string, Record<string, CatalogModel>>;
+
+  const nameInput = document.querySelector<HTMLInputElement>('[data-model-name-filter]');
+  const providerInput = document.querySelector<HTMLSelectElement>('[data-model-provider-filter]');
+  const count = document.querySelector<HTMLElement>('[data-model-count]');
+  const body = document.querySelector<HTMLTableSectionElement>('[data-model-rows]');
+  const empty = document.querySelector<HTMLElement>('[data-model-empty]');
+  const errorMessage = document.querySelector<HTMLElement>('[data-model-error]');
+  const resetButton = document.querySelector<HTMLButtonElement>('[data-model-reset]');
+  const retryButton = document.querySelector<HTMLButtonElement>('[data-model-retry]');
+  const catalogCard = body?.closest<HTMLElement>('.data-table-card');
+  const cardHeader = catalogCard?.querySelector<HTMLElement>('.models-card-header');
+  const stickyControls = catalogCard?.querySelector<HTMLElement>('.models-sticky-controls');
+  const updateStickyOffsets = () => {
+    if (!catalogCard || !cardHeader || !stickyControls) return;
+    catalogCard.style.setProperty('--models-header-height', `${cardHeader.getBoundingClientRect().height}px`);
+    catalogCard.style.setProperty('--models-controls-height', `${stickyControls.getBoundingClientRect().height}px`);
+  };
+  if (cardHeader && stickyControls && 'ResizeObserver' in window) {
+    const resizeObserver = new ResizeObserver(updateStickyOffsets);
+    resizeObserver.observe(cardHeader);
+    resizeObserver.observe(stickyControls);
+  }
+  updateStickyOffsets();
+  const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const formatNumber = (value: number | undefined) => value == null || !Number.isFinite(value) ? '—' : value.toLocaleString('en-US');
+  const formatPrice = (value: number | undefined) => value == null || !Number.isFinite(value)
+    ? '—'
+    : `$${value.toLocaleString('en-US', { maximumFractionDigits: 6 })}`;
+  const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+  let modelRows: HTMLTableRowElement[] = [];
+  let allModels = 0;
+
+  const matchesSubsequence = (needle: string, value: string) => {
+    let index = 0;
+    for (const char of value) if (char === needle[index]) index += 1;
+    return index === needle.length;
+  };
+
+  const currentFilters = () => ({
+    name: nameInput?.value.trim() ?? '',
+    provider: providerInput?.value ?? '',
+  });
+
+  const syncUrl = (filters: ReturnType<typeof currentFilters>) => {
+    const url = new URL(window.location.href);
+    if (filters.name) url.searchParams.set('name', filters.name);
+    else url.searchParams.delete('name');
+    if (filters.provider) url.searchParams.set('provider', filters.provider);
+    else url.searchParams.delete('provider');
+    const query = url.searchParams.toString();
+    history.replaceState(null, '', `${url.pathname}${query ? `?${query}` : ''}${url.hash}`);
+  };
+
+  const applyFilters = () => {
+    const filters = currentFilters();
+    const lower = filters.name.toLowerCase();
+    const normalized = normalize(filters.name);
+    const visibleByProvider = new Map<string, number>();
+    let visibleCount = 0;
+
+    for (const row of modelRows) {
+      const name = row.dataset.modelName ?? '';
+      const id = row.dataset.modelId ?? '';
+      const provider = row.dataset.modelProvider ?? '';
+      const matchesProvider = !filters.provider || provider === filters.provider;
+      const matchesName = !lower || name.includes(lower) || id.includes(lower) ||
+        !normalized || normalize(name).includes(normalized) || normalize(id).includes(normalized) ||
+        matchesSubsequence(normalized, normalize(name)) || matchesSubsequence(normalized, normalize(id));
+      const visible = matchesProvider && matchesName;
+      row.hidden = !visible;
+      if (visible) {
+        visibleCount += 1;
+        visibleByProvider.set(provider, (visibleByProvider.get(provider) ?? 0) + 1);
+      }
+    }
+
+    body?.querySelectorAll<HTMLTableRowElement>('[data-provider-group]').forEach((row) => {
+      row.hidden = !visibleByProvider.has(row.dataset.providerGroup ?? '');
+    });
+    if (count) count.textContent = `${visibleCount.toLocaleString('en-US')} / ${allModels.toLocaleString('en-US')}`;
+    if (empty) empty.hidden = visibleCount !== 0;
+    syncUrl(filters);
+  };
+
+  const createCell = (value: string, className = '') => {
+    const cell = document.createElement('td');
+    cell.textContent = value;
+    if (className) cell.className = className;
+    return cell;
+  };
+
+  const addModel = (provider: string, model: CatalogModel) => {
+    const row = document.createElement('tr');
+    row.dataset.modelRow = 'true';
+    row.dataset.modelName = (model.name ?? model.id).toLowerCase();
+    row.dataset.modelId = model.id.toLowerCase();
+    row.dataset.modelProvider = provider;
+
+    const header = document.createElement('th');
+    header.scope = 'row';
+    header.className = 'models-model-cell';
+    const link = document.createElement('a');
+    link.className = 'models-model-link';
+    link.href = `https://pi.dev/models/${encodeURIComponent(provider)}/${slugify(model.id)}`;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = model.name || model.id;
+    const id = document.createElement('code');
+    id.textContent = model.id;
+    header.append(link, id);
+    row.append(
+      header,
+      createCell(formatNumber(model.contextWindow), 'models-number'),
+      createCell(formatPrice(model.cost?.input), 'models-number'),
+      createCell(formatPrice(model.cost?.output), 'models-number'),
+      createCell(formatPrice(model.cost?.cacheRead), 'models-number'),
+      createCell(formatPrice(model.cost?.cacheWrite), 'models-number'),
+    );
+    body?.append(row);
+    modelRows.push(row);
+  };
+
+  const loadCatalog = async () => {
+    if (errorMessage) errorMessage.hidden = true;
+    const response = await fetch('https://pi.dev/api/models', { headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error(`Model catalog request failed: ${response.status}`);
+    const catalog = await response.json() as Catalog;
+    if (!body || !providerInput) return;
+
+    body.replaceChildren();
+    modelRows = [];
+    const providers = Object.keys(catalog).sort((a, b) => a.localeCompare(b));
+    for (const provider of providers) {
+      const models = Object.values(catalog[provider] ?? {}).sort((a, b) =>
+        (a.name ?? a.id).localeCompare(b.name ?? b.id, 'en', { sensitivity: 'base' }) || a.id.localeCompare(b.id),
+      );
+      if (!models.length) continue;
+
+      const option = document.createElement('option');
+      option.value = provider;
+      option.textContent = provider;
+      providerInput.append(option);
+
+      const group = document.createElement('tr');
+      group.className = 'models-provider-group';
+      group.dataset.providerGroup = provider;
+      const groupCell = document.createElement('th');
+      groupCell.scope = 'rowgroup';
+      groupCell.colSpan = 6;
+      const groupLink = document.createElement('a');
+      groupLink.className = 'models-provider-link';
+      groupLink.href = `/models/?provider=${encodeURIComponent(provider)}`;
+      const providerName = document.createElement('code');
+      providerName.textContent = provider;
+      const providerCount = document.createElement('span');
+      providerCount.textContent = `（${models.length} 个模型）`;
+      groupLink.append(providerName, providerCount);
+      groupCell.append(groupLink);
+      group.append(groupCell);
+      body.append(group);
+
+      for (const model of models) addModel(provider, model);
+    }
+
+    allModels = modelRows.length;
+    const params = new URLSearchParams(location.search);
+    if (nameInput) nameInput.value = params.get('name') ?? '';
+    const requestedProvider = params.get('provider') ?? '';
+    if ([...providerInput.options].some((option) => option.value === requestedProvider)) {
+      providerInput.value = requestedProvider;
+    }
+    applyFilters();
+  };
+
+  nameInput?.addEventListener('input', applyFilters);
+  providerInput?.addEventListener('change', applyFilters);
+  resetButton?.addEventListener('click', () => {
+    if (nameInput) nameInput.value = '';
+    if (providerInput) providerInput.value = '';
+    applyFilters();
+    nameInput?.focus();
+  });
+  retryButton?.addEventListener('click', () => { void loadCatalog().catch(() => { if (errorMessage) errorMessage.hidden = false; }); });
+  void loadCatalog().catch(() => {
+    if (count) count.textContent = '目录不可用';
+    if (errorMessage) errorMessage.hidden = false;
+  });
+</script>
