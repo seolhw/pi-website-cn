@@ -7,11 +7,15 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "generate-types": "wrangler types",
+    "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^14.4.7",
     "@astrojs/mdx": "^8.1.5",
     "@astrojs/sitemap": "^3.7.4",
-    "astro": "^7.3.6"
+    "astro": "^7.3.6",
+    "wrangler": "^4.161.0"
   }
 }
