@@ -1,52 +1,57 @@
 ---
-title: "Choose a Model"
+title: "选择模型"
 ---
 
-# Choose a Model
+# 选择模型
 
-For a built-in provider, start with `/login`, then choose a model with `/model`. Use custom model configuration only when Pi does not already include the provider or endpoint you need.
+使用内置 Provider 时，先运行 `/login`，再通过 `/model` 选择模型。只有在 Pi 未内置所需 Provider 或端点时，才需要自定义模型配置。
 
-## Choose a connection
+<a id="choose-a-connection"></a>
+## 选择连接方式
 
-| What you have | Recommended setup |
+| 现有条件 | 建议的配置方式 |
 |---|---|
-| A supported subscription | Sign in through `/login` |
-| A provider API key | Store it through `/login` or set its environment variable |
-| A local GGUF model | Connect Pi to the llama.cpp router |
-| An OpenAI-, Anthropic-, or Google-compatible endpoint | Add it to `models.json` |
-| A provider with a custom protocol or authentication flow | Build or install a provider extension |
+| 受支持的订阅 | 通过 `/login` 登录 |
+| Provider API Key | 通过 `/login` 保存，或设置对应的环境变量 |
+| 本地 GGUF 模型 | 将 Pi 连接到 llama.cpp Router |
+| 兼容 OpenAI、Anthropic 或 Google API 的端点 | 添加到 `models.json` |
+| 使用自定义协议或认证流程的 Provider | 编写或安装 Provider 扩展 |
 
-Browse the [model catalog](https://pi.dev/models) for current providers, model IDs, capabilities, context limits, and pricing. Pi starts with its bundled catalog and can overlay newer catalog data from pi.dev. Cached catalog data remains available offline; run `pi update --models` to force a refresh.
+请在[模型目录](https://pi.dev/models)中查看当前 Provider、模型 ID、能力、上下文限制和价格。Pi 启动时会使用内置目录，也可以叠加来自 pi.dev 的较新目录数据。缓存的目录数据在离线时仍可使用；运行 `pi update --models` 可强制刷新。
 
-## Authenticate
+<a id="authenticate"></a>
+## 认证
 
-Run `/login` and select a provider. Pi stores credentials in [`auth.json`](/configuration/#agent-directory). Run `/logout` to remove stored credentials for a provider.
+运行 `/login` 并选择 Provider。Pi 会将凭据保存到 [`auth.json`](/configuration/#agent-directory)。运行 `/logout` 可移除该 Provider 已保存的凭据。
 
-You can instead provide an API key through the provider's environment variable. This is useful in CI and other environments where Pi should not write credentials. [Providers](/providers/) lists the variables and provider-specific setup.
+也可以通过 Provider 对应的环境变量提供 API Key。这适用于 CI 等不希望 Pi 写入凭据的环境。环境变量和 Provider 专项设置请参阅[模型服务提供方](/providers/)。
 
-When several credential sources are configured, Pi uses a runtime `--api-key` first, then a stored `auth.json` credential, an `apiKey` from `models.json`, and finally the provider's environment variables or ambient cloud credentials. Provider extensions can define their own authentication behavior.
+配置了多个凭据来源时，Pi 按以下优先级使用：运行时 `--api-key`、`auth.json` 中保存的凭据、`models.json` 中的 `apiKey`，最后是 Provider 环境变量或当前云环境凭据。Provider 扩展可以定义自己的认证行为。
 
-Keep `auth.json` and any credential commands private. Project settings and extensions can execute inside the Pi process after you trust a project. Review [Security](/security/) before loading configuration from an untrusted directory.
+请妥善保管 `auth.json` 和任何凭据命令。信任项目后，项目设置和扩展可以在 Pi 进程中执行。加载不可信目录中的配置前，请先阅读[安全说明](/security/)。
 
-## Select a model
+<a id="select-a-model"></a>
+## 选择模型
 
-Run `/model` to search available models. The picker shows models whose providers have usable authentication. Press `Ctrl+S` on a model to save it as the default for new sessions.
+运行 `/model` 搜索可用模型。选择器会显示认证可用的 Provider 所提供的模型。在某个模型上按 `Ctrl+S` 可将其设为新会话的默认模型。
 
-Run `/thinking` to select the thinking level for the current model. Press `Ctrl+S` there to save the startup level. Pi limits the choices to levels supported by the selected model.
+运行 `/thinking` 为当前模型选择思考等级。在该选择器中按 `Ctrl+S` 可保存启动时使用的等级。Pi 只会提供所选模型支持的等级。
 
-`Ctrl+P` cycles through available models. Use `/scoped-models` to control that cycle and save the selection, or configure model patterns through [Settings](/settings/#model-cycling).
+按 `Ctrl+P` 可循环切换可用模型。使用 `/scoped-models` 控制循环范围并保存选择，也可以通过[设置](/settings/#model-cycling)配置模型模式。
 
-A session records model and thinking-level changes. Resuming the session restores them without changing defaults for new sessions.
+会话会记录模型和思考等级的变更。恢复会话时，Pi 会还原这些值，但不会影响新会话的默认设置。
 
-## Connect local models
+<a id="connect-local-models"></a>
+## 连接本地模型
 
-Pi integrates directly with the llama.cpp router. The router discovers GGUF files and loads models on demand. Pi's `/llama` command manages the router, while `/model` selects one of its loaded models.
+Pi 可直接连接 llama.cpp Router。Router 会发现 GGUF 文件，并按需加载模型。Pi 使用 `/llama` 管理 Router，使用 `/model` 选择已加载的模型。
 
-Follow [Local Models with llama.cpp](/llama-cpp/) for server startup, model layout, downloads, and connection troubleshooting.
+服务器启动、模型目录结构、下载和连接故障排查请参阅[使用 llama.cpp 运行本地模型](/llama-cpp/)。
 
-For Ollama, LM Studio, vLLM, SGLang, and other compatible servers, [configure a compatible endpoint](#configure-a-compatible-endpoint) in `models.json`.
+对于 Ollama、LM Studio、vLLM、SGLang 等兼容服务器，请在 `models.json` 中[配置兼容端点](#configure-a-compatible-endpoint)。
 
-## Configure a compatible endpoint
+<a id="configure-a-compatible-endpoint"></a>
+## 配置兼容端点
 
 Use [`models.json`](/configuration/#agent-directory) when an endpoint speaks an API Pi already supports. This includes most Ollama, LM Studio, vLLM, SGLang, and proxy deployments.
 
@@ -66,11 +71,11 @@ Use [`models.json`](/configuration/#agent-directory) when an endpoint speaks an 
 }
 ```
 
-The dummy key makes the model available to Pi; Ollama ignores it. For an authenticated endpoint, `apiKey` and header values can use `$NAME` or `${NAME}` environment interpolation, a literal value, or a leading `!command`. `$$` and `$!` produce a literal `$` and `!`. Commands in `models.json` run at request time and are not cached by Pi.
+这个占位 Key 会让模型在 Pi 中可用；Ollama 会忽略它。对于需要认证的端点，`apiKey` 和请求头的值可以使用 `$NAME` 或 `${NAME}` 环境变量插值、字面值，或以 `!command` 开头的命令。`$$` 和 `$!` 分别表示字面字符 `$` 和 `!`。`models.json` 中的命令会在请求时运行，Pi 不会缓存结果。
 
-Opening `/model` reloads the file. A `models` entry adds or replaces a model with the same ID on that provider. Use `modelOverrides` to change metadata for an existing built-in or extension-provided model without replacing the provider's model list. Unknown override IDs are ignored.
+打开 `/model` 时会重新加载该文件。`models` 条目会在该 Provider 下添加模型，或替换同 ID 的模型。使用 `modelOverrides` 可修改现有内置模型或扩展提供模型的元数据，而无需替换 Provider 的模型列表。未知的覆盖 ID 会被忽略。
 
-To route a built-in provider through a proxy, set only its `baseUrl`. Its models and authentication stay unchanged:
+要通过代理访问内置 Provider，只需设置其 `baseUrl`。模型和认证方式保持不变：
 
 ```json
 {
@@ -80,11 +85,12 @@ To route a built-in provider through a proxy, set only its `baseUrl`. Its models
 }
 ```
 
-[Models Configuration](/models-configuration/) lists every field.
+所有字段请参阅[模型配置](/models-configuration/)。
 
-### Describe model input and caching
+<a id="describe-model-input-and-caching"></a>
+### 描述模型输入与缓存
 
-Use `inputLimits.images.resize` to control how Pi encodes new image attachments, `read` results, and tool-result images before storing them in conversation history:
+使用 `inputLimits.images.resize` 控制 Pi 在将新图片附件、`read` 结果和工具结果中的图片存入对话历史前如何编码：
 
 ```json
 {
@@ -103,21 +109,22 @@ Use `inputLimits.images.resize` to control how Pi encodes new image attachments,
 }
 ```
 
-`maxBytes` limits the base64-encoded payload. Omitted resize fields use conservative defaults of 2000 by 2000 pixels, 4.5 MiB encoded, and JPEG quality 80. Images are encoded once; changing models does not rewrite historical images. The catalog can also describe hard request limits with `inputLimits.maxRequestBytes`, `images.maxPerMessage`, and `images.maxPerRequest`, but Pi does not yet rewrite or reject history based on them.
+`maxBytes` 限制 Base64 编码后的载荷大小。省略缩放字段时，使用较保守的默认值：2000×2000 像素、编码后 4.5 MiB，以及 JPEG 质量 80。图片只编码一次；切换模型不会重新处理历史图片。模型目录还可以通过 `inputLimits.maxRequestBytes`、`images.maxPerMessage` 和 `images.maxPerRequest` 声明请求硬性限制，但 Pi 目前不会据此重写或拒绝历史内容。
 
 <a id="prompt-cache-lifetimes"></a>
 
-Use `promptCache` to declare the provider's best-effort cache lifetime in seconds for the `short` or `long` retention tier:
+使用 `promptCache` 声明 Provider 对 `short` 或 `long` 保留级别所提供的尽力而为缓存有效期（秒）：
 
 ```json
 { "id": "claude-sonnet-5", "promptCache": { "short": 300, "long": 3600 } }
 ```
 
-Choose the conservative end of any published range. A model without a lifetime for the active tier is not eligible for cache warming. A `modelOverrides` entry can set `inputLimits` or `promptCache` for a built-in or extension model, including a model accessed through a validated proxy. See [`cacheWarming`](/settings/#model-and-thinking).
+如果文档给出有效期范围，请采用较保守的较短值。对于当前保留级别未声明缓存有效期的模型，不会执行缓存预热。`modelOverrides` 条目可为内置或扩展模型设置 `inputLimits` 或 `promptCache`，也包括通过已验证代理访问的模型。请参阅[`cacheWarming`](/settings/#model-and-thinking)。
 
-### Configure sampling by thinking level
+<a id="configure-sampling-by-thinking-level"></a>
+### 按思考等级配置采样参数
 
-OpenAI-compatible APIs support free-form `samplingParams` model defaults and `samplingParamsByThinkingLevel` overrides. The latter uses Pi thinking-level keys (`off`, `minimal`, `low`, `medium`, `high`, `xhigh`, and `max`), not provider values from `thinkingLevelMap`:
+兼容 OpenAI 的 API 支持自由格式的 `samplingParams` 模型默认值，以及 `samplingParamsByThinkingLevel` 覆盖项。后者使用 Pi 的思考等级键（`off`、`minimal`、`low`、`medium`、`high`、`xhigh` 和 `max`），而不是 `thinkingLevelMap` 中对应的 Provider 值：
 
 ```json
 {
@@ -139,15 +146,16 @@ OpenAI-compatible APIs support free-form `samplingParams` model defaults and `sa
 }
 ```
 
-Pi first clamps unsupported thinking levels, then merges model `samplingParams`, the effective level's override, and request-level `samplingParams` in that order. Later values win per key. Missing levels inherit the model defaults. `modelOverrides` merges per-level entries per key with the base model. These fields apply only to `openai-completions`, `openai-responses`, and `azure-openai-responses`; other APIs ignore them.
+Pi 会先将不支持的思考等级限制到模型可用范围，然后依次合并模型的 `samplingParams`、当前等级的覆盖项，以及请求级别的 `samplingParams`。对于同一个键，后面的值优先。未设置的等级会继承模型默认值。`modelOverrides` 会将每个等级的条目按键与基础模型合并。这些字段只适用于 `openai-completions`、`openai-responses` 和 `azure-openai-responses`；其他 API 会忽略它们。
 
-Compatibility settings should describe verified differences in the endpoint's request or response behavior. Do not enable them based only on an endpoint advertising OpenAI or Anthropic compatibility.
+兼容性设置应描述已验证的端点请求或响应行为差异。不能仅凭端点声称兼容 OpenAI 或 Anthropic 就启用这些设置。
 
-## Use classifier models
+<a id="use-classifier-models"></a>
+## 使用分类器模型
 
-Classifier models do not chat. They answer typed questions about JSON state: pick one of several choices, answer yes or no, or give a score, each with probabilities. Pi includes TypeSafe's Jev model from these providers, Cloudflare's Clef, Clef Flash, and Clef Omni models from Workers AI and OpenRouter, OpenAI's GPT-6 Luna through the [Decisions API](https://developers.openai.com/api/docs/guides/decisions), and Microsoft-Decision-1 through GitHub Copilot:
+分类器模型不会进行普通对话，而是针对 JSON 状态回答有类型的问题：从多个选项中选择、回答是或否，或给出评分，并为结果提供概率。Pi 内置了 TypeSafe 的 Jev 模型、Workers AI 和 OpenRouter 上的 Cloudflare Clef、Clef Flash 和 Clef Omni 模型、通过 [Decisions API](https://developers.openai.com/api/docs/guides/decisions) 提供的 OpenAI GPT-6 Luna，以及通过 GitHub Copilot 提供的 Microsoft-Decision-1：
 
-| Provider | Model IDs | Authentication |
+| Provider | 模型 ID | 认证方式 |
 |---|---|---|
 | `typesafe` | `jev-latest` | `TYPESAFE_API_KEY` |
 | `openrouter` | `typesafe/jev-1.13`, `typesafe/jev-1.14`, `~typesafe/jev-latest`, `cloudflare/clef`, `cloudflare/clef-flash`, `cloudflare/clef-omni` | `OPENROUTER_API_KEY` or `/login` |
@@ -157,11 +165,11 @@ Classifier models do not chat. They answer typed questions about JSON state: pic
 | `openai` | `gpt-6-luna` | `OPENAI_API_KEY` |
 | `github-copilot` | `microsoft-decision-1` | `COPILOT_GITHUB_TOKEN` or `/login` |
 
-Chat models on a [llama.cpp router](/llama-cpp/#classification) are also listed as classifier models.
+[llama.cpp Router](/llama-cpp/#classification) 中的对话模型也会列为分类器模型。
 
-OpenAI's Decisions API needs an API key. Sign in with ChatGPT credentials do not work with it, so `gpt-6-luna` is not listed as available while `openai` is logged in through `/login`, even when `OPENAI_API_KEY` is set; log out of `openai` to use the key. The API rejects inputs above 922K tokens, but requests that run longer than about five seconds, currently above roughly 600K input tokens, fail with a gateway timeout.
+OpenAI Decisions API 需要 API Key，ChatGPT 登录凭据无法用于该 API。因此，即使已设置 `OPENAI_API_KEY`，只要 `openai` 通过 `/login` 登录，`gpt-6-luna` 就不会显示为可用；要使用该 Key，请先退出 `openai` 登录状态。该 API 会拒绝超过 922K Token 的输入；但运行时间超过约 5 秒的请求（目前大致对应输入超过 600K Token）会因网关超时而失败。
 
-Classifier models do not appear in `/model`. The model reaches them through the [`codemode`](/cli/#enable-codemode) tool, which is off unless an MCP server turned it on. Enable it with `"defaultTools": ["+codemode"]` in [settings](/settings/#tools). Scripts then list classifier models with `models.getAvailableOfType("classifier")` and call `models.classify(model, { state, questions })`:
+分类器模型不会出现在 `/model` 中。模型需要通过 [`codemode`](/cli/#enable-codemode) 工具访问分类器；除非 MCP 服务器启用了该工具，否则它默认关闭。可在[设置](/settings/#tools)中使用 `"defaultTools": ["+codemode"]` 启用。之后，脚本可通过 `models.getAvailableOfType("classifier")` 列出分类器模型，并调用 `models.classify(model, { state, questions })`：
 
 ```js
 const jev = await models.getModelOfType("classifier", "typesafe", "jev-latest");
@@ -178,21 +186,22 @@ const result = await models.classify(jev, {
 return result.answers;
 ```
 
-[Codemode](/codemode/#classify) describes the question and answer types.
+问题和答案类型请参阅 [Codemode](/codemode/#classify)。
 
-Classifier models whose `input` includes `"image"` also judge images passed in `images`; other classifier models return an error for them. Image input works with GPT-6 Luna, with Jev from `typesafe` and `cloudflare-workers-ai`, with Clef from `cloudflare-workers-ai`, and with the OpenRouter models whose catalog lists image input. Jev takes PNG and JPEG images, and image input is experimental on TypeSafe's own API. Clef takes PNG, JPEG, and WebP images, at most four per request. Jev from `vercel-ai-gateway` and `opencode` takes text only.
+如果分类器模型的 `input` 包含 `"image"`，它也可以判断通过 `images` 传入的图片；其他分类器模型收到图片时会返回错误。GPT-6 Luna、`typesafe` 和 `cloudflare-workers-ai` 的 Jev、`cloudflare-workers-ai` 的 Clef，以及目录中声明支持图片输入的 OpenRouter 模型均支持图片输入。Jev 支持 PNG 和 JPEG 图片；TypeSafe 自有 API 的图片输入仍属实验性功能。Clef 支持 PNG、JPEG 和 WebP，每个请求最多四张。`vercel-ai-gateway` 和 `opencode` 上的 Jev 仅支持文本。
 
-Each System One service takes images in its own request format, set by the model's `compat.imageInput`. Built-in models set it, so overriding a provider's `baseUrl` keeps it. A custom provider that proxies another service's classifiers sets it in its provider-level `compat` in `models.json` (see [System One compatibility](/models-configuration/#typesafe-system-one)). OpenRouter in particular answers requests in TypeSafe's format without an error but drops the images.
+每个 System One 服务都有自己的图片请求格式，由模型的 `compat.imageInput` 指定。内置模型已设置此字段，因此覆盖 Provider 的 `baseUrl` 后仍会保留该配置。若自定义 Provider 代理其他服务的分类器，请在 `models.json` 的 Provider 级别 `compat` 中设置此字段（参阅 [System One 兼容性](/models-configuration/#typesafe-system-one)）。特别注意，OpenRouter 会以 TypeSafe 格式成功响应请求而不报错，但会丢弃图片。
 
-When the service reports token counts, as all System One services do, `result.usage` carries them with their cost. Pi adds the usage of a script's classifier calls to the `codemode` tool result, so it counts toward the session cost in the footer and `/session`. The cost uses the model's catalog price; models without one, such as TypeSafe's direct `jev-latest`, report tokens at no cost.
+当服务报告 Token 数量时（所有 System One 服务都会报告），`result.usage` 会包含 Token 数和对应费用。Pi 会将脚本调用分类器产生的用量加到 `codemode` 工具结果中，因此也会计入页脚和 `/session` 的会话费用。费用根据模型目录中的价格计算；未设定价格的模型（例如 TypeSafe 直连的 `jev-latest`）只报告 Token，不产生费用。
 
-Extensions call classifiers through `ctx.modelRegistry.classify()`, without codemode. [Virtual models](/virtual-models/#route-requests) can use them to route requests; see the `jev-router.ts` example.
+扩展可不经过 codemode，直接通过 `ctx.modelRegistry.classify()` 调用分类器。[虚拟模型](/virtual-models/#route-requests)也可以利用分类器路由请求，示例请参阅 `jev-router.ts`。
 
-## Use image models
+<a id="use-image-models"></a>
+## 使用图像模型
 
-Image models generate images from a prompt and optional input images. Pi lists OpenRouter's image models, such as `google/gemini-2.5-flash-image` and `black-forest-labs/flux.2-pro`, under the `openrouter` provider; they use the same `OPENROUTER_API_KEY` or `/login` credential as its chat models.
+图像模型根据提示词和可选的输入图片生成图像。Pi 会在 `openrouter` Provider 下列出 OpenRouter 的图像模型，例如 `google/gemini-2.5-flash-image` 和 `black-forest-labs/flux.2-pro`；它们与 OpenRouter 对话模型使用相同的 `OPENROUTER_API_KEY` 或 `/login` 凭据。
 
-Like classifier models, image models do not appear in `/model`; the model reaches them through the [`codemode`](/cli/#enable-codemode) tool. Scripts list them with `models.getAvailableOfType("image")` and call `models.generateImages(model, { input })`. The result's `output` holds base64 image blocks, which `image()` attaches to the `codemode` result so the model sees them:
+与分类器模型一样，图像模型不会出现在 `/model` 中；模型通过 [`codemode`](/cli/#enable-codemode) 工具访问它们。脚本使用 `models.getAvailableOfType("image")` 列出图像模型，并调用 `models.generateImages(model, { input })`。结果中的 `output` 包含 Base64 图片块；`image()` 会将其附加到 `codemode` 结果中，以便模型查看：
 
 ```js
 const painter = await models.getModelOfType("image", "openrouter", "google/gemini-2.5-flash-image");
@@ -203,28 +212,34 @@ if (result.stopReason !== "stop") return result.errorMessage;
 for (const block of result.output) if (block.type === "image") image(block);
 ```
 
-`input` can also contain `{ type: "image", data, mimeType }` blocks to edit or use as references. Pi adds the usage of a script's image calls to the `codemode` tool result, like classifier calls. Generated images are not saved to disk. [Codemode](/codemode/#generate-images) describes the full API.
+`input` 也可以包含 `{ type: "image", data, mimeType }` 图片块，用于编辑或作为参考图片。与分类器调用一样，Pi 会将脚本图像调用的用量加入 `codemode` 工具结果。生成的图片不会保存到磁盘。完整 API 请参阅 [Codemode](/codemode/#generate-images)。
 
-Extensions generate images through `ctx.modelRegistry.generateImages()`, without codemode.
+扩展可不经过 codemode，直接通过 `ctx.modelRegistry.generateImages()` 生成图像。
 
-## Add a custom provider
+<a id="add-a-custom-provider"></a>
+## 添加自定义 Provider
 
-Use an extension when the provider needs custom streaming, model discovery, or authentication behavior. See [Custom Providers](/custom-provider/) for the extension workflow.
+如果 Provider 需要自定义流式传输、模型发现或认证行为，请使用扩展。扩展工作流程请参阅[自定义 Provider](/custom-provider/)。
 
-## Troubleshooting
+<a id="troubleshooting"></a>
+## 故障排查
 
-### A model does not appear
+<a id="a-model-does-not-appear"></a>
+### 模型未显示
 
-Confirm that its provider has usable authentication. Custom models can load from `models.json` but remain unavailable in `/model` until Pi can resolve credentials. For llama.cpp, only models currently loaded by the router appear.
+确认对应 Provider 已配置可用的认证信息。自定义模型可以从 `models.json` 加载，但在 Pi 能解析凭据前不会出现在 `/model` 中。对于 llama.cpp，只有 Router 当前已加载的模型才会显示。
 
-### Authentication works in one shell only
+<a id="authentication-works-in-one-shell-only"></a>
+### 认证只在一个 Shell 中生效
 
-Check whether the key came from an environment variable rather than `auth.json`. Environment variables must be present in the process that starts Pi.
+检查 Key 是否来自环境变量而非 `auth.json`。启动 Pi 的进程必须能够访问这些环境变量。
 
-### Sign-in opens a browser on a remote machine
+<a id="sign-in-opens-a-browser-on-a-remote-machine"></a>
+### 远程机器上的登录流程打开了浏览器
 
-Complete the provider's headless authentication flow when available. Some providers let you paste the final redirect URL or authorization code back into Pi. See [Authenticate interactively](/providers/#authenticate-interactively).
+如果 Provider 支持无头认证流程，请使用该流程完成登录。有些 Provider 允许将最终重定向 URL 或授权码粘贴回 Pi。请参阅[交互式认证](/providers/#authenticate-interactively)。
 
-### A compatible endpoint rejects requests
+<a id="a-compatible-endpoint-rejects-requests"></a>
+### 兼容端点拒绝请求
 
-Check its API type and compatibility settings in `models.json`. The upstream server must support the corresponding request fields and behavior.
+检查 `models.json` 中的 API 类型和兼容性设置。上游服务器必须支持对应的请求字段和行为。

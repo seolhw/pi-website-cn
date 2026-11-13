@@ -1,84 +1,90 @@
 ---
-title: "Manage Sessions and Context"
+title: "会话与上下文管理"
 ---
 
-# Sessions and Context
+# 会话与上下文
 
-Pi saves a conversation as a session. The active branch of that session supplies conversation history for the next model request. Use session commands to continue work, explore another branch, or reduce the amount of history sent to the model.
+Pi 会将对话保存为会话。会话当前分支会为下一次模型请求提供对话历史。使用会话命令可继续工作、探索其他分支，或减少发送给模型的历史内容。
 
-## Continue or switch sessions
+<a id="continue-or-switch-sessions"></a>
+## 继续或切换会话
 
-Pi saves sessions automatically unless you start it with `--no-session`.
+除非使用 `--no-session` 启动 Pi，否则会话会自动保存。
 
 ```bash
 pi --continue
 pi --resume
 ```
 
-`--continue` opens the most recent session for the current directory. `--resume` opens the session picker. In interactive mode, `/resume` opens the same picker and `/new` starts a new session.
+`--continue` 会打开当前目录最近使用的会话。`--resume` 会打开会话选择器。交互模式下，`/resume` 会打开相同的选择器，`/new` 会开始新会话。
 
-Each session records the working directory it was created in and never changes it. Pi runs a session in its working directory, so tools, `@path` references, project configuration, and context files resolve from there.
+每个会话都会记录创建时的工作目录，且此后不会改变。Pi 会在会话的工作目录中运行，因此工具、`@path` 引用、项目配置和上下文文件都会从该目录解析。
 
-| Entry point | Working directory |
+| 入口 | 工作目录 |
 |---|---|
-| `--continue` | The current directory |
-| `--resume`, `/resume`, `--session`, `/import` | The session's working directory, which can differ from the current directory |
-| `--fork`, or a `--session` ID from another directory that you choose to fork | The current directory, in a new session |
+| `--continue` | 当前目录 |
+| `--resume`、`/resume`、`--session`、`/import` | 会话自己的工作目录，可能与当前目录不同 |
+| `/fork`，或从其他目录选择会话 ID 后进行分叉 | 当前目录中的新会话 |
 
-If a session's working directory no longer exists, for example after the project folder was renamed, interactive mode asks how to open it:
+如果会话的工作目录已不存在（例如项目文件夹被重命名），交互模式会询问如何打开：
 
-- **Continue** runs the session in the current directory. Pi does not store that choice, so it asks again the next time you open the session.
-- **Fork** copies the session into the current directory as a new session with a new ID, like `--fork`. The original stays unchanged. At startup the copy is stored like other new sessions for the current directory; from `/resume` or `/import` it is stored next to the current session, like `/new`.
-- **Cancel** leaves the current session open, or exits at startup.
+- **继续**：在当前目录中继续该会话。Pi 不会保存此选择，下次打开时会再次询问。
+- **分叉**：将会话复制到当前目录并创建新的 ID，类似 `--fork`。原会话保持不变。启动时，副本会像其他新会话一样保存在当前目录；通过 `/resume` 或 `/import` 打开时，副本会像 `/new` 一样保存在当前会话旁边。
+- **取消**：保留当前会话，或在启动期间退出。
 
-Other modes exit with an error.
+其他运行模式会报错退出。
 
-Use `/name` or `--name` to assign a recognizable session name. Run `/session` to verify the current session file, ID, message count, token usage, and cost.
+使用 `/name` 或 `--name` 设置易于识别的会话名称。运行 `/session` 可查看当前会话文件、ID、消息数、Token 用量和费用。
 
-The session picker lets you search, rename, and delete sessions. It can also show paths, change sorting, and limit results to named sessions. See [Keybindings](/keybindings/#sessions) for its shortcuts.
+会话选择器支持搜索、重命名和删除会话，也可以显示路径、更改排序方式以及仅查看已命名的会话。快捷键请参阅[快捷键](/keybindings/#sessions)。
 
-## Choose how to branch
+<a id="choose-how-to-branch"></a>
+## 选择分支方式
 
-Pi stores entries as a tree, so returning to an earlier point does not erase the branch you leave.
+Pi 会将会话条目保存为树形结构，因此返回较早位置不会删除离开的分支。
 
-| Action | Result | Use it when |
+| 操作 | 结果 | 适用场景 |
 |---|---|---|
-| `/tree` | Moves within the current session file | Related alternatives should stay together |
-| `/fork` | Creates a new session from an earlier user message | The alternative should become separate work |
-| `/clone` | Copies the active branch into a new session | You want a separate copy of the current state |
+| `/tree` | 在当前会话文件中切换位置 | 希望相关方案保留在同一会话中 |
+| `/fork` | 从较早的用户消息创建新会话 | 希望将备选方案作为独立工作 |
+| `/clone` | 将当前活动分支复制到新会话 | 希望单独保留当前状态的副本 |
 
-In `/tree`, select a user message to put its text back in the editor. Edit and submit it to create another branch. Selecting an assistant response or another entry continues after that entry with an empty editor.
+在 `/tree` 中选择用户消息，可将其文本放回编辑器。修改并提交后即可创建另一个分支。选择助手回复或其他条目会在该条目之后继续，并清空编辑器。
 
-When you leave a branch, Pi can summarize it and attach that summary to the branch you enter. This preserves relevant work from the abandoned path without including every message from it.
+离开某个分支时，Pi 可以为其生成摘要，并将摘要附加到进入的分支。这样可以保留已放弃路径中的相关工作，而不必包含其中的每条消息。
 
-For the persisted tree and entry types, see [Session Format](/session-format/).
+持久化的树形结构和条目类型请参阅[会话文件格式](/session-format/)。
 
-## Manage conversation context
+<a id="manage-conversation-context"></a>
+## 管理对话上下文
 
-The model receives the active branch, not every branch in the session file. Pi combines that history with the system prompt, discovered context files, available tools, and loaded skill descriptions. [How Pi Works](/how-pi-works/#context) describes how those inputs are assembled.
+模型收到的是活动分支，而不是会话文件中的所有分支。Pi 会将该历史与系统提示词、发现的上下文文件、可用工具和已加载的 Skill 说明组合起来。[Pi 的工作原理](/how-pi-works/#context)介绍了这些输入的组装方式。
 
-The footer shows current context usage. When the active context approaches the model's limit, Pi normally compacts older history automatically. Compaction adds a summary and keeps recent messages. It does not delete the original session entries.
+页脚会显示当前上下文用量。当活动上下文接近模型限制时，Pi 通常会自动压缩较早的历史。压缩会添加摘要并保留最近消息，但不会删除原始会话条目。
 
-Run `/compact` to compact manually. You can add instructions when the summary should preserve a particular topic or decision. Configure automatic compaction and retained history through [Settings](/settings/#compaction).
+运行 `/compact` 可手动压缩。如果摘要需要保留特定主题或决定，可以附加指令。可通过[设置](/settings/#compaction)配置自动压缩和保留的历史内容。
 
-Compaction can fail if the provider is unavailable or cannot accept the summarization request. Correct the provider problem and run `/compact` again. Disabling automatic compaction does not disable the manual command.
+如果 Provider 不可用，或无法接受摘要请求，压缩可能失败。修复 Provider 问题后再次运行 `/compact`。禁用自动压缩不会禁用手动命令。
 
-See [Compaction Reference](/compaction/) for thresholds, retained boundaries, branch-summary behavior, and extension hooks.
+有关阈值、保留边界、分支摘要行为和扩展钩子，请参阅[压缩参考](/compaction/)。
 
-## Control session storage
+<a id="control-session-storage"></a>
+## 控制会话存储
 
-By default, Pi stores sessions under `~/.pi/agent/sessions/`, grouped by working directory. Use `--session-dir`, `PI_CODING_AGENT_SESSION_DIR`, or the `sessionDir` setting to choose another location. The CLI option has highest precedence.
+默认情况下，Pi 会将会话按工作目录分组，保存在 `~/.pi/agent/sessions/` 下。可使用 `--session-dir`、`PI_CODING_AGENT_SESSION_DIR` 或 `sessionDir` 设置选择其他位置。命令行选项优先级最高。
 
-Use `--no-session` for an ephemeral run. An ephemeral session cannot be resumed after Pi exits.
+使用 `--no-session` 可运行临时会话。Pi 退出后无法恢复临时会话。
 
-## Export or share a session
+<a id="export-or-share-a-session"></a>
+## 导出或分享会话
 
-Use `/export` to write the current session as HTML or JSONL. Use `/share` to upload it and get a viewer link. By default, Pi uses a Radius artifact when Radius authentication is configured; otherwise, it uses a private GitHub gist. Set [`sessionShareDestination`](/settings/#sessions-and-context) to `gist` or `radius` to force one destination.
+使用 `/export` 将当前会话导出为 HTML 或 JSONL。使用 `/share` 上传会话并获取查看链接。默认情况下，如果已配置 Radius 认证，Pi 会使用 Radius 制品；否则会使用私密 GitHub gist。将 [`sessionShareDestination`](/settings/#sessions-and-context) 设为 `gist` 或 `radius` 可指定目的地。
 
-Review exported or shared sessions first. They can contain prompts, model responses, tool arguments, command output, file contents, and extension messages.
+导出或分享前请先检查会话。会话可能包含提示词、模型回复、工具参数、命令输出、文件内容和扩展消息。
 
-## Report a bug
+<a id="report-a-bug"></a>
+## 报告问题
 
-Run `/bug [description]` to prepare a private report for the Pi developers. You can include the session transcript, omit it, or ask the current model to summarize the problem. Review any transcript or generated summary because it can contain sensitive conversation data.
+运行 `/bug [description]` 为 Pi 开发者准备私密问题报告。你可以选择附带会话记录、不附带记录，或让当前模型总结问题。请检查会话记录或生成的摘要，其中可能包含敏感对话内容。
 
-The report includes environment and provider configuration without credential values, plus recorded error diagnostics. Upload it through `radius.pi.dev` or export the same report as a zip to inspect and share yourself. Uploads do not require a login; Radius authentication attributes the report to your account so the developers can follow up. If an upload fails, Pi offers to export the zip.
+报告会包含环境和 Provider 配置信息（不含凭据值）以及记录的错误诊断。可通过 `radius.pi.dev` 上传，也可以导出为 zip 文件自行检查和分享。上传无需登录；如果已进行 Radius 认证，报告会关联到你的账户，方便开发者跟进。上传失败时，Pi 会提供导出 zip 的选项。

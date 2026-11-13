@@ -1,30 +1,32 @@
 ---
-title: "Run Local Models"
+title: "运行本地模型"
 ---
 
-# Local Models with llama.cpp
+# 使用 llama.cpp 运行本地模型
 
-Pi supports the [llama.cpp](https://llama.app) router server. The router discovers multiple GGUF models and loads or unloads them on demand.
+Pi 支持 [llama.cpp](https://llama.app) Router 服务器。Router 会发现多个 GGUF 模型，并根据需要加载或卸载它们。
 
-## Install llama.cpp
+<a id="install-llama-cpp"></a>
+## 安装 llama.cpp
 
-Install llama.cpp with the [official installer](https://llama.app/docs/installation):
+按照[官方安装说明](https://llama.app/docs/installation)安装 llama.cpp：
 
 ```bash
 curl -LsSf https://llama.app/install.sh | sh
 ```
 
-Verify the installation:
+验证是否安装成功：
 
 ```bash
 llama --version
 ```
 
-See [llama.app](https://llama.app) for other installation methods, including package managers and building from source.
+其他安装方式（包括使用包管理器和从源码构建）请参阅 [llama.app](https://llama.app)。
 
-## Start the router
+<a id="start-the-router"></a>
+## 启动 Router
 
-Start `llama serve` without `--model`, `-m`, or `-hf`. Passing a model starts single-model mode instead of router mode. See the [llama.cpp server guide](https://llama.app/docs/serve#serving-multiple-models-router-mode) for router configuration.
+启动 `llama serve` 时不要传入 `--model`、`-m` 或 `-hf`。指定模型会启动单模型模式，而不是 Router 模式。Router 配置请参阅 [llama.cpp 服务器指南](https://llama.app/docs/serve#serving-multiple-models-router-mode)。
 
 ```bash
 llama serve \
@@ -33,13 +35,13 @@ llama serve \
   -c 32768
 ```
 
-Important options:
+重要选项：
 
-- `--no-models-autoload` keeps loading explicit through `/llama`.
-- `-ngl all` offloads all layers to the GPU. Omit it to use automatic GPU offloading.
-- `-c 32768` sets the context size in tokens. Use `-c 0` for the model's full context window, which may require substantially more memory. Context is shared across parallel server slots.
+- `--no-models-autoload`：不自动加载模型，改由 `/llama` 显式加载。
+- `-ngl all`：将所有层卸载到 GPU。省略此选项时会自动决定 GPU 卸载方式。
+- `-c 32768`：设置上下文长度（Token 数）。使用 `-c 0` 可启用模型的完整上下文窗口，但可能需要更多内存。多个并行服务器槽位共享上下文。
 
-A single-file model can sit directly in the model directory. Put multimodal and multi-shard models in separate subdirectories:
+单文件模型可以直接放在模型目录中。多模态模型和分片模型应分别放在独立子目录中：
 
 ```text
 ~/models/
@@ -53,21 +55,22 @@ A single-file model can sit directly in the model directory. Put multimodal and 
     └── large-model-Q4_K_M-00003-of-00003.gguf
 ```
 
-Restart the router after manually adding files. The router also supports cached models and preset files via `--models-preset`, as described in the [server guide](https://llama.app/docs/serve#serving-multiple-models-router-mode).
+手动添加模型文件后，请重启 Router。Router 也支持缓存模型和通过 `--models-preset` 使用预设文件，详情见[服务器指南](https://llama.app/docs/serve#serving-multiple-models-router-mode)。
 
-## Configure Pi
+<a id="configure-pi"></a>
+## 配置 Pi
 
-Start Pi and configure the provider:
+启动 Pi 并配置 Provider：
 
 ```text
 /login llama.cpp
 ```
 
-Enter the router URL and optional API key. The default URL is `http://127.0.0.1:9931`.
+输入 Router URL 和可选的 API Key。默认 URL 为 `http://127.0.0.1:9931`。
 
-If you start the router with `--no-models-autoload`, `/login llama.cpp` only stores the connection. Run `/llama` to load a model, then `/model` to select the loaded model for the current session.
+如果启动 Router 时使用了 `--no-models-autoload`，`/login llama.cpp` 只会保存连接信息。运行 `/llama` 加载模型，然后运行 `/model` 为当前会话选择已加载的模型。
 
-Environment variables can configure the same values without `/login`:
+也可以使用环境变量设置相同的值，而不通过 `/login`：
 
 ```bash
 export LLAMA_BASE_URL=http://127.0.0.1:9931
@@ -75,59 +78,63 @@ export LLAMA_API_KEY=optional-secret
 pi
 ```
 
-If the server uses an API key, start `llama serve` with the matching `--api-key` value. Keep `--host 127.0.0.1` for local-only access.
+如果服务器使用 API Key，启动 `llama serve` 时应设置匹配的 `--api-key`。如需仅允许本机访问，请保留 `--host 127.0.0.1`。
 
-## Manage models
+<a id="manage-models"></a>
+## 管理模型
 
-Run:
+运行：
 
 ```text
 /llama
 ```
 
-- Select an unloaded model to load it.
-- Select a loaded model to unload it.
-- Select **Download model…**, search Hugging Face, then choose a repository and quantization. Exact `owner/repository[:quant]` values also work.
-- Press Escape during a load or download to confirm cancellation.
+- 选择尚未加载的模型即可加载。
+- 选择已加载的模型即可卸载。
+- 选择 **下载模型…**，搜索 Hugging Face，然后选择仓库和量化版本。也可以直接输入完整的 `owner/repository[:quant]`。
+- 加载或下载期间按 Escape 可确认取消操作。
 
-Hugging Face search uses `HF_TOKEN` when set, then checks `$HF_TOKEN_PATH`, `$HF_HOME/token`, `$XDG_CACHE_HOME/huggingface/token`, and `~/.cache/huggingface/token`. Search also works without authentication, subject to lower rate limits. Pi warns before downloading gated repositories and links to their access page. The llama.cpp server performs the download, so its process must also have `HF_TOKEN` when the selected repository requires access.
+如果设置了 `HF_TOKEN`，Hugging Face 搜索会优先使用它；否则会依次检查 `$HF_TOKEN_PATH`、`$HF_HOME/token`、`$XDG_CACHE_HOME/huggingface/token` 和 `~/.cache/huggingface/token`。无需认证也能搜索，但会受到更严格的速率限制。下载受限仓库前，Pi 会发出警告并提供其访问页面链接。模型由 llama.cpp 服务器进程下载，因此所选仓库需要访问权限时，服务器进程也必须设置 `HF_TOKEN`。
 
-If other models are loaded, Pi asks whether to unload them first or keep them loaded. Pi does not silently unload models and never deletes model files. The router may be shared with other clients, so `/llama` always displays the router's current state.
+如果已有其他模型处于加载状态，Pi 会询问是先卸载它们还是保持加载。Pi 不会静默卸载模型，也不会删除模型文件。Router 可能与其他客户端共用，因此 `/llama` 始终显示 Router 的当前状态。
 
-Loaded and sleeping models appear in `/model`. Sleeping models wake automatically when selected. With router autoload enabled, unloaded preset models also appear and load when selected. With `--no-models-autoload`, load a model through `/llama` before selecting it.
+已加载和休眠的模型都会显示在 `/model` 中。选择休眠模型时，它会自动唤醒。如果 Router 启用了自动加载，未加载的预设模型也会显示在列表中，并在选择后加载。若使用 `--no-models-autoload`，则需先通过 `/llama` 加载模型。
 
-If the router disconnects, `/llama` shows **Retry** and **Close**. Retry reconnects and refreshes model state without replaying the interrupted operation.
+如果 Router 断开连接，`/llama` 会显示 **重试** 和 **关闭**。重试会重新连接并刷新模型状态，不会重放被中断的操作。
 
-## Classification
+<a id="classification"></a>
+## 分类
 
-Classifier models answer typed `choice`, `bool`, and `score` questions about JSON state, like TypeSafe's Jev models. The model reaches them from [`codemode`](/cli/#enable-codemode) scripts, and extensions through `ctx.modelRegistry.classify()`; see [Classifier models](/models/#use-classifier-models). Pi lists llama.cpp models as classifiers in two ways:
+分类器模型会针对 JSON 状态回答类型为 `choice`、`bool` 和 `score` 的问题，例如 TypeSafe 的 Jev 模型。模型可由 [`codemode`](/cli/#enable-codemode) 脚本调用；扩展可通过 `ctx.modelRegistry.classify()` 调用。详情请参阅[分类器模型](/models/#use-classifier-models)。Pi 会通过两种方式将 llama.cpp 模型列为分类器：
 
-- **Decision models** such as [Julia-1, Laya, Kev, lev, and OpenJev](https://huggingface.co/collections/ggml-org/decision-models-6abf80cca3c83f127060a769) answer natively through llama.cpp's `/v1/systemone` endpoint. They appear only as classifiers, with the `typesafe-system-one` API, and not in `/model`.
-- **Chat models** are also listed as classifiers with the same ID and the `llama-cpp-classify` API, which reads answers from next-token probabilities as described below.
+- **决策模型**（例如 [Julia-1、Laya、Kev、lev 和 OpenJev](https://huggingface.co/collections/ggml-org/decision-models-6abf80cca3c83f127060a769)）通过 llama.cpp 的 `/v1/systemone` 端点原生回答。它们只会作为分类器显示，使用 `typesafe-system-one` API，不会出现在 `/model` 中。
+- **对话模型**也会以相同的 ID 列为分类器，并使用 `llama-cpp-classify` API；此 API 根据下文所述的下一 Token 概率读取答案。
 
-llama.cpp 0.6.0 and later report decision models in the router's model list: their `architecture.output_modalities` contains `decisions`. The router reads this from the GGUF metadata without loading the model, so Pi recognizes unloaded and sleeping decision models too. Older llama.cpp builds do not report it, and Pi lists their decision models as chat models.
+llama.cpp 0.6.0 及之后版本会在 Router 模型列表中报告决策模型：它们的 `architecture.output_modalities` 包含 `decisions`。Router 无需加载模型即可从 GGUF 元数据中读取此信息，因此 Pi 也能识别未加载和休眠的决策模型。较早版本的 llama.cpp 不会报告此信息，Pi 会将其决策模型当作对话模型列出。
 
-### Chat models as classifiers
+<a id="chat-models-as-classifiers"></a>
+### 将对话模型用作分类器
 
-The model does not generate an answer. Each question becomes one chat prompt: the state, every question of the request, the state again, and then the question with its answers under single-token labels. Labels are letters for a choice (up to 62 options), `Yes`/`No` for a bool, and digits for a score (up to 10 levels). The second copy of the state is read with the questions in view, which improved accuracy on JevBench with small models. Pi reads the probabilities of the labels as the next token and normalizes them. A choice returns every option's probability and a confidence of `(n * peak - 1) / (n - 1)`; a score returns the expected level.
+模型不会生成普通文本答案。每个问题会被组合成一个对话提示词：状态、请求中的所有问题、再次出现的状态，以及带有单 Token 标签的当前问题和选项。选择题使用字母作为标签（最多 62 个选项）；布尔题使用 `Yes`/`No`；评分题使用数字（最多 10 个等级）。第二次出现的状态会与问题一同提供；在小模型上的 JevBench 测试中，这提高了准确度。Pi 会读取标签作为下一个 Token 的概率并进行归一化。选择题会返回每个选项的概率，以及置信度 `(n * peak - 1) / (n - 1)`；评分题会返回预期等级。
 
-- Raw label probabilities are usually overconfident. The per-request `temperature` option divides the label logits before normalizing; values above 1 soften the distribution. It changes no answer.
-- Questions run one after another. Everything before the final question is the same for all questions of a request, so the server's prompt cache evaluates it once. The state appears twice, so it needs twice its size in context.
-- Small models may follow instructions written inside the state. The prompt tells the model to judge the state as data, but that is not a guarantee.
-- Hybrid models such as Qwen3.5 cannot rewind a partially cached prompt without context checkpoints. If each question reprocesses the whole state, start the router with `--ctx-checkpoints 32 --checkpoint-min-step 0`.
+- 原始标签概率通常会过度自信。每个请求的 `temperature` 选项会在归一化前缩放标签 logits；大于 1 的值会使概率分布更平缓，但不会改变答案。
+- 问题会依次处理。一个请求中，最后一个问题之前的内容对所有问题都相同，因此服务器的提示缓存只需计算一次。状态会出现两次，因此需要两倍于状态大小的上下文。
+- 小模型可能会遵循状态中写入的指令。提示词会要求模型将状态视为数据来判断，但这并不能完全保证。
+- Qwen3.5 等混合模型无法在没有上下文检查点时回退部分缓存的提示词。如果每个问题都要重新处理整个状态，请使用 `--ctx-checkpoints 32 --checkpoint-min-step 0` 启动 Router。
 
-## Troubleshooting
+<a id="troubleshooting"></a>
+## 故障排查
 
-Check that the router is reachable:
+检查 Router 是否可访问：
 
 ```bash
 curl http://127.0.0.1:9931/health
 curl http://127.0.0.1:9931/models
 ```
 
-- **No models in `/llama`:** Check `--models-dir`, the directory layout, and restart the router.
-- **Model missing from `/model` with `--no-models-autoload`:** Load it with `/llama` first.
-- **Load fails or uses too much memory:** Lower `-c` or unload another model.
-- **Server is not in router mode:** Start it without `--model`, `-m`, or `-hf`.
+- **`/llama` 中没有模型：** 检查 `--models-dir`、目录结构，然后重启 Router。
+- **使用 `--no-models-autoload` 时，模型未出现在 `/model`：** 先通过 `/llama` 加载模型。
+- **加载失败或内存占用过高：** 降低 `-c`，或卸载其他模型。
+- **服务器未处于 Router 模式：** 启动时不要传入 `--model`、`-m` 或 `-hf`。
 
-To remove the `llama.cpp` provider and `/llama`, disable `llama.cpp` under Built-in in `pi config`, or set `"extensions": ["-builtin:llama.cpp"]` in [settings](/settings/#resources).
+若要移除 `llama.cpp` Provider 和 `/llama`，请在 `pi config` 的 Built-in 区域禁用 `llama.cpp`，或在[设置](/settings/#resources)中设置 `"extensions": ["-builtin:llama.cpp"]`。
