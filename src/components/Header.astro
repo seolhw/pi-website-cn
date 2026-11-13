@@ -17,7 +17,7 @@ const navLinks = [
   <nav class="sticky-nav" id="stickyNav" data-nav-open="false">
     <div class="sticky-nav-inner">
       <a class="sticky-nav-logo" href="/" aria-label="Pi 首页">
-        <img src="/pi-mark.svg" alt="" width="44" height="44" />
+        <img src="/favicon.svg" alt="" width="44" height="44" />
         <span class="visually-hidden">Pi 首页</span>
       </a>
       <nav class="sticky-nav-page-links" aria-label="主导航">
@@ -75,7 +75,7 @@ const navLinks = [
     root.dataset.theme = resolvedTheme;
     themePickers.forEach((picker) => {
       const trigger = picker.querySelector<HTMLButtonElement>('[data-theme-trigger]');
-      const select = picker.querySelector<HTMLSelectElement>('[data-theme-select]');
+      const select = picker.querySelector('[data-theme-select]') as HTMLSelectElement | null;
       trigger?.setAttribute('aria-label', `主题模式：${modeLabels[selectedMode]}`);
       if (select && select.value !== selectedMode) select.value = selectedMode;
       select?.dispatchEvent(new Event('ui-select-sync'));
@@ -87,7 +87,7 @@ const navLinks = [
   };
   applyTheme(root.dataset.themeMode || 'system');
   themePickers.forEach((picker) => {
-    const select = picker.querySelector<HTMLSelectElement>('[data-theme-select]');
+    const select = picker.querySelector('[data-theme-select]') as HTMLSelectElement | null;
     select?.addEventListener('change', () => applyTheme(select.value, true));
   });
   document.addEventListener('pointerdown', (event) => {

@@ -87,7 +87,7 @@ const { Content: GuideContent } = await render(guide);
   type Catalog = Record<string, Record<string, CatalogModel>>;
 
   const nameInput = document.querySelector<HTMLInputElement>('[data-model-name-filter]');
-  const providerInput = document.querySelector<HTMLSelectElement>('[data-filter="provider"]');
+  const providerInput = document.querySelector('[data-filter="provider"]') as HTMLSelectElement | null;
   const count = document.querySelector<HTMLElement>('[data-model-count]');
   const body = document.querySelector<HTMLTableSectionElement>('[data-model-rows]');
   const empty = document.querySelector<HTMLElement>('[data-model-empty]');

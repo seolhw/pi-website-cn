@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 470" role="img" aria-label="Pi">
-  <path fill="#F09082" d="M0 0H352.07V234.71H234.71V117.36H0Z"/>
-  <path fill="#4D9ABF" d="M0 117.36H117.36V234.71H234.71V352.07H117.36V469.43H0Z"/>
-  <path fill="#F1BE58" d="M352.07 234.71H469.43V469.43H352.07V234.71Z"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <path fill="#F09082" d="M165.29 165.29H517.36V400H400V282.65H165.29Z"/>
+  <path fill="#4D9ABF" d="M165.29 282.65H282.65V400H400V517.36H282.65V634.72H165.29Z"/>
+  <path fill="#F1BE58" d="M517.36 400H634.72V634.72H517.36Z"/>
 </svg>

@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { loadPackageDetailPage } from '../../lib/packages-catalog';
+import '../../styles/packages.css';
+
+export const prerender = false;
+
+const routeSlug = Astro.params.slug ?? Astro.url.pathname.replace(/^\/packages\/?/, '');
+const slug = decodeURIComponent(routeSlug).replace(/\/+$/, '');
+const detail = await loadPackageDetailPage(slug);
+if (!detail) Astro.response.status = 404;
+const packageName = detail?.name ?? '未找到软件包';
+const typeLabels: Record<string, string> = {
+  extension: '扩展',
+  skill: 'Skill',
+  theme: '主题',
+  prompt: '提示模板',
+  package: '软件包',
+};
+---
+
+<BaseLayout title={`${packageName} · 软件包 · Pi`} description={detail?.description ?? '未找到此软件包。'}>
+  <main class="content-shell packages-dashboard packages-detail-view">
+    {detail ? (
+      <>
+        <header class="packages-detail-hero">
+          <p class="packages-eyebrow">PI / COMMUNITY PACKAGE</p>
+          <h1 class="packages-detail-title">{detail.name}</h1>
+          <p class="packages-detail-description">{detail.description}</p>
+        </header>
+        <a class="packages-back-link" href="/packages/">返回软件包目录</a>
+
+        <section class="surface-panel content-card packages-detail-card">
+          <header class="content-card-header"><h2 class="content-card-title">软件包详情</h2></header>
+          <div class="content-card-body">
+            <div class="packages-detail-topline">
+              <div>
+                <div class="packages-badges">
+                  {detail.types.map((type) => <span class="packages-badge">{typeLabels[type] ?? type}</span>)}
+                </div>
+                <p class="packages-detail-install-note">从 npm 安装 <code>{detail.name}</code>，Pi 会加载软件包清单中声明的资源。</p>
+              </div>
+              <nav class="packages-detail-links" aria-label={`${detail.name} 的外部链接`}>
+                {detail.links.map(({ href, label }) => <a href={href} target="_blank" rel="noopener noreferrer">{label}</a>)}
+              </nav>
+            </div>
+            <div class="packages-install packages-install--detail">
+              <code>{detail.installCommand}</code>
+              <button class="packages-copy-button" type="button" data-copy-install={detail.installCommand}>复制</button>
+            </div>
+            {detail.metadata.length > 0 && (
+              <dl class="packages-detail-grid">
+                {detail.metadata.map(({ label, value }) => (
+                  <>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </>
+                ))}
+              </dl>
+            )}
+            {detail.manifest && (
+              <details class="packages-manifest">
+                <summary>Pi 清单 JSON</summary>
+                <pre><code>{detail.manifest}</code></pre>
+              </details>
+            )}
+          </div>
+        </section>
+
+        <section class="surface-panel content-card packages-security-card">
+          <header class="content-card-header"><h2 class="content-card-title">安全提示</h2></header>
+          <div class="content-card-body">
+            <p>Pi 软件包可以执行代码并影响 Agent 行为。安装第三方软件包前，请先审阅其源代码。</p>
+          </div>
+        </section>
+
+        <section class="surface-panel content-card packages-readme-card">
+          <header class="content-card-header"><h2 class="content-card-title">README</h2></header>
+          <div class="content-card-body">
+            <div class="rich-text docs-prose markdown-content packages-readme" set:html={detail.readmeHtml} />
+          </div>
+        </section>
+      </>
+    ) : (
+      <section class="surface-panel content-card packages-detail-not-found">
+        <header class="content-card-header"><h1 class="content-card-title">未找到此软件包</h1></header>
+        <div class="content-card-body">
+          <p>软件包可能已被移除，或者暂时无法从 Pi 目录加载。</p>
+          <a href="/packages/">返回软件包目录</a>
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-install]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const command = button.dataset.copyInstall;
+      if (!command) return;
+      try {
+        await navigator.clipboard.writeText(command);
+        const original = button.textContent;
+        button.textContent = '已复制';
+        window.setTimeout(() => { button.textContent = original; }, 1400);
+      } catch {
+        button.textContent = '复制失败';
+      }
+    });
+  });
+</script>

@@ -40,7 +40,7 @@ const menuId = themePicker ? 'theme-mode-select-menu' : `select-menu-${name ?? d
   for (const wrapper of wrappers) {
     if (wrapper.dataset.selectInitialized === 'true') continue;
     wrapper.dataset.selectInitialized = 'true';
-    const select = wrapper.querySelector<HTMLSelectElement>('[data-select-native]');
+    const select = wrapper.querySelector('[data-select-native]') as HTMLSelectElement | null;
     if (select?.hasAttribute('data-theme-select')) {
       const savedMode = document.documentElement.dataset.themeMode;
       if (savedMode && [...select.options].some((option) => option.value === savedMode)) select.value = savedMode;

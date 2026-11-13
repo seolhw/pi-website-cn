@@ -45,6 +45,7 @@ const localizeAge = (value: string) => value
   .replace(/(\d+)mo ago/i, '$1 个月前')
   .replace(/(\d+)y ago/i, '$1 年前');
 const recentPages = catalog.recent;
+const packageHref = (path: string) => `${path.replace(/\/+$/, '')}/`;
 ---
 
 <BaseLayout title="Pi 包目录 · Pi" description="浏览 Pi 社区发布的扩展、Skills、提示模板和主题包。">
@@ -64,7 +65,7 @@ const recentPages = catalog.recent;
         <div class="content-card-body">
           <div class="packages-recent-grid">
             {recentPages.map((item) => (
-              <a href={`https://pi.dev${item.path}`} class="packages-recent-item" target="_blank" rel="noopener noreferrer">
+              <a href={packageHref(item.path)} class="packages-recent-item">
                 <strong>{item.name}</strong>
                 <span>{item.description}</span>
                 <small>{localizeAge(item.published)}</small>
@@ -135,7 +136,7 @@ const recentPages = catalog.recent;
                 {item.previewUrl && <img class="packages-preview-image" src={item.previewUrl} alt="" loading="lazy" decoding="async" />}
               </div>
               <div class="packages-card-body">
-                <h3 class="packages-name"><a href={`https://pi.dev${item.path}`} target="_blank" rel="noopener noreferrer">{item.name}</a></h3>
+                <h3 class="packages-name"><a href={packageHref(item.path)}>{item.name}</a></h3>
                 <p class="packages-desc">{item.description}</p>
                 <div class="packages-meta">
                   {item.author && <span>{item.author}</span>}

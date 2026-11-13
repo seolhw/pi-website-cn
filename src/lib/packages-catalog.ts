@@ -30,6 +30,17 @@ export interface PackageCatalogPage {
   error: boolean;
 }
 
+export interface PackageDetailPage {
+  name: string;
+  description: string;
+  types: string[];
+  installCommand: string;
+  links: Array<{ href: string; label: string }>;
+  metadata: Array<{ label: string; value: string }>;
+  manifest: string;
+  readmeHtml: string;
+}
+
 function decodeHtml(value: string): string {
   return value
     .replace(/&amp;/g, "&")
@@ -64,6 +75,53 @@ function blockContent(html: string, className: string, tagName: string): string 
 
 function anchors(html: string): string[] {
   return [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>/gi)].map((match) => decodeHtml(match[1]));
+}
+
+function extractReadme(html: string): string {
+  const startTag = '<div class="rich-text packages-readme">';
+  const start = html.indexOf(startTag);
+  if (start < 0) return "";
+  const contentStart = start + startTag.length;
+  const closingTags = /\s*<\/div>\s*<\/div>\s*<\/section>/i.exec(html.slice(contentStart));
+  return closingTags ? html.slice(contentStart, contentStart + closingTags.index) : "";
+}
+
+function parsePackageDetail(html: string, fallbackName: string): PackageDetailPage | undefined {
+  const hero = html.match(/<h1 class="content-title">([\s\S]*?)<\/h1>/i)?.[1];
+  if (!hero) return undefined;
+  const name = textContent(hero) || fallbackName;
+  const description = textContent(blockContent(html, "content-description", "p"));
+  const types = [...blockContent(html, "packages-badges", "div").matchAll(/data-type="([^"]+)"/g)].map((match) =>
+    decodeHtml(match[1]),
+  );
+  const installHtml = blockContent(html, "packages-install--detail", "div");
+  const installCommand =
+    textContent(blockContent(installHtml, "", "code")).replace(/^\$\s*/, "") || `pi install npm:${name}`;
+  const linksHtml = blockContent(html, "packages-detail-links", "div");
+  const links = [...linksHtml.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)]
+    .map(([, attributes, content]) => ({ href: attribute(attributes, "href"), label: textContent(content) }))
+    .filter((link) => link.href.startsWith("https://"));
+  const detailsHtml = blockContent(html, "detail-grid", "dl");
+  const metadata = [...detailsHtml.matchAll(/<dt[^>]*>([\s\S]*?)<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>/gi)].map(
+    ([, label, value]) => ({ label: textContent(label), value: textContent(value) }),
+  );
+  const manifest = textContent(blockContent(html, "raw-data-panel", "pre"));
+  const readmeHtml = extractReadme(html);
+  if (!readmeHtml) return undefined;
+  return { name, description, types, installCommand, links, metadata, manifest, readmeHtml };
+}
+
+export async function loadPackageDetailPage(path: string): Promise<PackageDetailPage | undefined> {
+  const segments = path.split("/").filter(Boolean).map(encodeURIComponent);
+  if (segments.length === 0 || segments.length > 4) return undefined;
+  try {
+    const upstream = new URL(`https://pi.dev/packages/${segments.join("/")}`);
+    const response = await fetch(upstream, { headers: { Accept: "text/html" } });
+    if (!response.ok) return undefined;
+    return parsePackageDetail(await response.text(), decodeURIComponent(segments.at(-1) ?? ""));
+  } catch {
+    return undefined;
+  }
 }
 
 function parseCard(block: string): CatalogPackage | undefined {

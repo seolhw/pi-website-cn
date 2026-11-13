@@ -150,6 +150,10 @@
   padding-inline-start: 1.15rem;
 }
 
+.docs-article-card {
+  border-color: var(--article-panel-border);
+  background: var(--article-panel-bg);
+}
 .docs-article-card .content-card-body {
   padding: clamp(1.15rem, 2.4vw, 1.7rem);
 }
