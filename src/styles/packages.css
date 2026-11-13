@@ -49,7 +49,7 @@
 .packages-action-bar {
   display: grid;
   grid-template-columns: minmax(12rem, 1fr) minmax(9rem, 12rem) minmax(10rem, 13rem) auto;
-  align-items: center;
+  align-items: start;
   gap: 0.55rem;
   margin-bottom: 1rem;
 }
@@ -63,12 +63,18 @@
   background: color-mix(in srgb, var(--color-bg) 38%, var(--color-panel));
   color: var(--color-text);
   font: 0.73rem/1.3 var(--font-ui-mono);
+  box-shadow: none;
 }
+.packages-input { appearance: none; -webkit-appearance: none; }
 .packages-input::placeholder { color: var(--color-muted); }
 .packages-select { cursor: pointer; }
-.packages-input:focus-visible, .packages-select:focus-visible, .packages-button:focus-visible,
-.packages-page-number:focus-visible, .packages-page-link:focus-visible, .packages-name a:focus-visible,
-.packages-links a:focus-visible, .packages-copy-button:focus-visible {
+.packages-input:focus-visible, .packages-select:focus-visible {
+  outline: none;
+  border-color: var(--color-link);
+  box-shadow: none;
+}
+.packages-button:focus-visible, .packages-page-number:focus-visible, .packages-page-link:focus-visible,
+.packages-name a:focus-visible, .packages-links a:focus-visible, .packages-copy-button:focus-visible {
   outline: 1px solid var(--color-link);
   outline-offset: 2px;
 }

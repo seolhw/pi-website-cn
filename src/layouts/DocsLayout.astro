@@ -8,9 +8,10 @@ interface Props {
   description?: string;
   activeSlug: string;
   headings: Heading[];
+  showDocNavigation?: boolean;
 }
 
-const { title, description = '', activeSlug, headings } = Astro.props;
+const { title, description = '', activeSlug, headings, showDocNavigation = true } = Astro.props;
 const toc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
 const sourcePath = activeSlug === 'overview' ? 'index.md' : `${activeSlug}.md`;
 const sourceUrl = activeSlug === 'changelog'
@@ -20,12 +21,14 @@ const sourceUrl = activeSlug === 'changelog'
 
 <BaseLayout title={`${title} · Pi`} description={description}>
   <main class="content-shell docs-page">
-    <section class:list={['docs-layout', { 'docs-layout-no-toc': toc.length === 0 }]}>
+    <section class:list={['docs-layout', { 'docs-layout-no-toc': toc.length === 0, 'docs-layout-no-sidebar': !showDocNavigation }]}>
       <div class="docs-mobile-tools">
-        <details class="surface-panel docs-mobile-disclosure">
-          <summary>文档导航</summary>
-          <div class="docs-mobile-disclosure-body"><SidebarNav activeSlug={activeSlug} /></div>
-        </details>
+        {showDocNavigation && (
+          <details class="surface-panel docs-mobile-disclosure">
+            <summary>文档导航</summary>
+            <div class="docs-mobile-disclosure-body"><SidebarNav activeSlug={activeSlug} /></div>
+          </details>
+        )}
         {toc.length > 0 && (
           <details class="surface-panel docs-mobile-disclosure">
             <summary>本页内容</summary>
@@ -42,12 +45,14 @@ const sourceUrl = activeSlug === 'changelog'
         )}
       </div>
 
-      <aside class="docs-nav-rail">
-        <section class="surface-panel content-card docs-side-card docs-nav-card">
-          <header class="content-card-header"><h2 class="content-card-title">文档</h2></header>
-          <div class="content-card-body"><SidebarNav activeSlug={activeSlug} /></div>
-        </section>
-      </aside>
+      {showDocNavigation && (
+        <aside class="docs-nav-rail">
+          <section class="surface-panel content-card docs-side-card docs-nav-card">
+            <header class="content-card-header"><h2 class="content-card-title">文档</h2></header>
+            <div class="content-card-body"><SidebarNav activeSlug={activeSlug} /></div>
+          </section>
+        </aside>
+      )}
 
       <div class="docs-main-column">
         <section class="surface-panel content-card docs-article-card">

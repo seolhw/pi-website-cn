@@ -69,7 +69,7 @@
     background: color-mix(in srgb, var(--color-link) 7%, var(--color-panel));
     color: var(--color-text);
   }
-  .theme-picker-trigger:focus-visible,
+  .theme-picker-trigger:focus-visible:not([aria-expanded="true"]),
   .theme-picker-menu button:focus-visible {
     outline: 1px solid var(--color-link);
     outline-offset: 2px;
@@ -95,7 +95,7 @@
     right: 0;
     z-index: 40;
     display: grid;
-    width: 100%;
+    width: max(100%, 9rem);
     min-width: 0;
     box-sizing: border-box;
     gap: 0.12rem;
@@ -123,8 +123,8 @@
   }
   .theme-picker-menu button:hover,
   .theme-picker-menu button[aria-checked="true"] {
-    border-color: color-mix(in srgb, var(--color-link) 28%, transparent);
-    background: color-mix(in srgb, var(--color-link) 8%, transparent);
+    border-color: transparent;
+    background: color-mix(in srgb, var(--color-link) 10%, var(--color-panel));
     color: var(--color-text);
   }
   .theme-picker-menu button > svg { width: 0.95rem; height: 0.95rem; }

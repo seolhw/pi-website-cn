@@ -453,4 +453,6 @@
   .docs-main-column { grid-area: main; display: grid; gap: 1rem; }
   .docs-toc-rail { grid-area: toc; display: block; align-self: start; }
   .docs-layout-no-toc { grid-template-areas: 'nav main'; grid-template-columns: minmax(var(--docs-rail-min), var(--docs-rail-max)) minmax(0, 1fr); }
+  .docs-layout-no-sidebar { grid-template-areas: 'main toc'; grid-template-columns: minmax(0, 1fr) minmax(var(--docs-rail-min), var(--docs-rail-max)); }
+  .docs-layout-no-sidebar.docs-layout-no-toc { grid-template-areas: 'main'; grid-template-columns: minmax(0, 1fr); }
 }
