@@ -1,41 +1,43 @@
 ---
-title: "Run Local Models on NVIDIA RTX"
+title: "在 NVIDIA RTX 上运行本地模型"
 ---
 
-# Run Pi with NVIDIA RTX and llama.cpp
+# 使用 NVIDIA RTX 和 llama.cpp 运行 Pi
 
-[NVIDIA Local AI Inference Recipes](https://nvidia.github.io/local-ai-inference-recipes/index.html) provides llama.cpp settings tuned for specific NVIDIA hardware and models. Each recipe gives a single-model `llama-server` command. Pi works with the llama.cpp router, which can serve and manage several models, so this guide converts the recipe command into a router preset and starts it with `llama serve`. `llama serve` accepts the same options as `llama-server`.
+[NVIDIA Local AI Inference Recipes](https://nvidia.github.io/local-ai-inference-recipes/index.html) 提供针对特定 NVIDIA 硬件和模型调优的 llama.cpp 设置。每份配方都会给出针对单个模型的 `llama-server` 命令。Pi 使用 llama.cpp 路由器来服务和管理多个模型，因此本指南会将配方命令转换为路由器预设，再使用 `llama serve` 启动。`llama serve` 接受与 `llama-server` 相同的选项。
 
-The examples below use Windows PowerShell. See [Local Models with llama.cpp](/llama-cpp/) for Pi's complete router and model-management reference.
+以下示例使用 Windows PowerShell。关于 Pi 的完整路由器与模型管理说明，请参阅[使用 llama.cpp 运行本地模型](/llama-cpp/)。
 
-## Before you begin
+<a id="before-you-begin"></a>
+## 准备工作
 
-1. Open the [recipe catalog](https://nvidia.github.io/local-ai-inference-recipes/index.html), select your hardware, operating system, and model, then choose **llama.cpp**. Check the prerequisites and memory requirements. Keep the recipe's launch command for the conversion below.
-2. Install llama.cpp with the recipe's setup instructions. The recipe's settings depend on its build, for example CUDA support or speculative decoding options.
-3. Run `llama serve --help` and check that it lists `--models-preset`. If the build has no `llama` program or the option is missing, it cannot load the recipe as a router preset. Use a newer build that still meets the recipe's requirements.
-4. Install Pi with the [Quickstart](/quickstart/). On native Windows, also see [Run Pi on Windows](/windows/).
+1. 打开[配方目录](https://nvidia.github.io/local-ai-inference-recipes/index.html)，选择硬件、操作系统和模型，然后选择 **llama.cpp**。检查前置条件和内存需求，并保留配方中的启动命令，以便按下文转换。
+2. 按照配方中的安装说明安装 llama.cpp。配方设置可能依赖特定构建选项，例如 CUDA 支持或推测解码选项。
+3. 运行 `llama serve --help`，确认帮助中包含 `--models-preset`。如果构建中没有 `llama` 程序或缺少该选项，就无法将配方用作路由器预设。请改用仍满足配方要求的较新构建。
+4. 按照[快速开始](/quickstart/)安装 Pi。原生 Windows 用户也请参阅[在 Windows 上运行 Pi](/windows/)。
 
-## Convert the recipe to a preset
+<a id="convert-the-recipe-to-a-preset"></a>
+## 将配方转换为预设
 
-A preset lists the settings for one or more models. Each section name becomes the model ID shown in Pi. Save the preset in the llama.cpp folder, or pass its full path when starting the router.
+预设用于列出一个或多个模型的设置。每个配置段的名称都会成为 Pi 中显示的模型 ID。可以将预设保存在 llama.cpp 目录中，也可以在启动路由器时提供完整路径。
 
-Convert each option from the recipe command into one preset line:
+将配方命令中的每个选项转换为预设中的一行：
 
-- Remove the leading dashes: `--ctx-size 65536` becomes `ctx-size = 65536`.
-- Write options without a value as `true`: `--jinja` becomes `jinja = true`.
-- Remove quotes and PowerShell line-continuation backticks around values.
-- Leave out `--host` and `--port`. They belong on the router command line.
-- Add `load-on-startup = true` so the router loads the model when it starts.
-- Replace short model-file options with their long preset keys:
+- 去掉选项前面的连字符：`--ctx-size 65536` 转换为 `ctx-size = 65536`。
+- 没有取值的选项设为 `true`：`--jinja` 转换为 `jinja = true`。
+- 去掉值两侧的引号和 PowerShell 行续接反引号。
+- 不要添加 `--host` 和 `--port`，它们属于路由器命令行选项。
+- 添加 `load-on-startup = true`，让路由器启动时加载模型。
+- 将模型文件相关的简写选项替换为预设中的长选项：
 
-| Recipe option | Preset key |
+| 配方选项 | 预设键 |
 |---|---|
 | `-hf` | `hf-repo` |
 | `-hff` | `hf-file` |
 | `-hfrd` | `hf-repo-draft` |
 | `--spec-draft-model` | `spec-draft-model` |
 
-For example, this recipe command:
+例如，以下配方命令：
 
 ```powershell
 llama-server.exe -hf "unsloth/Qwen3.8-27B-GGUF" `
@@ -57,7 +59,7 @@ llama-server.exe -hf "unsloth/Qwen3.8-27B-GGUF" `
   --spec-draft-backend-sampling
 ```
 
-becomes `qwen3.8-27b.ini`:
+转换为 `qwen3.8-27b.ini`：
 
 ```ini
 version = 1
@@ -81,20 +83,22 @@ spec-draft-n-max = 7
 spec-draft-backend-sampling = true
 ```
 
-## Start the router
+<a id="start-the-router"></a>
+## 启动路由器
 
-Open PowerShell in the llama.cpp folder and run:
+在 llama.cpp 目录中打开 PowerShell 并运行：
 
 ```powershell
 .\llama.exe serve --models-preset qwen3.8-27b.ini --host 127.0.0.1
 ```
 
-If the recipe requires a Hugging Face token, set `$env:HF_TOKEN` in the same PowerShell window before starting the router. On its first start, the router downloads the model files.
+如果配方需要 Hugging Face Token，请在同一个 PowerShell 窗口启动路由器前设置 `$env:HF_TOKEN`。首次启动时，路由器会下载模型文件。
 
-Use the [router health checks](/llama-cpp/#troubleshooting) to confirm that the server is ready. In Windows PowerShell, use `curl.exe` rather than `curl`, which PowerShell maps to a different command. The model is ready when `/models` lists `qwen3.8-27b` with the status `loaded`.
+请使用[路由器健康检查](/llama-cpp/#troubleshooting)确认服务已就绪。在 Windows PowerShell 中，请使用 `curl.exe` 而不是 `curl`，因为 PowerShell 会将 `curl` 映射到另一个命令。当 `/models` 列出状态为 `loaded` 的 `qwen3.8-27b` 时，模型即可使用。
 
-## Use the model in Pi
+<a id="use-the-model-in-pi"></a>
+## 在 Pi 中使用模型
 
-Follow [Configure Pi](/llama-cpp/#configure-pi) and connect to `http://127.0.0.1:9931`. The preset section name is the model ID, so select `qwen3.8-27b` in `/model` for this example.
+按照[配置 Pi](/llama-cpp/#configure-pi)连接到 `http://127.0.0.1:9931`。预设配置段的名称就是模型 ID，因此本例中请在 `/model` 中选择 `qwen3.8-27b`。
 
-NVIDIA recipe memory settings assume that only the selected model uses the GPU. If `/llama` shows other loaded models, unload them before using the recipe model.
+NVIDIA 配方中的显存设置假定 GPU 只运行选定的模型。如果 `/llama` 显示还加载了其他模型，请先卸载它们，再使用该配方模型。

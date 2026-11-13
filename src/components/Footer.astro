@@ -1,10 +1,21 @@
 ---
 const year = new Date().getFullYear();
-const socials = [
-	{ label: 'GitHub', href: 'https://github.com/earendil-works/pi' },
-	{ label: 'npm', href: 'https://www.npmjs.com/package/@earendil-works/pi-coding-agent' },
-	{ label: 'Discord', href: 'https://discord.com/invite/nKXTsAcmbT' },
-	{ label: 'X', href: 'https://x.com/pidotdev' },
+const linkGroups = [
+	{
+		label: '官方',
+		ariaLabel: 'Pi 官方链接',
+		links: [
+			{ label: 'GitHub', href: 'https://github.com/earendil-works/pi' },
+			{ label: 'X', href: 'https://x.com/pidotdev' },
+			{ label: 'Discord', href: 'https://discord.com/invite/nKXTsAcmbT' },
+			{ label: 'npm', href: 'https://www.npmjs.com/package/@earendil-works/pi-coding-agent' },
+		],
+	},
+	{
+		label: '本站',
+		ariaLabel: '本站链接',
+		links: [{ label: 'GitHub', href: 'https://github.com/seolhw/pi-website-cn' }],
+	},
 ];
 ---
 
@@ -17,10 +28,16 @@ const socials = [
 			<span class="footer-secondary">本站为社区维护的中文文档，非 Pi 官方站点。</span>
 		</div>
 		<div class="footer-right">
-			<nav class="footer-socials" aria-label="社交媒体">
-				{socials.map(({ label, href }) => <a href={href}>{label}</a>)}
-				<a href="https://earendil.com">Earendil</a>
-			</nav>
+			<div class="footer-link-groups">
+				{linkGroups.map(({ label, ariaLabel, links }) => (
+					<div class="footer-link-row">
+						<span class="footer-link-label">{label}：</span>
+						<nav class="footer-socials" aria-label={ariaLabel}>
+							{links.map(({ label: linkLabel, href }) => <a href={href}>{linkLabel}</a>)}
+						</nav>
+					</div>
+				))}
+			</div>
 			<p>© {year} Earendil Inc. · <a href="https://exe.dev">pi.dev 域名由 exe.dev 慷慨提供</a></p>
 		</div>
 	</div>
@@ -39,6 +56,9 @@ const socials = [
 	.footer-primary { color: var(--color-text); font-size: var(--text-sm); }
 	.footer-primary a { font-weight: 600; }
 	.footer-secondary, .footer-right p { color: var(--color-muted); }
+	.footer-link-groups { display: grid; gap: 0.45rem; }
+	.footer-link-row { display: flex; align-items: baseline; gap: 0.65rem; }
+	.footer-link-label { min-width: 2.8em; color: var(--color-muted); }
 	.footer-socials { display: flex; flex-wrap: wrap; gap: 1rem; }
 	.footer-socials a, .site-footer a { color: var(--color-text); text-decoration: none; }
 	.site-footer a:hover { color: var(--color-link); }

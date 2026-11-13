@@ -1,0 +1,37 @@
+<label class="theme-select">
+  <span class="theme-select-icon" aria-hidden="true">◐</span>
+  <select aria-label="颜色主题" data-theme-select>
+    <option value="system">跟随系统</option>
+    <option value="dark">深色</option>
+    <option value="light">浅色</option>
+  </select>
+  <span class="theme-select-chevron" aria-hidden="true">⌄</span>
+</label>
+
+<style>
+  .theme-select {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    min-width: 0;
+    color: var(--color-muted-strong);
+  }
+  .theme-select-icon { flex: 0 0 auto; font-size: 0.85rem; line-height: 1; }
+  .theme-select select {
+    max-width: 8.2rem;
+    appearance: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0.3rem 1.05rem 0.3rem 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: 0.72rem var(--font-ui-mono);
+  }
+  .theme-select select:focus-visible { outline: 1px solid var(--color-link); outline-offset: 0.15rem; }
+  .theme-select select option { background: var(--color-panel); color: var(--color-text); }
+  .theme-select-chevron { margin-inline-start: -1rem; pointer-events: none; font-size: 0.8rem; }
+  @media (max-width: 767px) {
+    .theme-select select { font-size: 0.66rem; }
+  }
+</style>

@@ -1,16 +1,17 @@
 ---
-title: "Create Prompt Templates"
+title: "提示模板"
 ---
 
-# Prompt Templates
+# 提示模板
 
-Prompt templates turn Markdown files into reusable `/` commands. Use one when you want to reuse the same prompt without adding executable behavior or a larger set of supporting instructions.
+提示模板会将 Markdown 文件转换为可重复使用的 `/` 命令。如果你想复用同一段提示词，又不需要添加可执行行为或一大组配套指令，可以使用提示模板。
 
-A template can accept arguments and appear in command completion. Pi can load templates from personal configuration, project configuration, an explicit path, or a Pi package. Project configuration loads only after project trust is granted.
+模板可以接收参数，并会显示在命令补全中。Pi 可以从个人配置、项目配置、显式指定的路径或 Pi 包中加载模板。项目配置只有在[信任项目](/security/#understand-project-trust)后才会加载。
 
-## Create a template
+<a id="create-a-template"></a>
+## 创建模板
 
-Create `~/.pi/agent/prompts/review.md`:
+创建 `~/.pi/agent/prompts/review.md`：
 
 ```markdown
 ---
@@ -20,44 +21,42 @@ argument-hint: "[focus]"
 Review the staged changes. Focus on ${1:-correctness, security, and error handling}.
 ```
 
-The filename becomes the command name, so this template is available as `/review`. The `description` appears in command completion. If it is omitted, Pi uses the first non-empty line.
+文件名会成为命令名，因此这个模板可通过 `/review` 使用。`description` 会显示在命令补全中；如果省略，Pi 会使用文件中的第一行非空内容作为描述。
 
-`argument-hint` is optional. Use `<angle brackets>` for required arguments and `[square brackets]` for optional arguments.
+`argument-hint` 是可选项。必需参数使用尖括号表示，可选参数使用方括号表示。
 
-Run `/reload` after adding or changing a template in an active session.
+在活动会话中添加或修改模板后，运行 `/reload`。
 
 <a id="invoke-a-template"></a>
+## 使用模板
 
-## Use a template
-
-Type the template command in the editor:
+在编辑器中输入模板命令：
 
 ```text
 /review
 /review concurrency
 ```
 
-Pi expands the template before the resulting text enters the agent. Extensions receive the raw input first through the `input` event unless an extension command with the same name handles it.
+在文本进入 Agent 之前，Pi 会先展开模板。如果没有扩展命令使用同名命令处理输入，扩展会通过 `input` 事件先收到原始输入。
 
-Templates support these substitutions:
+模板支持以下替换语法：
 
-| Syntax | Result |
+| 语法 | 替换结果 |
 |---|---|
-| `$1`, `$2`, … | One positional argument |
-| `$@` or `$ARGUMENTS` | All arguments joined with spaces |
-| `${1:-default}` | First argument, or a default value |
-| `${@:-default}` | All arguments, or a default value |
-| `${@:N}` | Arguments starting at position `N` |
-| `${@:N:L}` | `L` arguments starting at position `N` |
+| `$1`、`$2`、…… | 对应位置的单个参数 |
+| `$@` 或 `$ARGUMENTS` | 以空格连接的全部参数 |
+| `${1:-default}` | 第一个参数；未提供时使用默认值 |
+| `${@:-default}` | 全部参数；未提供时使用默认值 |
+| `${@:N}` | 从第 `N` 个位置开始的参数 |
+| `${@:N:L}` | 从第 `N` 个位置开始的 `L` 个参数 |
 
-Arguments follow shell-like quoting, so `/review "API compatibility"` supplies one argument containing a space. A quote only starts quoting at the beginning of an argument, so apostrophes inside words such as `doesn't` stay as text, and a quote with no closing match is kept as text. Inside a quoted argument, a backslash before the same quote character keeps it as text, so `/review "the \"fast\" path"` supplies `the "fast" path`; other backslashes are kept as typed.
+参数使用类似 Shell 的引号规则，因此 `/review "API compatibility"` 会传入一个包含空格的参数。只有引号出现在参数开头时才会开始引用，所以 `doesn't` 这样的单词内部撇号会保留为普通文本；没有匹配结束引号时，输入也会作为文本保留。在带引号的参数中，反斜杠只有在转义相同的引号字符时才会被处理，因此 `/review "the \"fast\" path"` 会传入 `the "fast" path`；其他反斜杠都会按原样保留。
 
 <a id="choose-where-it-loads"></a>
+## 将模板添加到 Pi
 
-## Add it to Pi
+将模板放入用户级或项目级提示模板目录。默认情况下，常规提示模板目录只加载其直接子目录中的 `.md` 文件。
 
-Place the template in your user or project prompt directory. Conventional prompt directories load direct `.md` children only.
+设置和 Pi 包可以选择嵌套目录中的 Markdown 文件；包清单还可以通过显式路径和 glob 限定发现范围。详情请参阅[设置](/settings/#resources)和 [Pi 包](/packages/)。
 
-Settings and packages can select nested Markdown files; a package manifest can narrow discovery with explicit paths and globs. See [Settings](/settings/#resources) and [Pi Packages](/packages/) for these options.
-
-Project templates become commands in the editor after trust is granted. Review their content before trusting an unfamiliar project. See [Security](/security/#understand-project-trust).
+授予项目权限后，项目模板才会成为编辑器中的命令。信任陌生项目之前，请先检查模板内容。详情请参阅[安全](/security/#understand-project-trust)。

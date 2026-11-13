@@ -138,7 +138,7 @@
   margin: 0;
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: clamp(1.7rem, 3.5vw, 2.65rem);
+  font-size: clamp(1.55rem, 3.1vw, 2.4rem);
   font-style: italic;
   font-weight: 400;
   line-height: 0.98;
@@ -285,15 +285,15 @@
 }
 .docs-prose h2 {
   margin: 0;
-  font-size: clamp(1.55rem, 3vw, 2.35rem);
+  font-size: clamp(1.4rem, 2.7vw, 2.1rem);
   font-style: italic;
 }
-.docs-prose h3 { margin: 0; font-size: clamp(1.18rem, 2vw, 1.45rem); font-weight: 560; }
+.docs-prose h3 { margin: 0; font-size: clamp(1.08rem, 1.8vw, 1.32rem); font-weight: 560; }
 .docs-prose h4 {
   margin: 0;
   font-weight: 560;
   font-family: var(--font-ui-mono);
-  font-size: 1.02rem;
+  font-size: 0.95rem;
   letter-spacing: -0.01em;
 }
 .docs-prose .depth-2 {

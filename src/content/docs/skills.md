@@ -1,18 +1,19 @@
 ---
-title: "Add Skills"
+title: "添加 Skill"
 ---
 
-# Skills
+# Skill
 
-Skills give Pi specialized instructions and supporting files for a particular kind of work. Pi advertises each available skill by name and description, then loads its full instructions only when the task calls for them.
+Skill 为特定类型的工作提供专用指令和支持文件。Pi 会向模型列出每个可用 Skill 的名称和说明，并只在任务需要时加载完整指令。
 
-Use a skill when a workflow needs more context than a prompt template but does not need a new executable integration point. Skills can bundle scripts, references, and assets alongside their instructions.
+当工作流需要比提示模板更多的上下文，但不需要新的可执行集成点时，可以使用 Skill。Skill 可以将脚本、参考资料和资源文件与指令放在一起。
 
-Pi implements the [Agent Skills specification](https://agentskills.io/specification). Most invalid fields produce warnings rather than stopping startup.
+Pi 实现了 [Agent Skills 规范](https://agentskills.io/specification)。大多数无效字段只会触发警告，不会中止启动。
 
-## Create a skill
+<a id="create-a-skill"></a>
+## 创建 Skill
 
-A skill is a directory containing `SKILL.md`:
+Skill 是一个包含 `SKILL.md` 的目录：
 
 ```text
 pdf-tools/
@@ -25,73 +26,75 @@ pdf-tools/
     └── template.json
 ```
 
-Start `SKILL.md` with frontmatter followed by direct instructions:
+在 `SKILL.md` 中先写 Frontmatter，再写直接明确的指令：
 
 ```markdown
 ---
 name: pdf-tools
-description: Extract text and tables from PDF files. Use when reading, converting, or inspecting PDFs.
+description: 从 PDF 文件中提取文本和表格。用于阅读、转换或检查 PDF 时。
 ---
 
-# PDF tools
+# PDF 工具
 
-Read `references/formats.md` before converting a document. Run scripts relative to this skill directory.
+转换文档前先阅读 `references/formats.md`。运行脚本时使用相对于此 Skill 目录的路径。
 ```
 
-The description determines when the model considers loading the skill. State both what the skill does and when it applies. Avoid descriptions such as “Helps with PDFs,” which do not provide enough routing information.
+模型会根据 description 判断何时加载 Skill。请说明 Skill 的功能以及适用时机。避免使用“帮助处理 PDF”这类信息不足、无法准确路由的说明。
 
-Use relative paths from the skill directory when referring to bundled files. Pi tells the model where the skill lives so it can resolve those paths.
+引用 Skill 包含的文件时，请使用相对于 Skill 目录的路径。Pi 会告知模型 Skill 所在位置，使其能够解析这些路径。
 
-## Understand how skills load
+<a id="understand-how-skills-load"></a>
+## 了解 Skill 的加载方式
 
-At startup, Pi scans configured skill locations and adds each skill’s name, description, and path to the system prompt. It does not add the full instructions.
+启动时，Pi 会扫描已配置的 Skill 位置，并将每个 Skill 的名称、说明和路径添加到系统提示词中，但不会加入完整指令。
 
-When a task matches, the model reads `SKILL.md` and follows its instructions. This keeps detailed guidance out of context until it is needed. A model might fail to load a relevant skill, so use `/skill:name` when you need to force it.
+任务匹配时，模型会读取 `SKILL.md` 并遵循其中指令。这样可以让详细指导留在上下文之外，直到确有需要。模型可能不会加载相关 Skill；需要强制使用时，请运行 `/skill:name`。
 
-Arguments after `/skill:name` are appended to the loaded instructions as a user request:
+`/skill:name` 后面的参数会作为用户请求追加到已加载的指令中：
 
 ```text
 /skill:pdf-tools extract report.pdf
 ```
 
-Set `disable-model-invocation: true` in frontmatter when a skill should be available only through its explicit command. The `enableSkillCommands` [setting](/settings/) controls whether skill commands appear in interactive command discovery; manually entered `/skill:name` commands still work.
+如果 Skill 只能通过显式命令调用，请在 Frontmatter 中设置 `disable-model-invocation: true`。`enableSkillCommands` [设置](/settings/)控制 Skill 命令是否出现在交互式命令发现中；手动输入的 `/skill:name` 命令仍然有效。
 
 <a id="choose-where-it-loads"></a>
+## 将 Skill 添加到 Pi
 
-## Add it to Pi
+将 Skill 放入用户目录或项目 Skill 目录中。Pi 会递归发现包含 `SKILL.md` 的目录。
 
-Place the skill in your user or project skills directory. Directories containing `SKILL.md` are discovered recursively.
+Pi 也支持 Agent Skills 的标准目录 `~/.agents/skills/` 和 `.agents/skills/`。对于项目中的 `.agents/skills/`，Pi 会从当前工作目录向上搜索，遇到仓库根目录时停止。
 
-Pi also supports the Agent Skills locations `~/.agents/skills/` and `.agents/skills/`. Project `.agents/skills/` directories are discovered from the working directory through its ancestors, stopping at the repository root when one exists.
+Pi 可以接受某些独立的 Markdown Skill，但包含 `SKILL.md` 的目录形式可移植性更好，应优先使用。其他可用位置请参阅[设置](/settings/#resources)和 [Pi 包](/packages/)。
 
-Pi accepts some standalone Markdown skills, but a directory containing `SKILL.md` is the portable form and should be preferred. See [Settings](/settings/#resources) and [Pi Packages](/packages/) for additional locations.
+项目 Skill 可以指示模型运行脚本或修改文件。授予项目权限前，请检查不熟悉的 Skill 及其支持文件。
 
-Project skills can instruct the model to run scripts or modify files. Review unfamiliar skills and their supporting files before granting project trust.
+<a id="write-portable-frontmatter"></a>
+## 编写可移植的 Frontmatter
 
-## Write portable frontmatter
+Agent Skills 规范定义了以下字段：
 
-The Agent Skills specification defines these fields:
-
-| Field | Purpose |
+| 字段 | 用途 |
 |---|---|
-| `name` | Command and display name |
-| `description` | Routing description shown to the model |
-| `license` | License name or bundled license file |
-| `compatibility` | Environment requirements |
-| `metadata` | Additional key-value metadata |
-| `allowed-tools` | Experimental pre-approved tool list |
-| `disable-model-invocation` | Hide the skill from automatic model selection |
+| `name` | 命令名称和显示名称 |
+| `description` | 展示给模型的路由说明 |
+| `license` | 许可证名称或随包提供的许可证文件 |
+| `compatibility` | 环境要求 |
+| `metadata` | 附加键值元数据 |
+| `allowed-tools` | 实验性的预先批准工具列表 |
+| `disable-model-invocation` | 隐藏 Skill，使模型不能自动选择 |
 
-Names use lowercase letters, numbers, and hyphens, with no leading, trailing, or consecutive hyphens. They can contain at most 64 characters; descriptions can contain at most 1024.
+名称只能使用小写字母、数字和连字符，且不能以连字符开头或结尾，也不能包含连续连字符。名称最多 64 个字符；说明最多 1024 个字符。
 
-Pi neither requires nor warns when the declared name differs from the parent directory. Other Agent Skills implementations may enforce that requirement, so matching names remain the portable choice.
+Pi 不要求声明的名称必须与父目录名称一致，也不会因此发出警告。其他 Agent Skills 实现可能会强制要求一致，因此保持名称一致可提高可移植性。
 
-Malformed `SKILL.md` files and declared skills without descriptions are not loaded. Name collisions keep the first discovered skill and produce a warning.
+格式错误的 `SKILL.md` 文件以及未提供 description 的已声明 Skill 都不会加载。如果多个 Skill 同名，Pi 会保留最先发现的一个并发出警告。
 
-## Validate and share a skill
+<a id="validate-and-share-a-skill"></a>
+## 验证并分享 Skill
 
-Run Pi from a location where the skill is discoverable, then inspect the startup diagnostics and `/skill:name` command. Run `/reload` after editing a skill during an active session.
+从能够发现该 Skill 的位置运行 Pi，然后检查启动诊断信息和 `/skill:name` 命令。在活动会话中修改 Skill 后，请运行 `/reload`。
 
-Use a [Pi package](/packages/) to distribute one or more skills through npm or git. Keep environment setup inside the skill and declare any required runtime dependencies in the package.
+使用 [Pi 包](/packages/)通过 npm 或 git 分发一个或多个 Skill。将环境设置要求写在 Skill 内，并在软件包中声明所需的运行时依赖。
 
-For examples, see the [Anthropic skills collection](https://github.com/anthropics/skills) and [Pi skills collection](https://github.com/badlogic/pi-skills).
+示例请参阅 [Anthropic Skill 集合](https://github.com/anthropics/skills)和 [Pi Skill 集合](https://github.com/badlogic/pi-skills)。

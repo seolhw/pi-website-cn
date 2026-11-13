@@ -1,22 +1,24 @@
 ---
-title: "Message Types"
+title: "消息类型"
 ---
 
-# Message Types
+# 消息类型
 
-Pi uses `AgentMessage` values in SDK state, lifecycle events, RPC responses, and persisted session message entries. This page defines those shared messages and their content blocks.
+Pi 会在 SDK 状态、生命周期事件、RPC 响应和持久化会话消息条目中使用 `AgentMessage`。本页说明这些共享消息及其内容块。
 
-Message timestamps are Unix timestamps in milliseconds. They are different from the ISO 8601 timestamps on [session entries](/session-format/#entry-base).
+消息时间戳使用 Unix 毫秒时间戳，与[会话条目](/session-format/#entry-base)中的 ISO 8601 时间戳不同。
 
-Source definitions:
+类型定义：
 
-- [`packages/ai/src/types.ts`](https://github.com/earendil-works/pi/blob/main/packages/ai/src/types.ts) defines provider-facing messages and content blocks.
-- [`packages/agent/src/types.ts`](https://github.com/earendil-works/pi/blob/main/packages/agent/src/types.ts) defines the extensible `AgentMessage` union.
-- [`packages/coding-agent/src/core/messages.ts`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/core/messages.ts) adds coding-agent message roles.
+- [`packages/ai/src/types.ts`](https://github.com/earendil-works/pi/blob/main/packages/ai/src/types.ts) 定义 Provider 使用的消息和内容块。
+- [`packages/agent/src/types.ts`](https://github.com/earendil-works/pi/blob/main/packages/agent/src/types.ts) 定义可扩展的 `AgentMessage` 联合类型。
+- [`packages/coding-agent/src/core/messages.ts`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/core/messages.ts) 添加 coding-agent 消息角色。
 
-## Content blocks
+<a id="content-blocks"></a>
+## 内容块
 
-### TextContent
+<a id="textcontent"></a>
+### 文本内容（TextContent）
 
 ```typescript
 interface TextContent {
@@ -26,9 +28,10 @@ interface TextContent {
 }
 ```
 
-`textSignature` contains provider-specific message metadata. Treat it as opaque.
+`textSignature` 包含 Provider 专用的消息元数据，应将其视为不透明值。
 
-### ImageContent
+<a id="imagecontent"></a>
+### 图片内容（ImageContent）
 
 ```typescript
 interface ImageContent {
@@ -38,9 +41,10 @@ interface ImageContent {
 }
 ```
 
-`data` is base64-encoded image data. `mimeType` identifies its media type, such as `image/png` or `image/jpeg`.
+`data` 是经过 Base64 编码的图片数据。`mimeType` 表示媒体类型，例如 `image/png` 或 `image/jpeg`。
 
-### ThinkingContent
+<a id="thinkingcontent"></a>
+### 思考内容（ThinkingContent）
 
 ```typescript
 interface ThinkingContent {
@@ -51,9 +55,10 @@ interface ThinkingContent {
 }
 ```
 
-Thinking signatures contain provider-specific replay data. Treat them as opaque. A redacted block can have no visible thinking text while retaining an encrypted payload in `thinkingSignature`.
+思考签名包含 Provider 专用的重放数据，应将其视为不透明值。经过隐藏处理的内容块可以没有可见思考文本，但仍在 `thinkingSignature` 中保留加密载荷。
 
-### ToolCall
+<a id="toolcall"></a>
+### 工具调用（ToolCall）
 
 ```typescript
 interface ToolCall {
@@ -66,11 +71,12 @@ interface ToolCall {
 }
 ```
 
-`thoughtSignature` is provider-specific. `namespace` identifies an OpenAI Responses namespace for dynamically loaded or namespaced tools.
+`thoughtSignature` 是 Provider 专用字段。`namespace` 用于标识 OpenAI Responses 中动态加载工具或带命名空间工具所属的命名空间。
 
-## Usage
+<a id="usage"></a>
+## 用量
 
-Assistant messages always contain usage. Tool results can contain usage when the tool performed nested model work.
+助手消息始终包含用量信息。如果工具执行了嵌套的模型任务，工具结果也可能包含用量信息。
 
 ```typescript
 interface Usage {
@@ -91,11 +97,13 @@ interface Usage {
 }
 ```
 
-When present, `reasoning` is already included in `output`; do not add it again. `cacheWrite1h` is the subset of `cacheWrite` written with one-hour retention.
+如果存在，`reasoning` 已包含在 `output` 中，不要重复累加。`cacheWrite1h` 是 `cacheWrite` 中采用一小时保留时长写入的部分。
 
-## Base messages
+<a id="base-messages"></a>
+## 基础消息
 
-### SystemMessage
+<a id="systemmessage"></a>
+### 系统消息（SystemMessage）
 
 ```typescript
 interface SystemMessage {
@@ -108,9 +116,10 @@ interface SystemMessage {
 }
 ```
 
-The leading system message declares the initial prompt and tools. Later system messages can append instructions, replace or remove named prompt sections, and add or remove tools. Replaying them in order yields the current state.
+开头的系统消息声明初始提示词和工具。后续系统消息可以追加指令、替换或移除命名提示词区段，以及添加或移除工具。按顺序重放这些消息即可得到当前状态。
 
-### UserMessage
+<a id="usermessage"></a>
+### 用户消息（UserMessage）
 
 ```typescript
 interface UserMessage {
@@ -120,7 +129,8 @@ interface UserMessage {
 }
 ```
 
-### AssistantMessage
+<a id="assistantmessage"></a>
+### 助手消息（AssistantMessage）
 
 ```typescript
 interface AssistantMessage {
@@ -144,11 +154,11 @@ interface AssistantMessage {
 }
 ```
 
-`responseModel` records the concrete model reported by the provider, when the provider reports one. It may equal the requested model. `responseId`, `providerThinkingLevel`, `thinkingLevel`, `diagnostics`, and `rawStopReason` preserve provider or runtime details.
+Provider 报告具体模型时，`responseModel` 会记录该模型；它可能与请求的模型相同。`responseId`、`providerThinkingLevel`、`thinkingLevel`、`diagnostics` 和 `rawStopReason` 用于保留 Provider 或运行时细节。
 
-`"pending"` is used for a partial assistant message while it streams. The completed message in `message_end` has a terminal stop reason, and Pi does not persist `"pending"` assistant messages in session JSONL.
+流式传输期间，部分助手消息会使用 `"pending"`。`message_end` 中的完整消息会带有最终停止原因；Pi 不会将 `"pending"` 助手消息持久化到会话 JSONL 文件中。
 
-A `"deferred"` response has a `DeferredHandle` with the provider data needed to retrieve it:
+`"deferred"` 响应会携带 `DeferredHandle`，其中包含获取该响应所需的 Provider 数据：
 
 ```typescript
 interface DeferredHandle {
@@ -162,7 +172,8 @@ interface DeferredHandle {
 }
 ```
 
-### ToolResultMessage
+<a id="toolresultmessage"></a>
+### 工具结果消息（ToolResultMessage）
 
 ```typescript
 interface ToolResultMessage<TDetails = any> {
@@ -178,7 +189,7 @@ interface ToolResultMessage<TDetails = any> {
 }
 ```
 
-`details` is tool-specific. Optional `usage` reports nested model work performed by the tool and contributes to full-session statistics, but it is not part of the main model-call usage. `nestedCalls` records bounded metadata about calls this tool made to other tools:
+`details` 由具体工具定义。可选的 `usage` 用于报告工具执行嵌套模型任务时产生的用量，并计入完整会话统计，但不属于主模型调用的用量。`nestedCalls` 会有限度地记录该工具调用其他工具时的元数据：
 
 ```typescript
 interface NestedToolCalls {
@@ -197,13 +208,15 @@ interface NestedToolCallRecord {
 }
 ```
 
-## Coding-agent messages
+<a id="coding-agent-messages"></a>
+## Coding-agent 消息
 
-The coding-agent package extends `AgentMessage` with four roles.
+coding-agent 软件包为 `AgentMessage` 扩展了四种角色。
 
-### BashExecutionMessage
+<a id="bashexecutionmessage"></a>
+### Bash 执行消息（BashExecutionMessage）
 
-Created by direct shell commands, including the RPC [`bash`](/rpc-commands/#bash) command. It is not an LLM tool result.
+由直接执行的 Shell 命令创建，包括 RPC [`bash`](/rpc-commands/#bash) 命令。它不是 LLM 工具结果。
 
 ```typescript
 interface BashExecutionMessage {
@@ -219,11 +232,12 @@ interface BashExecutionMessage {
 }
 ```
 
-Unless `excludeFromContext` is true, Pi converts this message to user-role text before the next model request.
+除非 `excludeFromContext` 为 `true`，否则 Pi 会在下次模型请求前将此消息转换为用户角色的文本。
 
-### CustomMessage
+<a id="custommessage"></a>
+### 自定义消息（CustomMessage）
 
-Created when an extension sends a context message.
+扩展发送上下文消息时会创建此类消息。
 
 ```typescript
 interface CustomMessage<T = unknown> {
@@ -236,9 +250,10 @@ interface CustomMessage<T = unknown> {
 }
 ```
 
-Pi converts its content to a user message for model requests. `display` controls terminal rendering; `details` is not sent to the model.
+Pi 会在模型请求中将其内容转换为用户消息。`display` 控制是否在终端中渲染；`details` 不会发送给模型。
 
-### BranchSummaryMessage
+<a id="branchsummarymessage"></a>
+### 分支摘要消息（BranchSummaryMessage）
 
 ```typescript
 interface BranchSummaryMessage {
@@ -249,9 +264,10 @@ interface BranchSummaryMessage {
 }
 ```
 
-Pi creates this context message from a persisted `branch_summary` entry.
+Pi 会根据持久化的 `branch_summary` 条目创建此上下文消息。
 
-### CompactionSummaryMessage
+<a id="compactionsummarymessage"></a>
+### 压缩摘要消息（CompactionSummaryMessage）
 
 ```typescript
 interface CompactionSummaryMessage {
@@ -262,11 +278,12 @@ interface CompactionSummaryMessage {
 }
 ```
 
-Pi creates this context message from a persisted `compaction` entry.
+Pi 会根据持久化的 `compaction` 条目创建此上下文消息。
 
-## AgentMessage union
+<a id="agentmessage-union"></a>
+## AgentMessage 联合类型
 
-In the coding agent, the union is equivalent to:
+在 coding-agent 中，该联合类型等价于：
 
 ```typescript
 type AgentMessage =
@@ -280,4 +297,4 @@ type AgentMessage =
   | CompactionSummaryMessage;
 ```
 
-At the lower-level agent package, `AgentMessage` is `Message | CustomAgentMessages[keyof CustomAgentMessages]`. Applications can add roles through TypeScript declaration merging, so consumers should tolerate unknown custom roles when they accept messages from an augmented host.
+在底层 agent 软件包中，`AgentMessage` 的定义为 `Message | CustomAgentMessages[keyof CustomAgentMessages]`。应用可以通过 TypeScript 声明合并添加角色，因此接收来自扩展宿主的消息时，使用方应允许出现未知的自定义角色。

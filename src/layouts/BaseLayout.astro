@@ -13,12 +13,26 @@ const { title = 'Pi 中文文档', description = 'Pi 的中文文档与使用指
 ---
 
 <!doctype html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme="light" data-theme-mode="system">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content={description} />
 		<meta name="theme-color" content="#ebe7e4" />
+		<script is:inline>
+			(() => {
+				const root = document.documentElement;
+				let mode = 'system';
+				try {
+					const saved = localStorage.getItem('pi-theme');
+					if (saved === 'light' || saved === 'dark' || saved === 'system') mode = saved;
+				} catch {}
+				root.dataset.themeMode = mode;
+				root.dataset.theme = mode === 'system'
+					? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+					: mode;
+			})();
+		</script>
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<slot name="head" />
 		<title>{title}</title>
@@ -31,10 +45,3 @@ const { title = 'Pi 中文文档', description = 'Pi 的中文文档与使用指
 		</div>
 	</body>
 </html>
-
-<script is:inline>
-	try {
-		const savedTheme = localStorage.getItem('pi-theme');
-		if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
-	} catch {}
-</script>

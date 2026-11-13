@@ -1,16 +1,17 @@
 ---
-title: "Use Pi Packages"
+title: "Pi 包"
 ---
 
-# Pi Packages
+# Pi 包
 
-Pi packages install and distribute extensions, skills, prompt templates, and themes as one unit. Use a package when a customization should be shared through npm or git, or when several resources belong together.
+Pi 包可以将扩展、Skill、提示模板和主题作为一个整体安装与分发。当你想通过 npm 或 git 分享定制内容，或将多个资源打包在一起时，可以使用 Pi 包。
 
-A package is an ordinary directory or npm package. It can expose conventional resource directories, declare explicit paths under the `pi` key in `package.json`, and carry its own runtime dependencies.
+Pi 包本质上是普通目录或 npm 软件包。它可以提供约定俗成的资源目录，也可以通过 `package.json` 中的 `pi` 字段声明资源路径，并携带运行时依赖。
 
-## Install and manage packages
+<a id="install-and-manage-packages"></a>
+## 安装和管理软件包
 
-Install from npm, git, or a local path:
+可从 npm、git 或本地路径安装：
 
 ```bash
 pi install npm:@example/pi-tools@1.0.0
@@ -18,38 +19,40 @@ pi install git:github.com/example/pi-tools@v1
 pi install ./local-package
 ```
 
-`pi list` shows configured packages. Use `pi remove <source>` to remove one and `pi update --extensions` to reconcile package installations. See [Command Line](/cli/#package-commands) for every package command and option.
+`pi list` 会显示已配置的软件包。使用 `pi remove <source>` 移除软件包，使用 `pi update --extensions` 同步软件包安装状态。所有软件包命令及选项请参阅[命令行](/cli/#package-commands)。
 
-If a configured package fails to install at startup, for example because npm cannot reach the registry, Pi warns about it, skips that package's resources, and keeps running. Pi tries to install it again on the next start or `/reload`. `pi install` and `pi update --extensions` still report the failure and exit non-zero.
+如果启动时配置的软件包安装失败，例如 npm 无法连接软件包注册表，Pi 会发出警告、跳过该软件包的资源并继续运行。下次启动或运行 `/reload` 时，Pi 会再次尝试安装。`pi install` 和 `pi update --extensions` 仍会报告失败并以非零状态退出。
 
-Personal installs are written to `~/.pi/agent/settings.json`. Add `--local` or `-l` to write the package declaration to `.pi/settings.json`. Pi reads declarations from that file only after project trust is granted.
+个人软件包声明写入 `~/.pi/agent/settings.json`。添加 `--local` 或 `-l` 可将声明写入 `.pi/settings.json`。只有在[信任项目](/security/#understand-project-trust)后，Pi 才会读取该文件中的声明。
 
-Project packages are installed and loaded only after project trust is resolved. Packages can execute extension code and can include skills that instruct the model to run programs. Review third-party package source before installing it. Review project package declarations before granting project trust.
+项目软件包只有在完成项目权限判定后才会安装和加载。软件包可以执行扩展代码，也可以包含会指示模型运行程序的 Skill。安装前请检查第三方软件包源代码；授予项目权限前也请审查项目中的软件包声明。
 
-Use `--extension` or `-e` to try a package for one invocation without adding it to settings:
+使用 `--extension` 或 `-e` 可在单次调用中试用软件包，而不将其添加到设置：
 
 ```bash
 pi -e npm:@example/pi-tools
 ```
 
-Pi caches `-e` packages under `~/.pi/agent/tmp/extensions/` and checks them on every start and `/reload`. An npm package is reinstalled when the registry has a newer version that matches the specification. A version pinned to an exact number, such as `@1.2.3`, is not checked. A git package is fetched and reset to the remote branch or ref. A ref that is a commit hash already checked out is not fetched. If the check fails or offline mode is on, Pi loads the cached copy.
+Pi 会将 `-e` 软件包缓存到 `~/.pi/agent/tmp/extensions/`，并在每次启动和 `/reload` 时检查更新。如果注册表中出现符合指定范围的新版本，npm 软件包会重新安装。使用精确版本号（例如 `@1.2.3`）固定的软件包不会检查更新。git 软件包会重新获取并重置到远程分支或引用；如果当前检出的引用已经是提交哈希，则不会重新获取。检查失败或启用离线模式时，Pi 会加载缓存副本。
 
-## Choose a source
+<a id="choose-a-source"></a>
+## 选择来源
 
-| Source | Example | Behavior |
+| 来源 | 示例 | 行为 |
 |---|---|---|
-| npm | `npm:@example/pi-tools@1.0.0` | Installed under the Pi npm directory |
-| git | `git:github.com/example/pi-tools@v1` | Cloned and reconciled to the selected ref |
-| URL | `https://github.com/example/pi-tools` | Treated as a git source |
-| Local | `./pi-tools` | Loaded from the resolved path without copying |
+| npm | `npm:@example/pi-tools@1.0.0` | 安装到 Pi 的 npm 目录下 |
+| git | `git:github.com/example/pi-tools@v1` | 克隆仓库并同步到指定引用 |
+| URL | `https://github.com/example/pi-tools` | 按 git 来源处理 |
+| 本地 | `./pi-tools` | 从解析后的路径加载，不复制文件 |
 
-Versioned npm specifications are pinned. Git tags and commits are also pinned; package updates reconcile the checkout but do not move a configured ref.
+带版本的 npm 声明会固定版本。git 标签和提交也会固定；更新软件包时会同步检出内容，但不会移动已配置的引用。
 
-Relative local paths resolve from the settings file that contains them. A file path loads one extension. A directory follows normal package discovery rules.
+相对本地路径会相对于包含该声明的设置文件解析。文件路径会加载一个扩展；目录则遵循常规的软件包发现规则。
 
-## Create a package
+<a id="create-a-package"></a>
+## 创建软件包
 
-The simplest package uses conventional directories:
+最简单的软件包使用约定俗成的目录结构：
 
 ```text
 my-pi-package/
@@ -60,9 +63,9 @@ my-pi-package/
 └── themes/
 ```
 
-Without a `pi` manifest, Pi discovers TypeScript and JavaScript extensions, skill directories, Markdown prompts, and JSON themes from those directories.
+如果没有 `pi` 清单，Pi 会从这些目录中发现 TypeScript 和 JavaScript 扩展、Skill 目录、Markdown 提示模板以及 JSON 主题。
 
-Use an explicit manifest when resources live elsewhere or need filtering:
+如果资源位于其他位置或需要筛选，可使用显式清单：
 
 ```json
 {
@@ -77,17 +80,18 @@ Use an explicit manifest when resources live elsewhere or need filtering:
 }
 ```
 
-Paths are relative to the package root. Arrays accept glob patterns and exclusions. List dot-prefixed or symlinked resource roots directly when traversal through a glob would not discover them.
+路径相对于软件包根目录。数组支持 glob 模式和排除规则。如果资源根目录以点开头或是符号链接，而 glob 遍历无法发现它们，请直接列出路径。
 
-The `pi-package` keyword makes an npm package eligible for discovery in the [Pi package gallery](https://pi.dev/packages). Optional `pi.image` and `pi.video` fields add gallery previews.
+在 npm 软件包的 `keywords` 中添加 `pi-package`，该包就有资格出现在 [Pi 软件包目录](https://pi.dev/packages)中。可选的 `pi.image` 和 `pi.video` 字段还可以为目录页面添加预览内容。
 
-## Show a changelog
+<a id="show-a-changelog"></a>
+## 显示更新日志
 
-After a package update, Pi can show what changed. On the next fresh launch, Pi reads the package changelog and shows entries newer than the last seen version under "Extension Updates", the same way it shows its own changelog. The first time Pi sees a package, it records the version without showing anything.
+软件包更新后，Pi 可以显示变更内容。下次全新启动时，Pi 会读取软件包更新日志，并在“扩展更新”区域显示自上次查看版本之后的新条目，方式与 Pi 自身更新日志相同。Pi 首次发现软件包时只记录版本，不显示更新日志。
 
-This applies to packages that load at least one extension. Packages that only provide skills, prompt templates, or themes do not show a changelog.
+此功能适用于至少加载一个扩展的软件包。只提供 Skill、提示模板或主题的软件包不会显示更新日志。
 
-By default Pi reads `CHANGELOG.md` from the package root. Point `pi.changelogPath` at another file inside the package, or set it to `""` to disable the changelog:
+默认情况下，Pi 会读取软件包根目录中的 `CHANGELOG.md`。可以通过 `pi.changelogPath` 指向软件包内的其他文件，或将其设为 `""` 禁用更新日志：
 
 ```json
 {
@@ -99,13 +103,14 @@ By default Pi reads `CHANGELOG.md` from the package root. Point `pi.changelogPat
 }
 ```
 
-Use version headings in the same format as Pi's changelog, such as `## [1.2.0]` or `## 1.2.0 - 2026-01-01`. Entries are matched against the `version` field in `package.json`, so a git package only shows a changelog when that field increases. The `collapseChangelog` setting condenses the section to one line per package, such as `Updated my-pi-package to v1.2.0.` Unlike Pi's own changelog, `/changelog` does not show package changelogs, so read the package's changelog file or repository for details.
+版本标题格式应与 Pi 更新日志一致，例如 `## [1.2.0]` 或 `## 1.2.0 - 2026-01-01`。Pi 会将更新日志条目与 `package.json` 中的 `version` 字段进行匹配，因此 git 软件包只有在该字段增加时才会显示更新日志。`collapseChangelog` 设置可将内容压缩为每个软件包一行，例如 `Updated my-pi-package to v1.2.0.`。与 Pi 自身的更新日志不同，`/changelog` 不会显示软件包更新日志；详情请查看软件包的更新日志文件或仓库。
 
-## Declare dependencies
+<a id="declare-dependencies"></a>
+## 声明依赖
 
-Put runtime packages imported by extensions in `dependencies`. Pi installs package dependencies when it installs an npm or git source.
+扩展导入的运行时软件包应放入 `dependencies`。Pi 会在安装 npm 或 git 来源时安装这些依赖。
 
-Pi supplies these packages to extensions and skills:
+Pi 会向扩展和 Skill 提供以下软件包：
 
 - `@earendil-works/pi-ai`
 - `@earendil-works/pi-agent-core`
@@ -113,15 +118,16 @@ Pi supplies these packages to extensions and skills:
 - `@earendil-works/pi-tui`
 - `typebox`
 
-Declare the host-provided packages listed above in `peerDependencies` with a `"*"` range and do not bundle them. Pi suppresses automatic peer installation for managed npm packages and git packages installed with npm, pnpm, or Bun. Local packages are not installed or modified, so their dependency tree remains the package author's responsibility.
+将上述宿主提供的软件包以 `"*"` 版本范围声明在 `peerDependencies` 中，不要将它们打包进软件包。对于由 Pi 管理的 npm 软件包，以及通过 npm、pnpm 或 Bun 安装的 git 软件包，Pi 会抑制自动安装 peer 依赖。Pi 不会安装或修改本地软件包，因此其依赖树由软件包作者负责。
 
-Do not list host-provided packages in `dependencies`. A physical copy can bypass Pi's extension module mapping in compiled ESM and create duplicate classes, registries, and initialization work. Pi reports an extension warning when it detects this manifest configuration. Other Pi packages used as dependencies must be included in the published tarball and referenced through their `node_modules` resource paths.
+不要将宿主提供的软件包列入 `dependencies`。实际安装的副本可能绕过 Pi 在编译 ESM 中的扩展模块映射，导致重复的类、注册表和初始化操作。Pi 检测到这种清单配置时会报告扩展警告。其他作为依赖使用的 Pi 软件包必须包含在发布的 tarball 中，并通过其 `node_modules` 资源路径引用。
 
-Installed packages load with separate module roots. Do not rely on two packages sharing one dependency instance or one package resolving another package’s undeclared dependency.
+已安装的软件包使用独立的模块根目录。不要假设不同软件包会共享同一个依赖实例，也不要依赖一个软件包解析另一个软件包未声明的依赖。
 
-## Select package resources
+<a id="select-package-resources"></a>
+## 选择要加载的软件包资源
 
-The object form in settings narrows which resources load from a package:
+设置中的对象形式可以缩小从软件包加载的资源范围：
 
 ```json
 {
@@ -136,22 +142,23 @@ The object form in settings narrows which resources load from a package:
 }
 ```
 
-For each resource type:
+针对每类资源：
 
-- Omit the property to load everything allowed by the package.
-- Use `[]` to load none of that type.
-- Use `!pattern` to exclude glob matches.
-- Use `+path` to include one exact allowed path.
-- Use `-path` to exclude one exact path.
+- 省略该属性会加载软件包允许提供的全部资源。
+- 使用 `[]` 表示不加载该类资源。
+- 使用 `!pattern` 排除 glob 匹配项。
+- 使用 `+path` 包含某个精确的允许路径。
+- 使用 `-path` 排除某个精确路径。
 
-Filters narrow the package manifest. They do not expose resources that the package itself did not declare.
+筛选条件只会缩小软件包清单声明的范围，不会暴露软件包本身未声明的资源。
 
-Run `pi config` to enable or disable discovered resources and pi's built-in extensions. It starts with personal configuration; press Tab to switch scope, or run `pi config --local` to start with project overrides.
+运行 `pi config` 可启用或禁用已发现的资源和 Pi 内置扩展。该命令默认从个人配置开始；按 Tab 可切换配置范围，也可以运行 `pi config --local` 从项目覆盖设置开始。
 
-## Understand scope and identity
+<a id="understand-scope-and-identity"></a>
+## 了解配置范围与身份识别
 
-The same package can appear in personal and project settings. A project entry normally replaces the personal entry. With `autoload: false`, the project entry instead acts as a filtering delta over the personal package.
+同一个软件包可以同时出现在个人设置和项目设置中。项目条目通常会替换个人条目。如果设置 `autoload: false`，项目条目则会作为筛选增量应用到个人软件包上。
 
-Pi identifies npm packages by package name, git packages by repository URL without the ref, and local packages by resolved absolute path. This prevents the same package from loading twice through equivalent declarations.
+Pi 根据 npm 软件包名称、去掉引用后的 git 仓库 URL，以及解析后的本地绝对路径识别软件包，避免同一软件包通过等价声明重复加载。
 
-Use [Extensions](/extensions/), [Skills](/skills/), [Prompt Templates](/prompt-templates/), and [Themes](/themes/) to design each resource before packaging it.
+创建软件包前，请先阅读[扩展](/extensions/)、[Skill](/skills/)、[提示模板](/prompt-templates/)和[主题](/themes/)文档，分别了解这些资源的设计方式。

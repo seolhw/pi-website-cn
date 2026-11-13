@@ -1,4 +1,6 @@
 ---
+import ThemeSelect from './ThemeSelect.astro';
+
 const navLinks = [
   { label: '文档', href: '/overview/' },
   { label: '更新日志', href: 'https://pi.dev/changelog' },
@@ -21,9 +23,7 @@ const navLinks = [
         {navLinks.map(({ label, href }) => <a href={href} class="sticky-nav-page-link">{label}</a>)}
       </div>
       <div class="header-actions">
-        <button class="theme-toggle" type="button" aria-label="切换主题" data-theme-toggle>
-          <span aria-hidden="true" data-theme-icon>☼</span><span data-theme-label>浅色</span>
-        </button>
+        <ThemeSelect />
         <a class="sticky-nav-earendil" href="https://earendil.com" title="Earendil Inc. 网站" aria-label="Earendil Inc. 网站" target="_blank" rel="noopener">
           <svg viewBox="121.24 22.62 81.65 149.38" aria-hidden="true" focusable="false"><path fill="currentColor" d="M202.89 123.89c.4 29.74-40.27 26.97-40.8 48.11h-.05c-.52-21.14-41.19-18.38-40.8-48.11 27.99 0 40.09-46.29 40.82-101.27.74 54.98 12.83 101.27 40.82 101.27h0Z"></path></svg>
         </a>
@@ -41,9 +41,7 @@ const navLinks = [
           {navLinks.map(({ label, href }) => <a class="nav-sheet-link" href={href}><span>{label}</span><span aria-hidden="true">→</span></a>)}
         </nav>
         <div class="nav-sheet-meta">
-          <button class="theme-toggle theme-toggle-menu" type="button" aria-label="切换主题" data-theme-toggle-menu>
-            <span aria-hidden="true" data-theme-icon-menu>☼</span><span data-theme-label-menu>浅色主题</span>
-          </button>
+          <div class="nav-sheet-theme-select"><ThemeSelect /></div>
           <a href="https://github.com/earendil-works/pi" class="nav-sheet-link" target="_blank" rel="noopener"><span>GitHub</span><span aria-hidden="true">↗</span></a>
         </div>
         <p class="nav-sheet-note">本站为社区维护的中文文档，非 Pi 官方站点。</p>
@@ -54,17 +52,25 @@ const navLinks = [
 
 <script>
   const root = document.documentElement;
-  const themeButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle], [data-theme-toggle-menu]'));
-  const setTheme = (theme: string) => {
-    root.dataset.theme = theme;
-    try { localStorage.setItem('pi-theme', theme); } catch {}
-    const light = theme !== 'dark';
-    document.querySelectorAll<HTMLElement>('[data-theme-icon], [data-theme-icon-menu]').forEach((node) => { node.textContent = light ? '☼' : '☾'; });
-    document.querySelectorAll<HTMLElement>('[data-theme-label], [data-theme-label-menu]').forEach((node) => { node.textContent = light ? '浅色' : '深色'; });
+  const themeSelects = Array.from(document.querySelectorAll<HTMLSelectElement>('[data-theme-select]'));
+  const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+  const applyTheme = (mode: string, save = false) => {
+    const selectedMode = mode === 'dark' || mode === 'light' ? mode : 'system';
+    const resolvedTheme = selectedMode === 'system' ? (systemTheme.matches ? 'dark' : 'light') : selectedMode;
+    root.dataset.themeMode = selectedMode;
+    root.dataset.theme = resolvedTheme;
+    themeSelects.forEach((select) => { select.value = selectedMode; });
+    themeColor?.setAttribute('content', resolvedTheme === 'dark' ? '#161d27' : '#ebe7e4');
+    if (save) {
+      try { localStorage.setItem('pi-theme', selectedMode); } catch {}
+    }
   };
-  const currentTheme = root.dataset.theme === 'dark' ? 'dark' : 'light';
-  setTheme(currentTheme);
-  themeButtons.forEach((button) => button.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark')));
+  applyTheme(root.dataset.themeMode || 'system');
+  themeSelects.forEach((select) => select.addEventListener('change', () => applyTheme(select.value, true)));
+  systemTheme.addEventListener('change', () => {
+    if (root.dataset.themeMode === 'system') applyTheme('system');
+  });
 
   const nav = document.querySelector<HTMLElement>('#stickyNav');
   const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
@@ -152,7 +158,7 @@ const navLinks = [
   }
   .sticky-nav-page-link:hover { color: var(--color-text); }
   .header-actions { display: flex; align-items: center; gap: 0.8rem; }
-  .theme-toggle { display: inline-flex; align-items: center; gap: 0.35rem; border: 0; padding: 0.25rem; background: transparent; color: var(--color-muted-strong); cursor: pointer; font: 0.72rem var(--font-ui-mono); }
+
   .sticky-nav-earendil { display: inline-flex; align-items: center; margin-inline-end: calc(2.444444rem * 165.29 / 800); color: var(--color-muted-strong); }
   .sticky-nav-earendil:hover { color: var(--color-text); }
   .sticky-nav-earendil svg { display: block; width: auto; height: 1.5rem; }
@@ -182,7 +188,7 @@ const navLinks = [
   .nav-sheet-link:hover { border-color: var(--color-border-strong); background: color-mix(in srgb, var(--color-text) 4%, transparent); }
   .nav-sheet-meta { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--color-border); padding-top: 0.65rem; }
   .nav-sheet-note { margin: 0; color: var(--color-muted); font-size: 0.72rem; }
-  .theme-toggle-menu { padding: 0.55rem 0.72rem; }
+  .nav-sheet-theme-select { padding: 0.55rem 0.72rem; }
   .sticky-nav-toggle:focus-visible, .nav-sheet-link:focus-visible { outline: 1px solid var(--color-link); outline-offset: 0.18rem; }
 
   @media (max-width: 1023px) {
@@ -194,7 +200,6 @@ const navLinks = [
   }
   @media (max-width: 767px) {
     .site-announcement { font-size: 1.08rem; line-height: 1.48; }
-    .theme-toggle { font-size: 0.66rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .sticky-nav-toggle, .burger-trigger > span, .nav-sheet-backdrop, .nav-sheet { transition-duration: 0.01ms; }
