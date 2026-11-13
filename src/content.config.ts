@@ -6,7 +6,7 @@ const pageSchema = z.object({
 	title: z.string().optional(),
 	description: z.string().optional(),
 	slug: z.string().optional(),
-}).passthrough();
+}).loose();
 
 export const collections = {
 	docs: defineCollection({

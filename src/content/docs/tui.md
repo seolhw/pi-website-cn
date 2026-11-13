@@ -1,77 +1,79 @@
 ---
-title: "Build Terminal UI Components"
+title: "构建终端界面组件"
 ---
 
-# Terminal UI
+# 终端界面
 
-`@earendil-works/pi-tui` provides the terminal component system used by Pi. Extensions use it when built-in dialogs, notifications, status text, and widgets are not enough for the interaction they need.
+`@earendil-works/pi-tui` 提供 Pi 使用的终端组件系统。当内置对话框、通知、状态文本和 widget 无法满足交互需求时，扩展可以使用它。
 
-Start with `ctx.ui` methods from an [extension](/extensions/#interact-with-the-user). Build a custom component only when the UI needs its own rendering, keyboard or mouse input, focus, layout, or lifecycle.
+优先使用[扩展](/extensions/#interact-with-the-user)提供的 `ctx.ui` 方法。只有当界面需要自定义渲染、键盘或鼠标输入、焦点、布局或生命周期时，才构建自定义组件。
 
-## Choose an integration point
+## 选择集成方式
 
-| Need | Use |
+| 需求 | 方案 |
 |---|---|
-| Select, confirm, input, or multi-line editor | `ctx.ui.select()`, `confirm()`, `input()`, or `editor()` |
-| Non-blocking feedback | `ctx.ui.notify()` or `setStatus()` |
-| Persistent content near the editor | `ctx.ui.setWidget()` |
-| Replace the header, footer, or editor | The corresponding `ctx.ui` component factory |
-| Temporary interactive screen or overlay | `ctx.ui.custom()` |
-| Custom rendering for a tool or session entry | An extension renderer |
+| 选择、确认、输入或多行编辑器 | `ctx.ui.select()`、`confirm()`、`input()` 或 `editor()` |
+| 非阻塞反馈 | `ctx.ui.notify()` 或 `setStatus()` |
+| 编辑器附近的持久内容 | `ctx.ui.setWidget()` |
+| 替换页眉、页脚或编辑器 | 对应的 `ctx.ui` 组件工厂 |
+| 临时交互界面或覆盖层 | `ctx.ui.custom()` |
+| 自定义渲染工具或会话条目 | 扩展渲染器 |
 
-These APIs receive Pi’s active theme and keybindings where needed. Do not create a second terminal renderer inside an extension.
+这些 API 会在需要时接收 Pi 当前主题和快捷键配置。不要在扩展中再创建一套终端渲染器。
 
-## Understand the component model
+## 理解组件模型
 
-A component renders an array of terminal lines for an available width. It can optionally handle keyboard and mouse input, and it must invalidate cached output when its state or theme-dependent content changes.
+组件会根据可用宽度渲染终端行数组。它可以选择处理键盘和鼠标输入；状态或依赖主题的内容发生变化时，必须使缓存输出失效。
 
-Every rendered line must fit within the supplied width. Measure visible terminal columns rather than string length because ANSI escapes, wide characters, emoji, and combining characters change display width.
+每行渲染结果都必须适合给定宽度。应测量终端中实际显示的列数，而不是字符串长度，因为 ANSI 转义序列、宽字符、emoji 和组合字符都会影响显示宽度。
 
-Use `visibleWidth()`, `truncateToWidth()`, `sliceByColumn()`, and `wrapTextWithAnsi()` instead of implementing terminal-width handling yourself. Pi resets styling and hyperlinks after every line, so reapply styles on each rendered line.
+请使用 `visibleWidth()`、`truncateToWidth()`、`sliceByColumn()` 和 `wrapTextWithAnsi()`，不要自行实现终端宽度处理。Pi 会在每行结束后重置样式和超链接，因此每行渲染时都要重新应用样式。
 
-After changing component state, invalidate the affected component and call the injected `tui.requestRender()`. The TUI coalesces render requests and updates the terminal.
+更改组件状态后，应使受影响组件的缓存失效，并调用注入的 `tui.requestRender()`。TUI 会合并渲染请求并更新终端。
 
-## Compose built-in components
+## 组合内置组件
 
-The package includes components for common layouts and controls:
+该软件包提供常用布局和控件组件：
 
-- `Text`, `Markdown`, `Image`, and `TruncatedText` render content.
-- `Container`, `VStack`, `HStack`, `Box`, and `Spacer` compose layouts.
-- `Input` and `Editor` accept text.
-- `SelectList` and `SettingsList` implement searchable selection and settings flows.
-- `ScrollView` provides a bounded scrollable viewport.
-- `Loader` and `CancellableLoader` report ongoing work.
-- `MouseRegion` adds pointer behavior around another component.
+- `Text`、`Markdown`、`Image` 和 `TruncatedText` 用于渲染内容。
+- `Container`、`VStack`、`HStack`、`Box` 和 `Spacer` 用于组合布局。
+- `Input` 和 `Editor` 用于接收文本输入。
+- `SelectList` 和 `SettingsList` 用于实现可搜索选择和设置流程。
+- `ScrollView` 提供有界的可滚动视口。
+- `Loader` 和 `CancellableLoader` 用于显示进行中的任务。
+- `MouseRegion` 为其他组件添加指针交互行为。
 
-Prefer these components over rebuilding selection, scrolling, text editing, or width handling. The extension examples show how to combine them with Pi’s borders and themes.
+应优先使用这些组件，而不是重新实现选择、滚动、文本编辑或宽度处理。扩展示例展示了如何将它们与 Pi 的边框和主题结合使用。
 
-## Handle keyboard input and focus
+## 处理键盘输入与焦点
 
-Use `matchesKey()` and `Key` for terminal keyboard input. The parser accounts for supported terminal protocols and key modifiers. Extension components should use the injected `KeybindingsManager` for configurable application actions.
+使用 `matchesKey()` 和 `Key` 处理终端键盘输入。解析器会考虑终端协议和按键修饰符。扩展组件应使用注入的 `KeybindingsManager` 处理可配置的应用操作。
 
-A component that displays a text cursor should implement `Focusable` and place `CURSOR_MARKER` immediately before its visual cursor. Wrap the cursor cell in `renderFakeCursor()` so the TUI draws it in reverse video, or hides it after `CURSOR_MARKER` when the hardware cursor is shown. The TUI uses the marker to position the hardware cursor for input method editors.
+显示文本光标的组件应实现 `Focusable`，并将 `CURSOR_MARKER` 放在可见光标之前。使用 `renderFakeCursor()` 包裹光标单元格，使 TUI 以反显方式绘制；显示硬件光标时，TUI 会隐藏标记后的假光标。TUI 还会利用该标记为输入法定位硬件光标。
 
-Containers that wrap an `Input` or `Editor` must propagate their `focused` state to that child. Without propagation, Chinese, Japanese, Korean, and other IME candidate windows can appear at the wrong screen position.
+包裹 `Input` 或 `Editor` 的容器必须将自身的 `focused` 状态传递给子组件。否则，中日韩等输入法的候选窗口可能出现在错误的屏幕位置。
 
-Extend Pi’s `CustomEditor` when replacing the main editor. It preserves application shortcuts and agent controls.
+替换主编辑器时，应扩展 Pi 的 `CustomEditor`，以保留应用快捷键和 agent 控件。
 
-Forward keys your editor does not own to the base implementation, and restore the default by clearing the custom editor factory.
+将编辑器未处理的按键转发给基类实现；清除自定义编辑器工厂即可恢复默认编辑器。
 
-## Handle mouse input
+## 处理鼠标输入
 
-Fullscreen mode routes normalized mouse events to components. A handler can mark an event handled, capture a drag sequence, request focus, or request a render.
+全屏模式会将规范化的鼠标事件路由给组件。事件处理器可以标记事件已处理、捕获拖动序列、请求焦点或请求重新渲染。
 
-Unhandled wheel events scroll the nearest `ScrollView`. Unhandled primary-button drags remain available for transcript selection. OSC 8 links take precedence over enclosing click regions.
+未处理的滚轮事件会滚动最近的 `ScrollView`。未处理的主键拖动仍可用于选择对话记录。OSC 8 链接的优先级高于包围它的点击区域。
 
-Regular mode leaves mouse input to the terminal because the terminal owns scrollback. Design every interaction with a keyboard path even when fullscreen mouse input is available.
+普通模式将鼠标输入交给终端处理，因为滚动历史由终端控制。即使全屏模式支持鼠标，也应确保每种交互都有键盘操作方式。
 
-## Use custom screens and overlays
+## 使用自定义界面和覆盖层
 
-`ctx.ui.custom()` temporarily gives one component control of the interactive area and resolves when that component calls the supplied completion callback.
+`ctx.ui.custom()` 会暂时将交互区域交给一个组件控制，并在该组件调用提供的完成回调时结束。
 
-### Build a minimal custom screen
+<a id="build-a-minimal-custom-screen"></a>
 
-This complete extension shows the custom-component lifecycle: render within the supplied width, use injected keybindings, invalidate cached output after state changes, request a render, and finish through `done()`.
+### 构建最小自定义界面
+
+下面的完整扩展展示了自定义组件的生命周期：在给定宽度内渲染、使用注入的快捷键、在状态变化后使缓存失效、请求重新渲染，并通过 `done()` 结束交互。
 
 ```typescript
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
@@ -137,25 +139,27 @@ export default function (pi: ExtensionAPI) {
 }
 ```
 
-This component does not display a text cursor, so it does not need `Focusable`. A component containing `Input` or `Editor` must implement `Focusable` and propagate its `focused` value to that child.
+该组件不显示文本光标，因此无需实现 `Focusable`。包含 `Input` 或 `Editor` 的组件必须实现 `Focusable`，并将 `focused` 值传递给对应子组件。
 
-Custom components do not report pi as waiting for the user, because `ctx.ui.custom()` also hosts loaders and other non-blocking UI. When a component waits for an answer, pass `blocked: { kind: "question", message: "Pick a color" }` so terminals that support [program status](/terminal-setup/#program-status) show pi as blocked. `kind` is `"question"`, `"permission"`, or `"auth"`. An inline component reports blocked while it is visible: a newer dialog or component shown in its place reports its own status instead. An overlay reports blocked from when it is shown until it calls `done()`, also while it is hidden with `setHidden()` or covered by another overlay. When several blocking prompts are open, the most recently shown one supplies `kind` and `message`.
+自定义组件不会自动将 pi 报告为等待用户操作，因为 `ctx.ui.custom()` 也用于显示加载器和其他非阻塞界面。当组件确实在等待用户回答时，请传入 `blocked: { kind: "question", message: "Pick a color" }`，这样支持[程序状态协议](/terminal-setup/#program-status)的终端会将 pi 显示为受阻状态。`kind` 可以是 `"question"`、`"permission"` 或 `"auth"`。内嵌组件仅在可见时报告受阻状态；若有更新的对话框或组件覆盖它，则改为报告新界面的状态。覆盖层从显示开始到调用 `done()` 为止都会报告受阻，即使通过 `setHidden()` 隐藏或被其他覆盖层遮挡也一样。若同时打开多个阻塞式提示，则以最近显示的提示提供 `kind` 和 `message`。
 
-Pass `overlay: true` to draw above existing content. Overlay options control size, anchors, offsets, margins, and responsive visibility. An overlay handle can change focus or temporarily hide and show the overlay with `setHidden()` while the interaction remains active.
+传入 `overlay: true` 可在现有内容上方绘制。覆盖层选项用于控制尺寸、锚点、偏移、边距和响应式可见性。交互仍在进行时，覆盖层句柄可以更改焦点，或通过 `setHidden()` 临时隐藏和重新显示覆盖层。
 
-Focused overlays retain input ownership across ordinary renders. If another component should receive input while an overlay remains visible, explicitly release or redirect focus through the handle.
+获得焦点的覆盖层在常规重绘期间仍会保留输入控制权。如果覆盖层继续显示，但需要其他组件接收输入，请通过句柄显式释放或转移焦点。
 
-Treat each custom component instance as belonging to one interaction. Create a new instance when starting that interaction again.
+每个自定义组件实例都应只服务于一次交互。再次启动交互时，请创建新的组件实例。
 
-Finish the interaction with the completion callback supplied to the component factory. It resolves the `ctx.ui.custom()` promise and disposes the component. Do not call `OverlayHandle.hide()` on an overlay created by `ctx.ui.custom()`.
+使用组件工厂提供的完成回调结束交互。该回调会完成 `ctx.ui.custom()` 返回的 Promise，并释放组件。对于由 `ctx.ui.custom()` 创建的覆盖层，不要调用 `OverlayHandle.hide()`。
 
-See [`overlay-qa-tests.ts`](../examples/extensions/overlay-qa-tests.ts) for positioning, stacking, focus, responsive visibility, and animation behavior.
+覆盖层的位置、层叠、焦点、响应式可见性和动画行为，请参阅 [`overlay-qa-tests.ts`](../examples/extensions/overlay-qa-tests.ts)。
 
-## Apply themes correctly
+<a id="apply-themes-correctly"></a>
 
-Use the theme passed to the extension or component callback. Theme helpers produce ANSI-styled strings for semantic colors such as accent, muted text, success, warnings, errors, tool output, and Markdown.
+## 正确应用主题
 
-Use `theme.style()` to combine foreground and background colors with text attributes:
+使用传递给扩展或组件回调的主题。主题辅助函数会为强调色、弱化文本、成功、警告、错误、工具输出和 Markdown 等语义颜色生成带 ANSI 样式的字符串。
+
+使用 `theme.style()` 将前景色、背景色和文本属性组合起来：
 
 ```typescript
 return new Text(
@@ -169,33 +173,33 @@ return new Text(
 );
 ```
 
-A style color can be a semantic theme token or a concrete `Color`. Foreground tokens are accepted as `fg` and background tokens as `bg`; to use a token's color in the other position, pass its concrete color, for example `{ fg: theme.colors.userMessageBg }`. Access concrete colors through `theme.colors` and use utilities such as `mixColors()` from `@earendil-works/pi-tui` when color math is needed. Tokens that a theme sets to the terminal default render with the terminal's own color; `theme.colors` reports the color the terminal announced for them, or a guess when it did not. Use `theme.appearance` (`"dark"` or `"light"`) to decide, for example, whether to lighten or darken a color. Pi converts the result to truecolor or 256-color output based on terminal capabilities. Theme tokens are converted once per theme; compute concrete colors outside the render path when possible.
+样式颜色可以是语义主题 token，也可以是具体的 `Color`。前景 token 用作 `fg`，背景 token 用作 `bg`；若要在另一位置使用某个 token 的颜色，请传入其具体颜色，例如 `{ fg: theme.colors.userMessageBg }`。通过 `theme.colors` 获取具体颜色；需要颜色运算时，可使用 `@earendil-works/pi-tui` 中的 `mixColors()` 等工具。如果主题将某个 token 设为终端默认色，渲染时会使用终端自身颜色；`theme.colors` 会返回终端报告的颜色，若终端未报告则返回估算值。可根据 `theme.appearance`（`"dark"` 或 `"light"`）决定是否调亮或调暗颜色。Pi 会根据终端能力将结果转换为真彩色或 256 色输出。每种主题只会转换一次 token；如有可能，应在渲染路径之外计算具体颜色。
 
-The existing `theme.fg()` and `theme.bg()` helpers remain available for applying one semantic color.
+仍可使用现有的 `theme.fg()` 和 `theme.bg()` 辅助函数应用单一语义颜色。
 
-Do not permanently store strings with theme colors unless `invalidate()` rebuilds them. A theme change clears render caches, but it cannot remove old ANSI colors embedded in application state.
+除非 `invalidate()` 会重新生成字符串，否则不要长期保存带主题颜色的字符串。主题切换会清除渲染缓存，但无法移除应用状态中已经嵌入的旧 ANSI 颜色。
 
-Theme callbacks evaluated during rendering do not need special rebuilding. Stateless components can also calculate themed output on every render.
+渲染过程中执行的主题回调无需特殊重建。无状态组件也可以在每次渲染时重新计算带主题的输出。
 
-Use [Themes](/themes/) to create terminal palettes. Use Pi’s `getMarkdownTheme()` when rendering Markdown that should match the active application theme.
+创建终端配色方案请参阅[主题](/themes/)。渲染需要匹配当前应用主题的 Markdown 时，请使用 Pi 的 `getMarkdownTheme()`。
 
-## Keep rendering responsive
+## 保持渲染流畅
 
-Rendering runs on the interactive path. Cache expensive layout and highlighting work by width and content, then clear that cache from `invalidate()`.
+渲染位于交互关键路径上。应按宽度和内容缓存开销较大的布局与语法高亮结果，并通过 `invalidate()` 清除缓存。
 
-Keep the default view compact and reveal detail through expansion or a dedicated screen. For custom tool rendering, handle partial results and reuse the previous component when it can be updated safely.
+默认视图应保持紧凑，详细内容可通过展开或独立界面查看。自定义工具渲染应处理部分结果；若可安全更新，则复用已有组件。
 
-Use `PI_TUI_WRITE_LOG` to capture the raw ANSI stream when diagnosing rendering problems. Test narrow widths, wide characters, resize events, theme changes, focus transitions, and both regular and fullscreen modes.
+排查渲染问题时，可使用 `PI_TUI_WRITE_LOG` 捕获原始 ANSI 流。请测试窄宽度、宽字符、窗口尺寸变化、主题切换、焦点转换，以及普通和全屏模式。
 
-## Examples and source
+## 示例与源码
 
-The checked extension examples cover the main patterns:
+经过验证的扩展示例涵盖了以下主要模式：
 
-- [`preset.ts`](../examples/extensions/preset.ts) and [`tools.ts`](../examples/extensions/tools.ts) use selection and settings lists.
-- [`qna.ts`](../examples/extensions/qna.ts) uses cancellable asynchronous UI.
-- [`modal-editor.ts`](../examples/extensions/modal-editor.ts) replaces the editor.
-- [`custom-footer.ts`](../examples/extensions/custom-footer.ts) replaces the footer.
-- [`widget-placement.ts`](../examples/extensions/widget-placement.ts) places persistent content around the editor.
-- [`doom-overlay/`](../examples/extensions/doom-overlay/) demonstrates a continuously rendered overlay.
+- [`preset.ts`](../examples/extensions/preset.ts) 和 [`tools.ts`](../examples/extensions/tools.ts)：使用选择列表和设置列表。
+- [`qna.ts`](../examples/extensions/qna.ts)：使用可取消的异步界面。
+- [`modal-editor.ts`](../examples/extensions/modal-editor.ts)：替换编辑器。
+- [`custom-footer.ts`](../examples/extensions/custom-footer.ts)：替换页脚。
+- [`widget-placement.ts`](../examples/extensions/widget-placement.ts)：在编辑器周围放置持久内容。
+- [`doom-overlay/`](../examples/extensions/doom-overlay/)：展示持续渲染的覆盖层。
 
-The public exports are defined in [`packages/tui/src/index.ts`](https://github.com/earendil-works/pi/blob/main/packages/tui/src/index.ts). See [Extensions](/extensions/) for extension lifecycle, state, tools, events, and mode behavior.
+公开导出定义在 [`packages/tui/src/index.ts`](https://github.com/earendil-works/pi/blob/main/packages/tui/src/index.ts)。扩展生命周期、状态、工具、事件和运行模式请参阅[扩展](/extensions/)。

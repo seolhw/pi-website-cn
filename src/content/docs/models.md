@@ -53,7 +53,7 @@ Pi 可直接连接 llama.cpp Router。Router 会发现 GGUF 文件，并按需�
 <a id="configure-a-compatible-endpoint"></a>
 ## 配置兼容端点
 
-Use [`models.json`](/configuration/#agent-directory) when an endpoint speaks an API Pi already supports. This includes most Ollama, LM Studio, vLLM, SGLang, and proxy deployments.
+如果服务端点使用 Pi 已支持的 API，请通过 [`models.json`](/configuration/#agent-directory) 配置。这适用于大多数 Ollama、LM Studio、vLLM、SGLang 和代理服务。
 
 ```json
 {

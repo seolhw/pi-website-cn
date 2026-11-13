@@ -137,6 +137,8 @@ Pi 会解析链式变量引用。缺失变量或循环引用会导致主题无�
 如果省略 `export` 颜色，Pi 会根据 `userMessageBg` 推导 HTML 页面和面板的背景色。
 
 <a id="load-a-theme-from-a-project-or-package"></a>
+<a id="load-a-theme-from-a-project-or-package"></a>
+
 ## 从项目或软件包加载主题
 
 将项目主题放入 `.pi/themes/`。只有在授予[项目权限](/security/#understand-project-trust)后，才会加载项目主题。

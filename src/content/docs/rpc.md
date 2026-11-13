@@ -1,108 +1,108 @@
 ---
-title: "RPC Protocol"
+title: "RPC 协议"
 ---
 
-# RPC Mode
+# RPC 模式
 
-RPC mode runs Pi as a long-lived subprocess controlled through JSON records on stdin and stdout. Use it for language-independent integrations, process isolation, IDEs, and custom user interfaces.
+RPC 模式会将 Pi 作为长期运行的子进程，通过标准输入和标准输出上的 JSON 记录进行控制。它适用于跨语言集成、进程隔离、IDE 和自定义用户界面。
 
-For an in-process Node.js or Bun integration, prefer the [SDK](/sdk/). For a subprocess-based TypeScript integration, prefer the exported `RpcClient`, which starts Pi, correlates responses, exposes typed command methods, and delivers events to listeners.
+如果要在 Node.js 或 Bun 进程内集成，建议使用 [SDK](/sdk/)。如果要通过子进程进行 TypeScript 集成，建议使用导出的 `RpcClient`；它负责启动 Pi、关联响应、提供类型化命令方法，并将事件分发给监听器。
 
-| Interface | Process boundary | Control model | Best fit |
+| 接口 | 进程边界 | 控制方式 | 适用场景 |
 |---|---|---|---|
-| [SDK](/sdk/) | In process | Direct TypeScript methods and events | Node.js or Bun hosts that want complete API access |
-| RPC | Child process | JSONL commands, responses, and events | Other languages, isolated processes, IDEs, or custom clients |
+| [SDK](/sdk/) | 同一进程内 | 直接调用 TypeScript 方法并接收事件 | 需要完整 API 访问能力的 Node.js 或 Bun 宿主 |
+| RPC | 子进程 | JSONL 命令、响应和事件 | 其他语言、隔离进程、IDE 或自定义客户端 |
 
-## Start RPC mode
+## 启动 RPC 模式
 
 ```bash
 pi --mode rpc --no-session
 ```
 
-Normal CLI options still select the working folder, model, tools, resources, and session behavior. Common choices include `--provider`, `--model`, `--name`, `--no-session`, and `--session-dir`. See [Command Line](/cli/) for the complete, version-specific interface; `pi --help` is authoritative for the installed version.
+常规 CLI 选项仍可用于选择工作目录、模型、工具、资源和会话行为。常用选项包括 `--provider`、`--model`、`--name`、`--no-session` 和 `--session-dir`。完整且与版本对应的接口请参阅[命令行](/cli/)；当前安装版本的准确说明以 `pi --help` 为准。
 
-RPC mode rejects `@file` prompt arguments. Send prompts through the [`prompt`](/rpc-commands/#prompt) command instead.
+RPC 模式不接受 `@file` 提示词参数。请改用 [`prompt`](/rpc-commands/#prompt) 命令发送提示词。
 
-## Protocol records
+## 协议记录
 
-The protocol has four record families:
+该协议包含四类记录：
 
-| Direction | Record | Purpose |
+| 方向 | 记录 | 用途 |
 |---|---|---|
-| stdin | Command | Ask Pi to prompt, inspect state, change configuration, or manage the session |
-| stdout | `response` | Report whether one command succeeded and return any command data |
-| stdout | Session event | Stream run, message, tool, queue, compaction, and retry activity |
-| Both | Extension UI record | Forward supported extension interactions between Pi and the client |
+| 标准输入 | 命令 | 要求 Pi 发送提示词、检查状态、修改配置或管理会话 |
+| 标准输出 | `response` | 报告命令是否成功，并返回命令数据 |
+| 标准输出 | 会话事件 | 流式传递运行、消息、工具、队列、压缩和重试活动 |
+| 双向 | 扩展界面记录 | 在 Pi 与客户端之间转发受支持的扩展交互 |
 
-See [RPC Commands](/rpc-commands/), [JSON Event Stream](/json/), and [RPC Extension UI](/rpc-extension-ui/) for the canonical record definitions.
+记录的规范定义请参阅 [RPC 命令](/rpc-commands/)、[JSON 事件流](/json/)和 [RPC 扩展界面](/rpc-extension-ui/)。
 
-### Correlate commands and responses
+### 关联命令与响应
 
-Every command accepts an optional string `id`. A matching response repeats it:
+每条命令都可以带有可选的字符串 `id`。对应的响应会原样返回该 ID：
 
 ```json
 {"id":"req-1","type":"get_state"}
 {"id":"req-1","type":"response","command":"get_state","success":true,"data":{"...":"..."}}
 ```
 
-Use unique IDs whenever more than one command can be outstanding. Command handling is asynchronous, so clients should correlate by ID rather than response order.
+如果可能同时存在多条未完成的命令，请为它们使用不同的 ID。命令处理是异步的，因此客户端应根据 ID 关联响应，而不能依赖响应顺序。
 
-Session events generally have no command ID because they describe session activity. `bash_execution_update` is the exception: when the originating [`bash`](/rpc-commands/#bash) command has an ID, its output events repeat that ID.
+会话事件通常不带命令 ID，因为它们描述的是会话活动。例外是 `bash_execution_update`：如果触发它的 [`bash`](/rpc-commands/#bash) 命令带有 ID，其输出事件也会重复该 ID。
 
-An `extension_ui_response` uses the ID supplied by its `extension_ui_request`. It does not produce a normal command response.
+`extension_ui_response` 使用对应 `extension_ui_request` 提供的 ID，不会产生常规命令响应。
 
-## Framing
+## 消息分帧
 
-RPC uses strict JSONL framing. Write one complete JSON object per record and terminate it with LF (`\n`). Read stdout as a byte or UTF-8 stream and split records only on LF. Strip an optional preceding carriage return to accept CRLF input.
+RPC 使用严格的 JSONL 分帧格式。每条记录写入一个完整 JSON 对象，并以 LF（`\n`）结束。应将标准输出作为字节流或 UTF-8 流读取，只以 LF 分隔记录。为兼容 CRLF 输入，可去掉 LF 前可选的回车符。
 
-Do not use a generic line reader that treats Unicode line or paragraph separators as record boundaries. In particular, Node.js `readline` also splits on `U+2028` and `U+2029`, which are valid inside JSON strings.
+不要使用会将 Unicode 行分隔符或段落分隔符视为记录边界的通用逐行读取器。尤其要注意，Node.js `readline` 也会在 `U+2028` 和 `U+2029` 处分割，而这两个字符可以合法出现在 JSON 字符串中。
 
-Read stdout continuously. Pi honors stdout backpressure, but a client that stops reading can stall the process. Honor stdin backpressure when writing commands. Stdout is reserved for protocol records; diagnostics and application logging go to stderr.
+应持续读取标准输出。Pi 会遵循标准输出的背压机制，但客户端若停止读取，可能导致进程停滞。写入命令时也应遵循标准输入的背压机制。标准输出专用于协议记录；诊断信息和应用日志应写入标准错误。
 
-## Run lifecycle
+## 运行生命周期
 
-A successful `prompt` response means the prompt was accepted, queued, or handled. It does not mean model work completed:
+`prompt` 成功响应表示提示词已被接受、排队或处理，并不意味着模型任务已经完成：
 
 ```json
 {"id":"req-2","type":"prompt","message":"Review this repository"}
 {"id":"req-2","type":"response","command":"prompt","success":true,"data":{"disposition":"started"}}
 ```
 
-`data.disposition` reports what happened to the prompt. If it is `"handled"`, no run started for this prompt, so don't wait for `agent_settled`. See [RPC Commands](/rpc-commands/#prompt) for all values.
+`data.disposition` 用于说明提示词的处理结果。如果值为 `"handled"`，表示该提示词没有启动运行，因此不要等待 `agent_settled`。所有可能的值请参阅 [RPC 命令](/rpc-commands/#prompt)。
 
-Continue consuming [events](/json/) after that response. `agent_end` marks the end of one low-level agent run, but retries, overflow recovery, compaction, steering, or follow-up work can still follow. Wait for `agent_settled` when the client needs to know Pi will not continue automatically.
+收到响应后仍应继续读取[事件](/json/)。`agent_end` 表示一次底层 agent 运行结束，但后续仍可能发生重试、溢出恢复、上下文压缩、引导消息或后续任务。如果客户端需要确认 Pi 不会自动继续，应等待 `agent_settled`。
 
-Subscribe before sending a prompt to avoid missing a fast completion. `RpcClient.promptAndWait()` does this internally. If using separate `RpcClient` calls, install the event listener before `prompt()` and call `waitForIdle()` only while a run is active.
+为避免遗漏很快完成的任务，应先订阅事件，再发送提示词。`RpcClient.promptAndWait()` 会在内部完成此操作。如果分别调用 `RpcClient` 的方法，应在调用 `prompt()` 前安装事件监听器，并且只在运行期间调用 `waitForIdle()`。
 
-## Errors
+## 错误处理
 
-A failed command returns one response with `success: false`:
+命令失败时会返回一条 `success: false` 的响应：
 
 ```json
 {"id":"req-3","type":"response","command":"set_model","success":false,"error":"Model not found: invalid/model"}
 ```
 
-Malformed JSON produces a parse response without a request ID:
+JSON 格式错误时会返回解析错误响应，此响应不带请求 ID：
 
 ```json
 {"type":"response","command":"parse","success":false,"error":"Failed to parse command: Unexpected token..."}
 ```
 
-A success response only covers command handling. Provider failures and aborts after a prompt is accepted appear in the message and event stream.
+成功响应只表示命令处理成功。提示词被接受后发生的 Provider 故障和中止，会出现在消息及事件流中。
 
-Clients must also handle child-process startup failures, unexpected exits, stderr diagnostics, cancellation, and their own deadlines. Do not parse stderr as protocol data.
+客户端还必须处理子进程启动失败、意外退出、标准错误诊断信息、取消操作和自身的截止时间。不要将标准错误解析为协议数据。
 
-## Shutdown
+## 关闭
 
-Close the child's stdin to request an orderly shutdown. Pi disposes the active runtime and waits for pending work to finish before exiting, so give it time to exit before killing it. Clients should still handle process signals and unexpected exits.
+关闭子进程的标准输入可请求有序关闭。Pi 会释放活动运行时，并等待待处理任务完成后再退出，因此强制终止前应留出退出时间。客户端仍需处理进程信号和意外退出。
 
-SIGTERM and SIGHUP also start an orderly shutdown. Once a shutdown has started, from either stdin EOF or a signal, a stdin EOF or a single signal does not interrupt it; a second signal exits at once. Closing stdin and sending SIGTERM together is safe.
+SIGTERM 和 SIGHUP 也会启动有序关闭。无论关闭是由标准输入 EOF 还是信号触发，开始后，标准输入 EOF 或单个信号都不会中断关闭过程；收到第二个信号时则会立即退出。同时关闭标准输入并发送 SIGTERM 是安全的。
 
-An extension can also request shutdown with `ctx.shutdown()`. If the session is idle and no command is being handled, Pi shuts down right away. Otherwise it shuts down once the current command finishes (for `prompt`, once the prompt settles) or the active run emits `agent_settled`. (A request made while an extension-started compaction is running waits for the next command or run to finish.)
+扩展也可以通过 `ctx.shutdown()` 请求关闭。如果会话空闲且没有正在处理的命令，Pi 会立即关闭；否则会等当前命令完成后关闭（对于 `prompt`，则等待提示词处理结束），或等待活动运行发出 `agent_settled`。如果扩展发起的上下文压缩正在进行，关闭请求会等到下一条命令或运行完成后再处理。
 
-## Minimal client
+## 最小客户端示例
 
-This Python example uses a binary pipe reader, which splits on LF without treating Unicode separators as protocol boundaries:
+下面的 Python 示例使用二进制管道读取器，只按 LF 分割记录，不会将 Unicode 分隔符误当作协议边界：
 
 ```python
 import json
@@ -135,21 +135,21 @@ process.stdin.close()
 process.wait()
 ```
 
-For maintained TypeScript clients, use the checked [RPC client example](../examples/rpc-client.ts). It requires a built Pi CLI because the repository example points to `dist/cli.js`.
+维护中的 TypeScript 客户端请使用经过验证的 [RPC 客户端示例](../examples/rpc-client.ts)。该示例需要已构建的 Pi CLI，因为仓库中的示例会调用 `dist/cli.js`。
 
-## Reference
+## 参考资料
 
-- [RPC Commands](/rpc-commands/): every stdin command and response
-- [JSON Event Stream](/json/): shared stdout session events and streaming reconstruction
-- [RPC Extension UI](/rpc-extension-ui/): dialogs, notifications, responses, and limitations
-- [Message Types](/message-types/): messages and content blocks used by responses and events
-- [Session File Format](/session-format/): entries returned by session commands
+- [RPC 命令](/rpc-commands/)：所有标准输入命令及其响应
+- [JSON 事件流](/json/)：共用的标准输出会话事件及流式重建
+- [RPC 扩展界面](/rpc-extension-ui/)：对话框、通知、响应和限制
+- [消息类型](/message-types/)：响应和事件使用的消息及内容块
+- [会话文件格式](/session-format/)：会话命令返回的条目
 - [`rpc-types.ts`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/modes/rpc/rpc-types.ts): exported TypeScript protocol definitions
 - [`RpcClient`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/modes/rpc/rpc-client.ts): subprocess client implementation
 
-## Moved reference anchors
+## 迁移后的参考锚点
 
-The detailed references formerly on this page now have dedicated pages. These anchors preserve existing links.
+本页原有的详细参考内容现已移至独立页面。以下锚点用于保留已有链接。
 
 <a id="prompt"></a>
 <a id="steer"></a>

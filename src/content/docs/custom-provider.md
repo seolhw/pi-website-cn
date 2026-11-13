@@ -1,41 +1,41 @@
 ---
-title: "Add Custom Providers"
+title: "添加自定义 Provider"
 ---
 
-# Custom Providers
+# 添加自定义 Provider
 
-A provider extension connects Pi to a model service that needs custom authentication, model discovery, request handling, or streaming. If the service already speaks a supported API, configure it in `models.json` instead.
+Provider 扩展可将 Pi 连接到需要自定义身份验证、模型发现、请求处理或流式传输的模型服务。如果服务已支持 Pi 兼容的 API，应改用 `models.json` 配置。
 
-Provider extensions run inside Pi and can inspect credentials, prompts, tool definitions, model responses, and usage. Treat them as trusted code and avoid logging secrets or provider payloads.
+Provider 扩展运行在 Pi 进程内，可以访问凭据、提示词、工具定义、模型响应和用量信息。请将其视为可信代码，避免记录密钥或 Provider 请求内容。
 
-## Choose the smallest integration
+## 选择最简单的集成方式
 
-| Requirement | Use |
+| 需求 | 方案 |
 |---|---|
-| Add models behind a supported API | [`models.json`](/models/#configure-a-compatible-endpoint) |
-| Change an existing provider endpoint or headers | `models.json` or a small provider extension |
-| Discover models dynamically | A provider with `refreshModels` |
-| Add a `/login` flow | A provider with native or legacy OAuth configuration |
-| Implement an unsupported wire protocol | A provider with `stream` or `streamSimple` |
+| 为兼容 API 添加模型 | [`models.json`](/models/#configure-a-compatible-endpoint) |
+| 修改现有 Provider 的端点或请求头 | `models.json` 或简单的 Provider 扩展 |
+| 动态发现模型 | 提供 `refreshModels` 的 Provider |
+| 添加 `/login` 流程 | 使用原生或旧版 OAuth 配置的 Provider |
+| 实现尚不支持的通信协议 | 提供 `stream` 或 `streamSimple` 的 Provider |
 
-A provider extension is an [extension](/extensions/), so it follows the same loading, trust, reload, and error behavior.
+Provider 扩展属于[扩展](/extensions/)，遵循相同的加载、信任、重载和错误处理规则。
 
-## Register a provider
+## 注册 Provider
 
-Call `pi.registerProvider()` from the extension factory. Pi waits for asynchronous factories before startup continues, so providers registered there are available to startup model selection and `pi --list-models`.
+在扩展工厂函数中调用 `pi.registerProvider()`。Pi 会等待异步工厂函数完成后再继续启动，因此在此注册的 Provider 可用于启动时选择模型，也会显示在 `pi --list-models` 中。
 
-There are two registration forms:
+注册方式有两种：
 
-- Register a complete `Provider` from `@earendil-works/pi-ai` for native authentication, filtering, discovery, refresh, and streaming behavior.
-- Register a provider name with `ProviderConfig` for the legacy configuration form used by existing extensions.
+- 使用 `@earendil-works/pi-ai` 中完整的 `Provider`，以支持原生身份验证、筛选、模型发现、刷新和流式传输。
+- 使用 `ProviderConfig` 注册 Provider 名称，兼容现有扩展使用的旧版配置方式。
 
-Prefer a complete provider for new integrations that own more than static endpoint and model metadata. Pi composes `models.json` overrides above a registered native provider.
+对于除了静态端点和模型元数据之外还需处理其他逻辑的新集成，优先使用完整 Provider。Pi 会将 `models.json` 中的覆盖配置应用在已注册的原生 Provider 之上。
 
-Registering only `baseUrl` or `headers` for an existing provider preserves its built-in models. Supplying `models` in the legacy form replaces that provider's models across chat, image, and classifier operations. An omitted `type` means `"chat"`; image and classifier models require explicit discriminants and implementations keyed by their `api` values through the `images` and `classifiers` fields.
+对于现有 Provider，只注册 `baseUrl` 或 `headers` 会保留其内置模型。旧版配置中提供 `models` 会替换该 Provider 在聊天、图像和分类器操作中的所有模型。省略 `type` 时默认为 `"chat"`；图像和分类器模型必须显式声明类型，并通过 `images` 和 `classifiers` 字段按 `api` 值提供对应实现。
 
-### Redirect an existing provider
+### 重定向现有 Provider
 
-Register only the fields that should change. This keeps the provider's built-in catalog, authentication, API implementation, and compatibility settings:
+只注册需要修改的字段，即可保留该 Provider 的内置目录、身份验证、API 实现和兼容性设置：
 
 ```typescript
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
@@ -50,11 +50,11 @@ export default function (pi: ExtensionAPI) {
 }
 ```
 
-Use this form for a proxy or gateway that preserves the upstream protocol. Do not copy the built-in model list into the extension because doing so turns a small endpoint override into a catalog replacement that can drift.
+如果代理或网关保留了上游协议，请使用这种方式。不要将内置模型列表复制到扩展中，否则简单的端点覆盖就会变成可能逐渐过时的目录替换。
 
-### Register a compatible endpoint
+### 注册兼容端点
 
-When a service implements a supported protocol but has its own model catalog, register the endpoint and only the models the service actually exposes:
+如果服务实现了受支持的协议，但拥有自己的模型目录，请注册端点，并且只列出该服务实际提供的模型：
 
 ```typescript
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
@@ -81,11 +81,11 @@ export default function (pi: ExtensionAPI) {
 }
 ```
 
-Prefer `models.json` for this case when no executable extension behavior is needed. Use an extension when registration depends on runtime discovery, custom authentication, or code shared with other extension features.
+如果不需要扩展执行代码，优先使用 `models.json`。当注册过程依赖运行时发现、自定义身份验证，或需要与扩展的其他功能共享代码时，再使用扩展。
 
-### Register mixed-operation models
+### 注册多种操作类型的模型
 
-A mixed-operation provider can register non-chat models and their implementations together:
+支持多种操作类型的 Provider 可以同时注册非聊天模型及其实现：
 
 ```typescript
 pi.registerProvider("media-tools", {
@@ -121,111 +121,111 @@ pi.registerProvider("media-tools", {
 });
 ```
 
-Model-level `baseUrl` values take precedence over the provider endpoint. If no `models` list is supplied, built-in models of every operation remain registered. Equal model IDs in different operations remain distinct, including their model-specific headers.
+模型级别的 `baseUrl` 优先于 Provider 端点。如果未提供 `models` 列表，各种操作类型的内置模型都会保留。不同操作类型中相同的模型 ID 仍视为不同模型，各自保留对应的模型级请求头。
 
-Calls made after initial extension loading take effect immediately. Use `pi.unregisterProvider()` to remove the dynamic provider and restore built-in behavior that it replaced.
+扩展首次加载完成后执行的注册调用会立即生效。使用 `pi.unregisterProvider()` 可移除动态 Provider，并恢复其替代的内置行为。
 
-See the checked [GitLab Duo provider](../examples/extensions/custom-provider-gitlab-duo/) for a complete registration that delegates streaming to built-in API implementations.
+完整示例请参阅经过验证的 [GitLab Duo Provider](../examples/extensions/custom-provider-gitlab-duo/)，其中将流式传输委托给内置 API 实现。
 
-## Provide authentication
+## 提供身份验证
 
-Static providers can resolve an API key from a literal, environment interpolation, or a command. These values use the same syntax as `models.json`:
+静态 Provider 可以从固定值、环境变量插值或命令输出中解析 API 密钥。其语法与 `models.json` 相同：
 
-- `$NAME` and `${NAME}` read environment variables.
-- A leading `!command` uses command output.
-- `$$` emits a literal `$`.
-- `$!` emits a literal leading `!`.
+- `$NAME` 和 `${NAME}` 用于读取环境变量。
+- 以 `!command` 开头时，使用该命令的输出。
+- `$$` 输出字面量 `$`。
+- `$!` 输出开头的字面量 `!`。
 
-Use native provider authentication when the integration needs stored credentials, custom resolution, provider-scoped environment, or multiple login methods.
+如果集成需要存储凭据、自定义解析逻辑、Provider 专属环境变量或多种登录方式，请使用原生 Provider 身份验证。
 
-An OAuth provider supplies a display name, login flow, token refresh, and access-token resolution. After registration it appears in `/login`, and Pi stores returned credentials in `~/.pi/agent/auth.json`.
+OAuth Provider 负责提供显示名称、登录流程、令牌刷新和访问令牌解析。注册后会出现在 `/login` 中，Pi 会将返回的凭据存储到 `~/.pi/agent/auth.json`。
 
-OAuth callbacks are UI-neutral. They can open an authorization URL, show a device code, report progress, request input, or ask the user to choose a login method. Honor cancellation and the supplied abort signal during network requests.
+OAuth 回调不依赖特定界面。它们可以打开授权 URL、显示设备码、报告进度、请求输入，或让用户选择登录方式。执行网络请求时应处理取消操作，并遵循传入的中止信号。
 
-Press Enter (`tui.select.confirm`) to open the device-login URL and copy the code, or log in manually. Providers can disable either action with `openBrowserOnConfirm: false` or `copyCodeOnConfirm: false` in `onDeviceCode` or native `AuthEvent` notifications.
+按 Enter（`tui.select.confirm`）可打开设备登录 URL 并复制验证码，也可以手动登录。Provider 可在 `onDeviceCode` 或原生 `AuthEvent` 通知中设置 `openBrowserOnConfirm: false` 或 `copyCodeOnConfirm: false`，分别禁用这些操作。
 
-Never write access tokens, refresh tokens, authorization headers, or complete provider responses to ordinary logs.
+切勿将访问令牌、刷新令牌、授权请求头或完整的 Provider 响应写入普通日志。
 
-## Supply and refresh models
+## 提供和刷新模型
 
-Every model needs an ID, display name, input capabilities, and cost metadata. Chat and classifier models also need a context window; chat models need an output limit and reasoning support; image models declare their output modalities. Choose the API implementation at the provider level unless one model requires an override.
+每个模型都需要 ID、显示名称、输入能力和成本元数据。聊天模型和分类器模型还需要上下文窗口；聊天模型还需声明输出上限和推理支持；图像模型则需声明输出模态。除非某个模型需要单独覆盖，否则应在 Provider 级别选择 API 实现。
 
-Set `promptCache.short` or `promptCache.long` to the provider's best-effort cache lifetime in seconds when Pi should keep an idle prompt cache warm. Leave them unset to disable cache warming for that retention tier.
+如果希望 Pi 保持空闲提示词缓存处于热状态，可将 `promptCache.short` 或 `promptCache.long` 设为 Provider 尽力维持缓存的时长（秒）。留空则禁用对应保留时长的缓存预热。
 
-Compatibility flags describe verified differences in an otherwise supported API. Do not enable them based only on an endpoint claiming compatibility.
+兼容性标志用于描述已验证的 API 差异。不要仅因某个端点自称兼容，就启用这些标志。
 
-Confirm the request fields and response behavior against the actual server.
+请对照实际服务器确认请求字段和响应行为。
 
-Use `refreshModels` when the available catalog comes from a live service. Pass `context.signal` to blocking I/O so callers can cancel refreshes.
+如果模型目录来自在线服务，请使用 `refreshModels`。将 `context.signal` 传递给阻塞式 I/O，以便调用方取消刷新。
 
-The two registration forms have different refresh contracts:
+两种注册方式的刷新约定不同：
 
-- A complete `Provider` returns nothing. It calls `context.publish({ update })` to install provider-owned model state, after which its synchronous `getModels()` exposes the latest list.
-- Legacy `ProviderConfig.refreshModels` returns mixed-operation model definitions. Pi replaces that registration’s live models with the returned list and applies any requested persistence.
+- 完整的 `Provider` 不返回值，而是调用 `context.publish({ update })` 安装由 Provider 管理的模型状态；之后其同步方法 `getModels()` 会提供最新列表。
+- 旧版 `ProviderConfig.refreshModels` 返回包含多种操作类型的模型定义。Pi 会用返回列表替换该注册项的在线模型，并按要求进行持久化。
 
-Publish persisted catalog data only when it should survive across runs. A live service such as llama.cpp can update its in-memory list without persisting it; a remote catalog can retain a snapshot for offline startup.
+只有需要跨运行保留的目录数据才应持久化。llama.cpp 等在线服务可以只更新内存中的列表；远程目录则可以保留快照，以便离线启动。
 
-## Reuse a supported streaming API
+## 复用受支持的流式 API
 
-Use one of Pi AI’s API implementations whenever the provider protocol matches it.
+只要 Provider 协议匹配，就应复用 Pi AI 提供的 API 实现。
 
-Supported implementations cover Anthropic Messages, OpenAI Chat Completions and Responses, Google Generative AI and Vertex, Azure OpenAI Responses, Mistral Conversations, and Bedrock Converse.
+现有实现支持 Anthropic Messages、OpenAI Chat Completions 和 Responses、Google Generative AI 和 Vertex、Azure OpenAI Responses、Mistral Conversations，以及 Bedrock Converse。
 
-The provider can still customize authentication, base URLs, headers, model filtering, and discovery while delegating request conversion and streaming to an existing API implementation.
+Provider 仍可自定义身份验证、基础 URL、请求头、模型筛选和发现流程，同时将请求转换及流式传输委托给现有 API 实现。
 
-This is safer than copying a stream implementation because it preserves Pi’s message conversion, tool handling, usage accounting, cancellation, and compatibility behavior.
+这种方式比复制流处理实现更安全，因为它能保留 Pi 的消息转换、工具处理、用量统计、取消机制和兼容性行为。
 
-## Implement custom streaming
+## 实现自定义流式传输
 
-Implement `streamSimple` only when no existing API implementation can represent the service. Study the implementations under [`packages/ai/src/api`](https://github.com/earendil-works/pi/tree/main/packages/ai/src/api) first.
+只有在现有 API 实现都无法适配该服务时，才应实现 `streamSimple`。请先研究 [`packages/ai/src/api`](https://github.com/earendil-works/pi/tree/main/packages/ai/src/api) 中的实现。
 
-The stream receives a normalized `TranscriptContext`. System prompts and tool declarations live in transcript system messages, so read them with `getCurrentSystemPrompt(context.messages)` and `getCurrentTools(context.messages)` rather than expecting `context.systemPrompt` or `context.tools`. A model that supports mid-conversation system messages can receive them in place; otherwise call `collapseSystemMessages(context)` to fold later system messages into the leading one.
+流处理函数接收经过规范化的 `TranscriptContext`。系统提示词和工具声明保存在转录中的 system 消息里，因此应使用 `getCurrentSystemPrompt(context.messages)` 和 `getCurrentTools(context.messages)` 读取，不要假设存在 `context.systemPrompt` 或 `context.tools`。如果模型支持在对话中途插入 system 消息，可按原位置传递；否则调用 `collapseSystemMessages(context)`，将后续 system 消息合并到首条消息中。
 
-A custom stream must:
+自定义流处理必须：
 
-1. Create an assistant message with provider, model, timestamp, pending stop reason, content, and zeroed usage.
-2. After request setup succeeds, emit one `start` event before content events.
-3. Update the message while emitting balanced text, thinking, and tool-call events.
-4. Finalize usage, cost, content, and stop reason.
-5. Emit exactly one terminal `done` or `error` event and close the stream.
-6. Convert cancellation into an aborted result.
+1. 创建 assistant 消息，填写 Provider、模型、时间戳、待定的停止原因、内容和初始为零的用量。
+2. 请求准备成功后，在任何内容事件之前发出一次 `start` 事件。
+3. 更新消息，并正确配对发出文本、思考和工具调用事件。
+4. 完成用量、成本、内容和停止原因的结算。
+5. 恰好发出一个终止事件（`done` 或 `error`），然后关闭流。
+6. 将取消操作转换为中止结果。
 
-Request setup can fail before `start`; in that case the stream can terminate directly with `error`. Missing request authentication may also throw synchronously before a stream is returned.
+请求准备阶段可能在 `start` 事件发出前失败；此时流可以直接以 `error` 终止。缺少请求身份验证信息也可能在返回流之前同步抛出异常。
 
-Content indexes refer to blocks in the assistant message. Update each block before emitting the event whose `partial` field exposes that state. Tool-call arguments must contain valid parsed input by `toolcall_end`.
+内容索引对应 assistant 消息中的内容块。发出 `partial` 字段会暴露该状态的事件之前，必须先更新对应内容块。到达 `toolcall_end` 时，工具调用参数必须已解析为有效输入。
 
-The stream must also honor request instrumentation supplied through `SimpleStreamOptions`:
+流处理还必须遵循通过 `SimpleStreamOptions` 提供的请求监测钩子：
 
-- Call `options.onPayload` before sending the provider request and use any replacement payload it returns.
-- Call `options.onResponse` after receiving the response but before consuming its body.
-- Await `options.onProviderStreamEvent?.(providerEvent, model)` for each parsed provider event before normalizing it.
-- Pass through the abort signal and provider-scoped environment.
+- 发送 Provider 请求前调用 `options.onPayload`，并使用其返回的替换请求内容（若有）。
+- 收到响应后、读取响应体前调用 `options.onResponse`。
+- 每解析到一个 Provider 事件，在规范化之前都要等待 `options.onProviderStreamEvent?.(providerEvent, model)` 完成。
+- 传递中止信号和 Provider 专属环境变量。
 
-These hooks power extension request inspection, response-header events, and provider-stream observation. Omitting them makes the provider behave differently from Pi’s built-in providers.
+这些钩子用于扩展检查请求、处理响应头事件和观察 Provider 流。遗漏它们会导致该 Provider 的行为与 Pi 内置 Provider 不一致。
 
-## Report failures and usage
+## 报告错误和用量
 
-Set a concrete terminal stop reason. Error and aborted messages need an `errorMessage`; successful messages need accurate input, output, cache, total-token, and cost values.
+设置明确的终止停止原因。错误或中止的消息必须提供 `errorMessage`；成功消息则应准确填写输入、输出、缓存、总 token 数和成本。
 
-Pi can compact and retry after recognized context-overflow errors. If the service uses an unknown message, normalize only that provider’s overflow response to `context_length_exceeded` in a guarded `message_end` handler.
+遇到 Pi 可识别的上下文溢出错误时，Pi 可以压缩上下文并重试。如果服务使用未知的错误消息，可在受保护的 `message_end` 处理器中，仅将该 Provider 的溢出响应规范化为 `context_length_exceeded`。
 
-Do not rewrite rate limits or transient provider failures as context overflow. Those failures use Pi’s normal retry behavior instead.
+不要将速率限制或暂时性的 Provider 故障改写为上下文溢出。这些错误应继续使用 Pi 的常规重试机制。
 
-## Test the integration
+## 测试集成
 
-Test at least:
+至少测试以下情况：
 
-- ordinary and empty text responses
-- tool calls and tool results
-- image input and image tool results when supported
-- usage and cost accounting
-- abort behavior
-- context overflow
-- malformed or partial streams
-- Unicode boundaries
-- cross-provider session handoff
-- authentication refresh and cancellation
+- 普通文本响应和空文本响应
+- 工具调用及工具结果
+- 支持时的图像输入和图像工具结果
+- 用量与成本统计
+- 中止行为
+- 上下文溢出
+- 格式错误或不完整的流
+- Unicode 字符边界
+- 跨 Provider 的会话切换
+- 身份验证刷新和取消操作
 
-The provider tests under [`packages/ai/test`](https://github.com/earendil-works/pi/tree/main/packages/ai/test) define the behavior expected from built-in providers. Adapt the relevant suites rather than relying only on manual prompts.
+[`packages/ai/test`](https://github.com/earendil-works/pi/tree/main/packages/ai/test) 下的 Provider 测试定义了内置 Provider 应有的行为。请参考并调整相关测试套件，不要只依赖手动提示词进行验证。
 
-Run the extension directly while developing, then move it to a discovered extension location or distribute it through a [Pi package](/packages/#package-guide). Use `/reload` after changing a discovered provider extension in an active session.
+开发时可直接运行扩展；完成后将其移至 Pi 可发现的扩展目录，或通过 [Pi 包](/packages/#package-guide)分发。在活动会话中修改已发现的 Provider 扩展后，请运行 `/reload`。

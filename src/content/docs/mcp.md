@@ -1,14 +1,16 @@
 ---
-title: "Connect MCP Servers"
+title: "连接 MCP 服务器"
 ---
 
-# MCP Servers
+<a id="mcp-servers"></a>
 
-Pi connects to [Model Context Protocol](https://modelcontextprotocol.io) servers over stdio or streamable HTTP and makes their tools and resources available to the model.
+# MCP 服务器
 
-## Quick setup
+Pi 通过标准输入输出或可流式传输的 HTTP 连接 [Model Context Protocol](https://modelcontextprotocol.io) 服务器，并将其工具和资源提供给模型。
 
-Add a local stdio server, check the connection, then start Pi:
+## 快速开始
+
+添加本地 stdio 服务器、检查连接，然后启动 Pi：
 
 ```bash
 pi mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem .
@@ -16,26 +18,26 @@ pi mcp list
 pi
 ```
 
-For a remote server:
+添加远程服务器：
 
 ```bash
 pi mcp add docs --url https://example.com/mcp --bearer-token-env-var DOCS_TOKEN
 pi mcp list
 ```
 
-These commands add user-level servers by default. Add `--local` or `-l` to write the project configuration instead:
+这些命令默认添加用户级服务器。添加 `--local` 或 `-l` 可改为写入项目配置：
 
 ```bash
 pi mcp add -l tools --env API_KEY='${TOOLS_KEY}' -- uvx tools-mcp
 ```
 
-Use `/mcp` inside an interactive session to inspect connections, sign in, reconnect, change exposure, or enable and disable servers. Run `/reload` after adding, removing, or changing a server outside the session.
+在交互会话中使用 `/mcp` 查看连接、登录、重新连接、更改暴露方式，或启用和禁用服务器。在会话外添加、移除或更改服务器后，请运行 `/reload`。
 
-## Configure servers
+## 配置服务器
 
-Pi reads user-level servers from `~/.pi/agent/mcp.json` and project servers from `.pi/mcp.json`. Project configuration is read only after [project trust](/security/#understand-project-trust) is granted. A project entry replaces a user-level entry with the same name.
+Pi 从 `~/.pi/agent/mcp.json` 读取用户级服务器，从 `.pi/mcp.json` 读取项目级服务器。只有授予[项目信任](/security/#understand-project-trust)后才会读取项目配置。同名项目条目会覆盖用户级条目。
 
-A project entry without `command`, `url`, or `type` overrides only `enabled`, `exposure`, and `toolExposure` of the user-level server with the same name and keeps the rest, including `env`, `headers`, and `auth`. For example, this turns off a user-level server in one project:
+如果项目条目没有 `command`、`url` 或 `type`，它只会覆盖同名用户级服务器的 `enabled`、`exposure` 和 `toolExposure`，其余配置（包括 `env`、`headers` 和 `auth`）都会保留。例如，以下配置会在单个项目中禁用用户级服务器：
 
 ```json
 {
@@ -45,7 +47,7 @@ A project entry without `command`, `url`, or `type` overrides only `enabled`, `e
 }
 ```
 
-The format matches other MCP clients:
+配置格式与其他 MCP 客户端一致：
 
 ```json
 {
@@ -63,62 +65,64 @@ The format matches other MCP clients:
 }
 ```
 
-Stdio servers use `command`, `args`, `env`, and `cwd`. Relative `cwd` values resolve against the session directory. A leading `~/` in `command`, an argument, or `cwd` names the home directory.
+Stdio 服务器使用 `command`、`args`、`env` 和 `cwd`。相对 `cwd` 路径以会话目录为基准。`command`、参数或 `cwd` 开头的 `~/` 表示用户主目录。
 
-HTTP servers use `url`, `headers`, and `oauth` (see [Authenticate with OAuth](#authenticate-with-oauth)). The legacy SSE transport is not supported.
+HTTP 服务器使用 `url`、`headers` 和 `oauth`（参见[使用 OAuth 认证](#authenticate-with-oauth)）。不支持旧版 SSE 传输。
 
-Both server types support:
+两种服务器都支持以下字段：
 
-- `timeout`: per-request timeout in seconds (default 60). Progress notifications reset it.
-- `enabled: false`: keep the entry without connecting to it.
-- `exposure` and `toolExposure`: control how tools reach the model (see [Control tool exposure](#control-tool-exposure)).
-- `description`: what the server offers, in a sentence. It lists the server in the system prompt (see [Control tool exposure](#control-tool-exposure)), tool search ranks the server's tools by it, and codemode's `describeNamespace()` returns it. Without it, the first line of the server instructions is used once the server connects.
+- `timeout`：每个请求的超时时间（秒），默认值为 60。收到进度通知时会重置计时。
+- `enabled: false`：保留配置条目，但不连接服务器。
+- `exposure` 和 `toolExposure`：控制模型如何调用工具（参见[控制工具暴露方式](#control-tool-exposure)）。
+- `description`：用一句话说明服务器提供的功能。该说明会将服务器列入系统提示词（参见[控制工具暴露方式](#control-tool-exposure)），供工具搜索对服务器工具排序，并由 codemode 的 `describeNamespace()` 返回。若未设置，服务器连接后会使用服务器指令的首行。
 
-Keep personal servers and servers with credentials in the user-level file. Use the project file only for servers the project requires, and only in trusted projects.
+个人服务器以及包含凭据的服务器应放在用户级文件中。项目级文件仅用于项目必需的服务器，并且只在受信任的项目中使用。
 
-### Configuration rules
+### 配置规则
 
-- Server names may contain only letters, digits, `_`, and `-`. Tools are named `mcp__<server>__<tool>`, with every character other than letters, digits, and `_` replaced by `_`; tools of a server whose names then collide all get a hash suffix. Server names that differ only in `-` and `_` count as the same server: a second one is rejected, and a `mcp.json` server overrides a registered one.
-- `type` is optional. A `command` selects stdio and a `url` selects streamable HTTP. When present, `type` must be `stdio`, `http`, or `streamable-http`.
-- `sse` is rejected. Servers that document an SSE endpoint often also provide streamable HTTP, commonly at `/mcp` instead of `/sse`.
-- `command` is one executable and `args` contains its arguments. It is not a shell command string.
-- `env` and `headers` values can use environment variables such as `${GITHUB_TOKEN}`. They can also run a command with `!command`, but the command must make up the whole value, for example `"Authorization": "!echo Bearer $(gh auth token)"`.
-- Invalid entries are reported and skipped without preventing other servers from connecting.
+- 服务器名称只能包含字母、数字、`_` 和 `-`。工具名称为 `mcp__<server>__<tool>`，其中除字母、数字和 `_` 以外的字符都会替换为 `_`；若同一服务器的工具名称因此冲突，所有冲突工具都会添加哈希后缀。仅 `-` 和 `_` 不同的服务器名称视为同名：后添加的服务器会被拒绝，`mcp.json` 中的服务器优先于扩展注册的服务器。
+- `type` 为可选项。指定 `command` 时使用 stdio，指定 `url` 时使用可流式传输的 HTTP。若设置 `type`，其值必须为 `stdio`、`http` 或 `streamable-http`。
+- 不接受 `sse`。提供 SSE 端点的服务器通常也支持可流式传输的 HTTP，常见端点为 `/mcp` 而非 `/sse`。
+- `command` 只能是一个可执行文件，参数放在 `args` 中；不能将整条 Shell 命令写入 `command`。
+- `env` 和 `headers` 的值可以引用环境变量，例如 `${GITHUB_TOKEN}`；也可以通过 `!command` 执行命令，但命令必须构成整个值，例如 `"Authorization": "!echo Bearer $(gh auth token)"`。
+- 无效条目会被报告并跳过，不会阻止其他服务器连接。
 
-`pi mcp add` and `pi mcp remove` cover common changes from a shell. See [MCP commands](/cli/#mcp-commands) for their options.
+常见的命令行配置变更可使用 `pi mcp add` 和 `pi mcp remove`。选项请参阅 [MCP 命令](/cli/#mcp-commands)。
 
-### Inspect or change a server
+### 查看或更改服务器
 
-`/mcp` lists configured servers with their state, tool count, exposure, and configuration source. Servers that need attention appear first. Select a server to inspect its tools and connection details, reconnect, sign in or out, change exposure, or enable and disable it.
+`/mcp` 会列出已配置服务器的状态、工具数量、暴露方式和配置来源，并将需要处理的服务器显示在前面。选择服务器后，可以查看工具和连接详情、重新连接、登录或退出、更改暴露方式，或启用和禁用服务器。
 
-Exposure and enabled-state changes are saved to the file that defines the server without replacing unrelated content. In a trusted project, "Enable in this project" and "Disable in this project" add a project override for a user-level server; later changes to that server are saved to the override. Disabled servers remain listed. Outside the interactive TUI, `/mcp` prints server status; `/mcp login <server>`, `/mcp logout <server>`, and `/mcp reconnect <server>` perform those actions directly.
+暴露方式和启用状态的变更会保存到定义该服务器的文件中，不会覆盖无关内容。在受信任的项目中，“在此项目中启用”和“在此项目中禁用”会为用户级服务器添加项目覆盖；之后对此服务器的更改也会保存到覆盖项中。禁用的服务器仍会显示在列表中。在交互式 TUI 之外，`/mcp` 会输出服务器状态；`/mcp login <server>`、`/mcp logout <server>` 和 `/mcp reconnect <server>` 可直接执行对应操作。
 
-Shell commands work without a session: `pi mcp add`, `pi mcp remove`, `pi mcp list`, `pi mcp login`, and `pi mcp logout`. Shell commands do not load extensions.
+以下 Shell 命令无需启动会话即可使用：`pi mcp add`、`pi mcp remove`、`pi mcp list`、`pi mcp login` 和 `pi mcp logout`。Shell 命令不会加载扩展。
 
-### Diagnose connection problems
+### 诊断连接问题
 
-Run `pi mcp list` to connect to every enabled server and print its state, tools, and errors. It exits with status 1 when an entry is invalid or an enabled server is not connected. `/mcp` shows the full connection error and the tail of stderr from a failed stdio server.
+运行 `pi mcp list` 可连接所有已启用服务器，并输出状态、工具和错误。如果存在无效条目或已启用服务器未连接，命令会以状态码 1 退出。`/mcp` 会显示完整连接错误，以及 stdio 服务器失败时标准错误输出的末尾内容。
 
-Pi reports configuration errors, failed connections, and required sign-ins once after startup. Server logging notifications are appended to `~/.pi/agent/mcp.log` as `<time> [<server>] <level> <logger>: <message>`. The file moves to `mcp.log.1` after it grows past 5 MB.
+Pi 启动后会报告一次配置错误、连接失败和需要登录的情况。服务器日志通知会以 `<time> [<server>] <level> <logger>: <message>` 格式追加到 `~/.pi/agent/mcp.log`。文件超过 5 MB 后会轮换为 `mcp.log.1`。
 
-Pi connects every enabled server in the background when a session starts. A server's tools appear once it connects; the `codemode` description does not list them, so it does not change when servers connect. The first prompt waits up to 10 seconds only for servers with `direct` tools, which must be declared in its request. Other servers are waited for when they are needed: a codemode script waits for the servers it names (`mcp__<server>`) and, when it calls `searchTools()` or reads `ALL_TOOLS`, for all of them; `tool_search` and the resource tools also wait for all of them. HTTP network errors and transient statuses (408, 429, and 5xx) are retried twice. A dropped connection is shown as disconnected and reconnects on the next call. When a server announces a changed tool list, new tools are added and withdrawn tools become unreachable.
+会话启动时，Pi 会在后台连接所有已启用的服务器。服务器连接后，其工具才会出现；`codemode` 的说明不会列出这些工具，因此服务器连接时说明内容不会变化。首条提示词最多等待 10 秒，只等待具有 `direct` 工具的服务器，因为这些工具必须声明在请求中。其他服务器会在需要时等待：codemode 脚本会等待其点名的服务器（`mcp__<server>`）；调用 `searchTools()` 或读取 `ALL_TOOLS` 时则会等待所有服务器；`tool_search` 和资源工具也会等待所有服务器。HTTP 网络错误及临时状态码（408、429 和 5xx）会重试两次。连接断开时会显示为未连接，并在下次调用时重新连接。服务器公布的工具列表发生变化后，新增工具会被加入，撤销的工具则无法再访问。
 
-Stopping a stdio server closes its stdin, sends SIGTERM, then sends SIGKILL to its process group. This also stops servers launched through wrappers such as `npx` or `uvx`.
+停止 stdio 服务器时，Pi 会关闭其标准输入、发送 SIGTERM，然后向其进程组发送 SIGKILL。通过 `npx` 或 `uvx` 等包装器启动的服务器也会一并停止。
 
-## Migrate configuration from another client
+## 从其他客户端迁移配置
 
-Move the converted entry under `mcpServers` in `mcp.json`, then run `pi mcp list` to validate it.
+将转换后的条目移至 `mcp.json` 的 `mcpServers` 下，然后运行 `pi mcp list` 验证配置。
 
-| Client | Conversion |
+| 客户端 | 转换方式 |
 |---|---|
-| Claude Desktop, Claude Code, or Cursor | Copy the existing `mcpServers` entry. |
-| VS Code | Move an entry from the top-level `servers` object and replace `${input:...}` prompts with `${NAME}` environment variables. |
-| Codex | Convert `[mcp_servers.<name>]` TOML fields such as `command`, `args`, `env`, and `url` to JSON. |
-| OpenCode | Convert `"type": "local"` to a stdio entry, split its `command` array into `command` and `args`, rename `environment` to `env`, and replace `{env:NAME}` with `${NAME}`. Convert `"type": "remote"` to a URL entry. |
+| Claude Desktop、Claude Code 或 Cursor | 复制现有的 `mcpServers` 条目。 |
+| VS Code | 将条目从顶层 `servers` 对象移出，并将 `${input:...}` 提示替换为 `${NAME}` 环境变量。 |
+| Codex | 将 `[mcp_servers.<name>]` 中的 TOML 字段（如 `command`、`args`、`env` 和 `url`）转换为 JSON。 |
+| OpenCode | 将 `"type": "local"` 转为 stdio 条目，将 `command` 数组拆分为 `command` 和 `args`，把 `environment` 改名为 `env`，并将 `{env:NAME}` 替换为 `${NAME}`。将 `"type": "remote"` 转为 URL 条目。 |
 
-## Authenticate with OAuth
+<a id="authenticate-with-oauth"></a>
 
-Remote servers that use OAuth, such as Sentry, need no credentials in `mcp.json`:
+## 使用 OAuth 认证
+
+使用 OAuth 的远程服务器（例如 Sentry）无需在 `mcp.json` 中配置凭据：
 
 ```json
 {
@@ -128,13 +132,13 @@ Remote servers that use OAuth, such as Sentry, need no credentials in `mcp.json`
 }
 ```
 
-When the server rejects an unauthenticated connection, `/mcp` shows that it needs sign-in. Select "Sign in", run `/mcp login sentry`, or run `pi mcp login sentry`. Pi opens the authorization page and waits for approval. If the browser runs on another machine, such as over SSH, paste its redirected URL into the sign-in screen. A running session uses the new credentials on its next turn.
+服务器拒绝未认证的连接时，`/mcp` 会提示需要登录。选择“登录”，运行 `/mcp login sentry`，或运行 `pi mcp login sentry`。Pi 会打开授权页面并等待批准。如果浏览器运行在另一台机器上（例如通过 SSH 连接时），请将重定向后的 URL 粘贴到登录界面。运行中的会话会在下一轮使用新凭据。
 
-Pi identifies itself to the authorization server with its Client ID Metadata Document or by registering a client, stores tokens in `~/.pi/agent/mcp-auth.json`, and refreshes access tokens when they expire or the server rejects them. If a server later requests additional scope, Pi asks for sign-in again. Signing out deletes the stored credentials.
+Pi 会通过 Client ID Metadata Document 标识自身，或注册一个客户端；令牌保存在 `~/.pi/agent/mcp-auth.json` 中。访问令牌过期或被服务器拒绝时，Pi 会刷新令牌。如果服务器之后要求增加 scope，Pi 会再次提示登录。退出登录会删除已保存的凭据。
 
-Credentials belong to a server name and URL. Servers with the same URL under different names, such as one per account, sign in separately; servers with the same name and URL in different `mcp.json` files share one sign-in.
+凭据与服务器名称和 URL 绑定。不同名称但 URL 相同的服务器（例如每个账户各配置一个）需要分别登录；不同 `mcp.json` 文件中名称和 URL 都相同的服务器则共用登录状态。
 
-OAuth applies to HTTP servers without an `Authorization` header. For a server that does not support dynamic client registration, configure a registered client:
+OAuth 适用于未设置 `Authorization` 请求头的 HTTP 服务器。对于不支持动态客户端注册的服务器，请配置已注册的客户端：
 
 ```json
 {
@@ -147,11 +151,11 @@ OAuth applies to HTTP servers without an `Authorization` header. For a server th
 }
 ```
 
-The redirect URI must match the registered URI. `callbackPort` uses `http://127.0.0.1:<port>/callback`. To use another URI, set `callbackUrl`; it must use HTTP on `localhost`, `127.0.0.1`, or `[::1]`. Pi sends it exactly as written. When `callbackUrl` omits a port, Pi uses `callbackPort` or a free port and adds it to the URI, as allowed for loopback redirects by RFC 8252. `clientSecret` is optional and can use an environment variable or command.
+重定向 URI 必须与注册的 URI 匹配。`callbackPort` 使用 `http://127.0.0.1:<port>/callback`。如需使用其他 URI，请设置 `callbackUrl`；它必须使用 HTTP，并指向 `localhost`、`127.0.0.1` 或 `[::1]`。Pi 会按原样发送该 URI。如果 `callbackUrl` 未指定端口，Pi 会使用 `callbackPort` 或空闲端口并将其添加到 URI；RFC 8252 允许环回地址重定向这样处理。`clientSecret` 为可选项，可使用环境变量或命令提供。
 
-Set `scope` to a space-separated list for servers that do not advertise their required scopes. Otherwise, Pi requests the advertised scopes. Later scope requests are added to the configured value.
+对于未公布所需 scope 的服务器，请将 `scope` 设置为空格分隔的列表。否则 Pi 会请求服务器公布的 scope。后续新增的 scope 请求会合并到配置值中。
 
-Pi registers as `pi`. Some servers only accept registrations from known clients. Set `clientName` to send another name:
+Pi 默认以 `pi` 的名称注册。部分服务器只接受已知客户端的注册；设置 `clientName` 可使用其他名称：
 
 ```json
 {
@@ -161,11 +165,11 @@ Pi registers as `pi`. Some servers only accept registrations from known clients.
 }
 ```
 
-The name is only sent when Pi registers a client. To register again under a new name, sign out first.
+只有 Pi 注册客户端时才会发送该名称。若要使用新名称重新注册，请先退出登录。
 
-Without `clientId`, Pi identifies itself with its Client ID Metadata Document on pi.dev when the authorization server advertises support for documents and public clients. Otherwise it registers a client dynamically. A client registered before stays in use while its redirect URI matches, until you sign out. With the document, the client ID is `https://pi.dev/oauth/client.json` with the redirect URI `http://127.0.0.1:<port>/callback`. If the authorization server does not send the `iss` parameter in authorization responses (RFC 9207), Pi uses a document and redirect path specific to the MCP server instead: `https://pi.dev/oauth/<id>/client.json` with `http://127.0.0.1:<port>/callback/<id>`.
+未设置 `clientId` 时，如果授权服务器声明支持客户端元数据文档和公共客户端，Pi 会使用 pi.dev 上的 Client ID Metadata Document 标识自身；否则会动态注册客户端。只要重定向 URI 匹配，已注册的客户端就会持续使用，直到用户退出登录。使用该文档时，客户端 ID 为 `https://pi.dev/oauth/client.json`，重定向 URI 为 `http://127.0.0.1:<port>/callback`。如果授权服务器在授权响应中不发送 `iss` 参数（RFC 9207），Pi 会改用该 MCP 服务器专属的文档和重定向路径：`https://pi.dev/oauth/<id>/client.json` 和 `http://127.0.0.1:<port>/callback/<id>`。
 
-Pi registers instead of using the document when `clientName` is set or `callbackUrl` is not `/callback` on `localhost` or `127.0.0.1`. Set `clientRegistration` to choose the method: `auto` (default) as described, `dcr` to always register, or `cimd` to always use the document. With `cimd`, sign-in fails if the authorization server does not support documents for public clients. Use `dcr` when the authorization page reports an invalid client:
+设置了 `clientName`，或 `callbackUrl` 在 `localhost` 或 `127.0.0.1` 上的路径不是 `/callback` 时，Pi 会注册客户端，而不使用该文档。设置 `clientRegistration` 可选择方式：`auto`（默认）按上述规则自动选择，`dcr` 始终注册，`cimd` 始终使用文档。若授权服务器不支持公共客户端文档，使用 `cimd` 会导致登录失败。授权页面提示客户端无效时，请使用 `dcr`：
 
 ```json
 {
@@ -175,9 +179,9 @@ Pi registers instead of using the document when `clientName` is set or `callback
 }
 ```
 
-`pi mcp add --oauth-client-registration <mode>` sets it when adding a server. `cimd` cannot be combined with `clientId` or `clientName`, and a `callbackUrl` must use `localhost` or `127.0.0.1` with the path `/callback`.
+添加服务器时，可通过 `pi mcp add --oauth-client-registration <mode>` 设置此选项。`cimd` 不能与 `clientId` 或 `clientName` 同时使用；`callbackUrl` 必须使用 `localhost` 或 `127.0.0.1`，且路径为 `/callback`。
 
-Pi finds the authorization server through the server's protected resource metadata (RFC 9728) and checks that the authorization server's metadata names the expected issuer (RFC 8414). Some servers advertise the wrong authorization server or none, so sign-in opens a page that does not exist. Set `authServerMetadataUrl` to the metadata document of the right authorization server:
+Pi 会通过服务器的受保护资源元数据（RFC 9728）查找授权服务器，并检查其元数据是否声明了预期的发行者（RFC 8414）。部分服务器公布了错误的授权服务器，或未公布任何授权服务器，导致登录时打开不存在的页面。请将 `authServerMetadataUrl` 设置为正确授权服务器的元数据文档：
 
 ```json
 {
@@ -190,26 +194,28 @@ Pi finds the authorization server through the server's protected resource metada
 }
 ```
 
-Pi uses that document instead of discovery and trusts it as configured, so only point it at a document you trust. The URL must use HTTPS, except on `localhost`, `127.0.0.1`, or `[::1]`.
+Pi 会使用该文档代替自动发现，并信任所配置的内容，因此只应指向可信文档。URL 必须使用 HTTPS；`localhost`、`127.0.0.1` 和 `[::1]` 除外。
 
-## Control tool exposure
+<a id="control-tool-exposure"></a>
 
-Each server tool is registered as `mcp__<server>__<tool>`. The server's `exposure` determines how the model reaches it:
+## 控制工具暴露方式
 
-| Exposure | Behavior | Typical use |
+每个服务器工具都会注册为 `mcp__<server>__<tool>`。服务器的 `exposure` 决定模型如何调用这些工具：
+
+| 暴露方式 | 行为 | 典型用途 |
 |---|---|---|
-| `codemode` (default) | Callable from [`codemode`](/cli/#tools) scripts, but neither declared to the model nor listed in the codemode description. Scripts find tools with `searchTools()`, `describeTool()`, or `ALL_TOOLS`. | General MCP servers, especially when scripts should combine or filter calls. |
-| `deferred` | Not declared until [`tool_search`](/cli/#tools) loads a match for the next model call. | Large servers whose tools should be called directly after discovery. |
-| `direct` | Declared to the model like a built-in tool and also callable from codemode. | Small, frequently used tool sets. |
-| `hidden` | Registered but unreachable. | Servers or tools that should remain unavailable. |
+| `codemode`（默认） | 可从 [`codemode`](/cli/#tools) 脚本调用，但不会声明给模型，也不会列在 codemode 说明中。脚本可通过 `searchTools()`、`describeTool()` 或 `ALL_TOOLS` 查找工具。 | 通用 MCP 服务器，尤其适用于需要由脚本组合或筛选调用的场景。 |
+| `deferred` | 只有 [`tool_search`](/cli/#tools) 找到匹配项后，才会为下一次模型调用声明该工具。 | 工具数量较多、且希望发现后直接调用的服务器。 |
+| `direct` | 像内置工具一样声明给模型，也可从 codemode 调用。 | 数量较少且使用频繁的工具集。 |
+| `hidden` | 已注册，但无法调用。 | 应保持不可用的服务器或工具。 |
 
-`codemode-deferred` is accepted as an alias for `codemode`.
+`codemode-deferred` 可作为 `codemode` 的别名使用。
 
-Servers with `codemode` or `deferred` tools are listed in the `mcp_servers` section of the system prompt, with how their tools are reached and one line from the configured `description` or, once connected, from the server instructions. Pi updates the section when a prompt starts, after waiting for servers with `direct` tools. When it changed, for example because a server connected and its summary became available, Pi appends the new section to the conversation instead of changing tool declarations, so earlier messages stay cached. `describeNamespace()` and the `namespace` option of `searchTools()` accept `mcp__dev-radius`, `mcp__dev_radius`, `dev-radius`, or `dev_radius`.
+具有 `codemode` 或 `deferred` 工具的服务器会列在 system 提示词的 `mcp_servers` 部分，其中说明工具的调用方式，并包含配置的 `description` 或服务器连接后提供的指令摘要。每次提示词开始时，Pi 会在等待具有 `direct` 工具的服务器后更新此部分。如果内容发生变化（例如服务器连接后出现了摘要），Pi 会将新部分追加到对话，而不是更改工具声明，因此先前的消息仍可使用缓存。`describeNamespace()` 和 `searchTools()` 的 `namespace` 选项接受 `mcp__dev-radius`、`mcp__dev_radius`、`dev-radius` 或 `dev_radius`。
 
-Pi activates `codemode` when a server with `codemode` exposure connects. It activates `tool_search` for a server with `deferred` exposure. To make the model see a tool without searching, give it `direct` exposure with `toolExposure`.
+具有 `codemode` 暴露方式的服务器连接后，Pi 会启用 `codemode`；具有 `deferred` 暴露方式的服务器则会启用 `tool_search`。若要让模型无需搜索即可看到某个工具，请通过 `toolExposure` 将其设为 `direct`。
 
-`toolExposure` overrides the server exposure for individual tools. Keys are exact server tool names or patterns where `*` matches any characters. Exact names win over patterns; among patterns, the first match wins. A server with `hidden` exposure can expose only selected tools:
+`toolExposure` 可覆盖单个工具的服务器级暴露方式。键可以是服务器工具的完整名称，也可以是使用 `*` 匹配任意字符的模式。完整名称优先于模式；多个模式匹配时，以第一个为准。`hidden` 暴露方式的服务器也可以单独开放选定工具：
 
 ```json
 {
@@ -227,52 +233,54 @@ Pi activates `codemode` when a server with `codemode` exposure connects. It acti
 }
 ```
 
-`pi mcp list` marks tools whose exposure differs from their server. The Tools view in `/mcp` also shows the effective exposure.
+`pi mcp list` 会标记暴露方式与服务器不同的工具。`/mcp` 的 Tools 视图也会显示实际生效的暴露方式。
 
-Tools with `codemode` or `deferred` exposure can be reached through either indirect mechanism: codemode scripts can call them, and `tool_search` can load them. Codemode calls do not depend on the active tool set, so they remain available after `/tree`, resume, and fork. Tools loaded by `tool_search` are recorded in the transcript and remain declared on that branch.
+暴露方式为 `codemode` 或 `deferred` 的工具可通过两种间接机制调用：codemode 脚本可以调用它们，`tool_search` 也可以加载它们。Codemode 调用不依赖活动工具集，因此在 `/tree`、恢复会话和分叉后仍可使用。由 `tool_search` 加载的工具会记录在转录中，并在该分支上继续声明。
 
-`--tools` does not remove MCP tools unless one of its entries starts with `mcp__`; `pi --tools read,codemode,'mcp__radius__*'` keeps only the tools of `radius`. `--exclude-tools` accepts the same patterns, and `--no-mcp` disables MCP for one run (see [Tools](/cli/#mcp-tools)).
+除非某个条目以 `mcp__` 开头，否则 `--tools` 不会移除 MCP 工具；`pi --tools read,codemode,'mcp__radius__*'` 只保留 `radius` 的工具。`--exclude-tools` 接受相同的模式；`--no-mcp` 可在单次运行中禁用 MCP（参见[工具](/cli/#mcp-tools)）。
 
-To keep `codemode` active without MCP servers, add `"defaultTools": ["+codemode"]` to [settings](/settings/#tools). To prevent automatic codemode activation, set `"autoEnableCodemode": false` beside `mcpServers`. A project value overrides the user-level value. Pi warns once when neither `codemode` nor `tool_search` is active and non-direct tools cannot be called.
+若没有 MCP 服务器但仍需启用 `codemode`，请在[设置](/settings/#tools)中添加 `"defaultTools": ["+codemode"]`。若要阻止自动启用 codemode，请在 `mcpServers` 旁设置 `"autoEnableCodemode": false`。项目级值会覆盖用户级值。如果 `codemode` 和 `tool_search` 均未启用，导致非 direct 工具无法调用，Pi 会警告一次。
 
-Text results over 20 KB reach the model with their middle removed around a `…N chars truncated…` marker. The full text is saved to a temporary file named in the result. Codemode scripts receive the complete result and can reduce it before returning output to the model.
+文本结果超过 20 KB 时，会移除中间部分并插入 `…N chars truncated…` 标记后再发送给模型。完整文本会保存到临时文件，文件路径会包含在结果中。Codemode 脚本收到完整结果后，可先行精简再返回给模型。
 
-Codemode scripts receive the complete MCP `CallToolResult`, including `content`, `structuredContent`, and `isError`. A result with `isError` resolves inside scripts but is reported as an error for direct calls. `image(result.content[0])` forwards an image block. Server instructions are not part of any tool description; scripts read them with `describeNamespace("mcp__<server>")`, which also returns the server's tool names.
+Codemode 脚本会收到完整的 MCP `CallToolResult`，包括 `content`、`structuredContent` 和 `isError`。带有 `isError` 的结果会在脚本中正常返回，但直接调用时会作为错误报告。`image(result.content[0])` 可转发图像块。服务器指令不会包含在任何工具说明中；脚本可通过 `describeNamespace("mcp__<server>")` 读取指令，该方法也会返回服务器的工具名称。
 
-## Use resources
+## 使用资源
 
-When a connected server offers [resources](https://modelcontextprotocol.io/specification/2025-11-25/server/resources), Pi adds the resource tools used by Codex and OpenCode:
+连接的服务器提供 [resources](https://modelcontextprotocol.io/specification/2025-11-25/server/resources) 时，Pi 会添加 Codex 和 OpenCode 使用的资源工具：
 
-- `list_mcp_resources` lists resources as JSON: `{ server?, resources: [{ server, uri, name, ... }], nextCursor? }`. With `server`, it lists one page; `cursor` continues with the next page. Without `server`, it lists every resource from every server.
-- `list_mcp_resource_templates` lists URI templates for resources the servers do not list directly.
-- `read_mcp_resource` reads a resource by `server` and `uri`. Text reaches the model as text and images as images. Other binary resources are saved to temporary files, and the model receives the path. Scripts receive `{ server, uri, contents }`.
+- `list_mcp_resources` 以 JSON 格式列出资源：`{ server?, resources: [{ server, uri, name, ... }], nextCursor? }`。指定 `server` 时返回一页；使用 `cursor` 获取下一页。不指定 `server` 时会列出所有服务器的全部资源。
+- `list_mcp_resource_templates` 列出服务器未直接列出的资源 URI 模板。
+- `read_mcp_resource` 根据 `server` 和 `uri` 读取资源。文本和图像会分别以文本和图像形式发送给模型。其他二进制资源会保存到临时文件，并将路径提供给模型。脚本收到 `{ server, uri, contents }`。
 
-These tools reach every enabled, non-hidden server with resources. Their exposure is the widest exposure among those servers: `direct`, then `codemode` or `deferred`. Resource links in tool results identify `read_mcp_resource` and the server.
+这些工具可访问所有已启用且未隐藏、并提供资源的服务器。其暴露方式取这些服务器中最宽松的一种：优先级为 `direct`，其次是 `codemode` 或 `deferred`。工具结果中的资源链接会标明 `read_mcp_resource` 和服务器名称。
 
-Resources for MCP Apps, identified by `ui://` URIs or `text/html;profile=mcp-app`, are omitted because Pi does not render them. Resource icons are also omitted.
+通过 `ui://` URI 或 `text/html;profile=mcp-app` 标识的 MCP Apps 资源会被忽略，因为 Pi 不会渲染它们。资源图标也会被忽略。
 
-Reading and listing resources is retried once after a transient HTTP error (408, 429, or 5xx). Tool calls are not retried because the server may already have performed them.
+读取和列出资源遇到临时 HTTP 错误（408、429 或 5xx）时会重试一次。工具调用不会重试，因为服务器可能已经执行了操作。
 
-## Permissions
+## 权限
 
-Every MCP call passes through Pi's tool pipeline. Extension `tool_call` and `tool_result` handlers, including permission gates, therefore apply to MCP tools. Calls made from codemode scripts carry the codemode call ID as `parentToolCallId`.
+每次 MCP 调用都会经过 Pi 的工具处理流程，因此扩展的 `tool_call` 和 `tool_result` 处理器（包括权限检查）同样适用于 MCP 工具。由 codemode 脚本发起的调用会将 codemode 调用 ID 作为 `parentToolCallId` 传递。
 
-`pi.getAllTools()` reports the annotations declared by each server: `readOnlyHint`, `destructiveHint`, `idempotentHint`, and `openWorldHint`. Permission extensions can use these hints to decide which calls require confirmation (see [Tool exposure](/extensions/#tool-exposure)). Resource tools are marked read-only.
+`pi.getAllTools()` 会报告各服务器声明的注解：`readOnlyHint`、`destructiveHint`、`idempotentHint` 和 `openWorldHint`。权限扩展可根据这些提示判断哪些调用需要确认（参见[工具暴露方式](/extensions/#tool-exposure)）。资源工具会标记为只读。
 
-## Extensions and SDK
+## 扩展与 SDK
 
-### Add servers from extensions
+### 从扩展添加服务器
 
-Extensions can add servers for the current session with `pi.registerMcpServer(name, config)`, using the same shape as an `mcpServers` entry (see [MCP servers in extensions](/extensions/#mcp-servers)). Registered servers connect like configured servers and appear in `/mcp` with the extension as their source.
+扩展可通过 `pi.registerMcpServer(name, config)` 为当前会话添加服务器，其配置结构与 `mcpServers` 条目相同（参见[扩展中的 MCP 服务器](/extensions/#mcp-servers)）。注册的服务器会像配置文件中的服务器一样连接，并在 `/mcp` 中显示扩展来源。
 
-Changes to enabled state or exposure apply only to the current session. A file-configured server with the same name takes precedence, and `/mcp` lists the overridden registration. `pi mcp` shell commands do not load extensions and only see file-configured servers.
+启用状态和暴露方式的更改仅对当前会话生效。同名的文件配置服务器优先级更高，`/mcp` 会列出被覆盖的扩展注册项。`pi mcp` Shell 命令不会加载扩展，因此只能看到文件中配置的服务器。
 
-### Replace the built-in MCP support
+<a id="replace-the-built-in-mcp-support"></a>
 
-An installed extension that registers `/mcp`, such as `pi-mcp-adapter`, replaces the built-in MCP support for sessions. Pi then does not read `mcp.json` or connect its servers in a session, and `/mcp` belongs to the extension. Remove the extension to restore the built-in behavior. To disable built-in MCP support without a replacement, disable `mcp` under Built-in in `pi config`, or set `"extensions": ["-builtin:mcp"]` in [settings](/settings/#resources). `--no-mcp` disables it for one run.
+### 替换内置 MCP 支持
 
-An extension that registers `codemode` or `tool_search` similarly replaces the built-in tool with that name. Pi activates the replacement for MCP servers and waits for the servers its calls need only when it declares [`reachesTools`](/extensions/#tool-exposure). Shell-level `pi mcp` commands always use the built-in implementation.
+已安装的扩展若注册 `/mcp`（例如 `pi-mcp-adapter`），就会替换会话中的内置 MCP 支持。此时 Pi 不会读取 `mcp.json` 或连接其中的服务器，`/mcp` 命令也由该扩展接管。移除扩展即可恢复内置行为。若不使用替代扩展而要禁用内置 MCP 支持，可在 `pi config` 的 Built-in 中禁用 `mcp`，或在[设置](/settings/#resources)中设为 `"extensions": ["-builtin:mcp"]`。`--no-mcp` 可在单次运行中禁用它。
 
-### Use MCP from the SDK
+注册 `codemode` 或 `tool_search` 的扩展也会替换同名内置工具。只有替代工具声明了 [`reachesTools`](/extensions/#tool-exposure) 时，Pi 才会为 MCP 服务器启用它，并等待其调用所需的服务器。命令行中的 `pi mcp` 始终使用内置实现。
 
-SDK sessions do not load built-in extensions. Add the MCP extension, the codemode extension for `codemode` servers, and the tool-search extension for `deferred` servers to the resource loader. See [Codemode and MCP](/sdk/#codemode-mcp).
+### 在 SDK 中使用 MCP
+
+SDK 会话不会加载内置扩展。请将 MCP 扩展、供 `codemode` 服务器使用的 codemode 扩展，以及供 `deferred` 服务器使用的工具搜索扩展添加到资源加载器。参见 [Codemode 与 MCP](/sdk/#codemode-mcp)。

@@ -37,7 +37,7 @@ RPC 模式不会输出此记录。使用 [`get_state`](/rpc-commands/#get_state)
 <a id="event-sequence"></a>
 ## 事件顺序
 
-A basic run produces records like these:
+一次基本运行会产生如下记录：
 
 ```json
 {"type":"agent_start"}

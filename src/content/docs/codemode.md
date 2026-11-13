@@ -1,69 +1,72 @@
 ---
-title: "Codemode"
+title: "Codemode 脚本"
 ---
 
-# Codemode
+# Codemode 脚本
 
-The `codemode` tool lets the model write a JavaScript script that calls pi's other tools and runs non-LLM models, such as classifiers and image models. Only the script's output reaches the model, so a script can run calls in parallel and filter large results before the model sees them. To turn it on, see [Enable codemode](/cli/#enable-codemode).
+`codemode` 工具允许模型编写 JavaScript 脚本，调用 Pi 的其他工具并运行非 LLM 模型，例如分类器和图像模型。只有脚本的输出会返回给模型，因此脚本可以并行调用工具，并在模型看到结果前筛选大量数据。启用方法请参阅[启用 codemode](/cli/#enable-codemode)。
 
-## Scripts
+## 脚本
 
-The tool input is raw JavaScript source, not JSON and not a markdown code fence. It runs as the body of an async function in a QuickJS sandbox, so top-level `await` and `return` work. The sandbox has no Node APIs, file system, network, or timers; scripts reach the outside world only through tools and `models`.
+工具输入是原始 JavaScript 源码，而不是 JSON 或 Markdown 代码围栏。脚本会作为异步函数体在 QuickJS 沙箱中运行，因此可以在顶层使用 `await` 和 `return`。沙箱不提供 Node API、文件系统、网络或计时器；脚本只能通过工具和 `models` 与外部交互。
 
-A script may start with an options line. It must be the first line; an options line anywhere else fails the call before the script runs:
+脚本可以用选项行开头，但该行必须位于第一行；若出现在其他位置，调用会在脚本运行前失败：
 
 ```js
 // @options: {"max_output_tokens": 2000, "timeout_ms": 60000}
 ```
 
-- `max_output_tokens` (default 10000) limits the output. Longer output keeps its start and end, and the full text is written to a temp file whose path is included in the result. A script fails when its output passes 16777216 characters of text and base64 image data or 100000 `text()`, `image()`, and `console` calls; write large data to a file with a tool instead.
-- `timeout_ms` is a hard deadline for the whole script, including any wait for a free worker. It is unset by default. Image generation can take minutes, so do not set a short deadline for scripts that generate images.
+- `max_output_tokens`（默认值为 10000）限制输出长度。超出限制时，输出会保留开头和结尾，完整文本则写入临时文件，结果中会附上文件路径。如果文本和 Base64 图像数据总计超过 16777216 个字符，或 `text()`、`image()` 和 `console` 调用次数超过 100000 次，脚本就会失败；大量数据应改用工具写入文件。
+- `timeout_ms` 为整个脚本设置硬性截止时间，其中包括等待空闲 worker 的时间。默认不设超时。图像生成可能需要数分钟，因此生成图像时不要设置过短的超时时间。
 
-The result starts with `Script completed` or `Script failed`, the wall time, and the output. Text and image items appear in order, each on its own line. When the output has more than one text item (from `text()` or `return`), each starts with a `==> text N/M <==` line. `console` calls follow in one `<console_output>` block with one line per call. A failed script keeps its partial output, followed by `Script error:` and the error. Tool calls are real: calls made before a failure are not undone. Calls still running when the script ends are cancelled, and unawaited promises are discarded.
+结果会先显示 `Script completed` 或 `Script failed`、耗时和输出。文本与图像按产生顺序逐项显示，每项独占一行。如果输出包含多个文本项（由 `text()` 或 `return` 产生），每项前会有一行 `==> text N/M <==`。`console` 调用会集中显示在 `<console_output>` 区块中，每次调用占一行。脚本失败时，已产生的部分输出仍会保留，之后显示 `Script error:` 和错误信息。工具调用会实际执行：脚本失败前已完成的调用不会撤销。脚本结束时仍在运行的调用会被取消，未等待的 Promise 会被丢弃。
 
-## Globals
+## 全局对象
 
-| Global | Purpose |
+| 全局对象 | 用途 |
 |---|---|
-| `tools.<name>(args)` | Call a tool. See [Call tools](#call-tools). |
-| `text(value)` | Add a text item to the output. Strings are added as is, other values as JSON. |
-| `image(value)` | Add an image to the output: a base64 `data:` URL, an `{ image_url }` object, or an image block `{ type: "image", data, mimeType }` such as those returned by MCP tools and `models.generateImages()`. Remote URLs are not supported. PNG, JPEG, GIF, and WebP are accepted. Each image is also saved to a temp file, and the result names the path before the image. |
-| `console.log(...)` | Add a line to the `<console_output>` block after the other output. Arguments are joined with spaces; `info`, `warn`, `error`, and `debug` do the same. |
-| `return value` | A top-level `return` adds the value like `text()`. |
-| `exit()` | End the script successfully. |
-| `store(key, value)` / `load(key)` | Keep small JSON values across `codemode` calls. See [Store values](#store-values). |
-| `ALL_TOOLS` | Every callable tool as `{ name, description }`, including tools the description does not list. |
-| `searchTools(query, { limit?, namespace? })` | Rank callable tools by relevance (BM25, default limit 8). Resolves to `{ name, description }[]`. |
-| `describeTool(name)` | Resolves to a tool's description and TypeScript declaration, or `undefined`. |
-| `describeNamespace(name)` | Resolves to `{ name, description?, instructions?, tools }` for a namespace such as an MCP server, or `undefined`. |
-| `models` | List and run non-LLM models. See [Models](#models). |
+| `tools.<name>(args)` | 调用工具，详见[调用工具](#call-tools)。 |
+| `text(value)` | 向输出添加文本项。字符串原样输出，其他值以 JSON 形式输出。 |
+| `image(value)` | 向输出添加图像：可传入 Base64 `data:` URL、`{ image_url }` 对象，或图像块 `{ type: "image", data, mimeType }`。不支持远程 URL；支持 PNG、JPEG、GIF 和 WebP。图像也会保存到临时文件，结果会在图像前显示文件路径。 |
+| `console.log(...)` | 在其他输出之后，向 `<console_output>` 区块添加一行。参数以空格连接；`info`、`warn`、`error` 和 `debug` 的行为相同。 |
+| `return value` | 顶层 `return` 会像 `text()` 一样将值添加到输出。 |
+| `exit()` | 正常结束脚本。 |
+| `store(key, value)` / `load(key)` | 在多次 `codemode` 调用之间保存少量 JSON 值，详见[存储值](#store-values)。 |
+| `ALL_TOOLS` | 所有可调用工具，格式为 `{ name, description }`，包括描述中未列出的工具。 |
+| `searchTools(query, { limit?, namespace? })` | 按相关度（BM25）搜索可调用工具，默认最多返回 8 项，结果为 `{ name, description }[]`。 |
+| `describeTool(name)` | 返回工具说明和 TypeScript 声明；找不到时返回 `undefined`。 |
+| `describeNamespace(name)` | 返回命名空间（例如 MCP 服务器）的 `{ name, description?, instructions?, tools }`；找不到时返回 `undefined`。 |
+| `models` | 列出并运行非 LLM 模型，详见[模型](#models)。 |
 
-## Call tools
+<a id="call-tools"></a>
+## 调用工具
 
-Every tool the session can call is a method of `tools`, named by its identifier: characters that are not valid in a JavaScript identifier become `_`, so the MCP tool `mcp__dev-radius__search` is `tools.mcp__dev_radius__search`. Each method takes one object with the tool's arguments.
+会话可调用的每个工具都是 `tools` 的一个方法，方法名取自工具标识符：不能用于 JavaScript 标识符的字符会替换为 `_`。例如，MCP 工具 `mcp__dev-radius__search` 对应 `tools.mcp__dev_radius__search`。每个方法都接收一个包含工具参数的对象。
 
-What a call resolves to depends on the tool:
+调用的返回值取决于工具类型：
 
-- Tools with an output schema resolve to a structured value. `bash` resolves to `{ output, truncated, full_output_path?, exit_code, wall_time_seconds }`, also for non-zero exit codes. Its `output` is not limited to the 2000 lines or 50KB the model sees: it holds up to 1 MiB, and longer output keeps its first and last 512 KiB around an omission marker, with `truncated` set and the full output in `full_output_path`.
-- MCP tools resolve to their `CallToolResult`, including `isError` and `structuredContent`.
-- `read` resolves to the file's text, or for an image to an image block `{ type: "image", data, mimeType, note }` that `image()` shows. `data` is the base64 image the model would see and `note` the text that goes with it, such as resize hints.
-- Other tools, such as `edit` and `write`, resolve to their text output.
+- 带有输出架构的工具会返回结构化值。`bash` 返回 `{ output, truncated, full_output_path?, exit_code, wall_time_seconds }`，非零退出码时也一样。其 `output` 最多可达 1 MiB，不受模型可见的 2000 行或 50 KB 限制；更长的输出会保留开头和结尾各 512 KiB，中间插入省略标记，同时设置 `truncated`，并通过 `full_output_path` 提供完整输出路径。
+- MCP 工具返回 `CallToolResult`，其中包括 `isError` 和 `structuredContent`。
+- `read` 返回文件文本；读取图像时返回 `{ type: "image", data, mimeType, note }` 图像块，可用 `image()` 展示。`data` 是模型可读取的 Base64 图像数据，`note` 是附带说明，例如调整尺寸的提示。
+- 其他工具（例如 `edit` 和 `write`）返回文本。
 
-A call that fails, is blocked, or gets invalid arguments rejects with an `Error` that carries the tool's error text. Use `Promise.allSettled()` to keep the results of the calls that succeed.
+调用失败、被阻止或参数无效时，会抛出包含错误文本的 `Error`。使用 `Promise.allSettled()` 可以保留成功调用的结果。
 
-The `codemode` description lists tools with their TypeScript declarations, grouped by namespace (for example one MCP server). Tools with `deferred` exposure, which includes MCP tools with the default `codemode` exposure, are not listed, so the description stays the same while MCP servers connect. Listed declarations share a budget of 3000 estimated tokens (`codemode.inlineBudget` in [settings](/settings/#tools)). Scripts find the other tools with `searchTools()`, `describeTool()`, `describeNamespace()`, or by filtering `ALL_TOOLS`.
+`codemode` 描述会按命名空间（例如某个 MCP 服务器）列出工具及其 TypeScript 声明。具有 `deferred` 暴露级别的工具不会列出，其中包括默认使用 `codemode` 暴露级别的 MCP 工具，因此 MCP 服务器连接时该描述不会改变。已列出的声明共占用约 3000 个 token 的预算（参见[设置](/settings/#tools)中的 `codemode.inlineBudget`）。脚本可通过 `searchTools()`、`describeTool()`、`describeNamespace()` 或筛选 `ALL_TOOLS` 来查找其他工具。
 
-While `codemode` is active, `codemode.mode` in [settings](/settings/#tools) decides how the other tools are presented. With `on` (default) declared tools stay declared, and their descriptions say how to call them from scripts. With `only` they are hidden from the model and listed in the `codemode` description instead, so the model calls them through scripts. Tool declarations in the `codemode` description, `describeTool()`, and `ALL_TOOLS` carry the tools' prompt guidelines, since the system prompt rules only cover declared tools.
+启用 `codemode` 后，[设置](/settings/#tools)中的 `codemode.mode` 决定其他工具的呈现方式。默认值 `on` 会保留已声明的工具，并在工具说明中提供从脚本调用的方法。设为 `only` 时，工具会从模型的直接工具列表中隐藏，改为列在 `codemode` 描述中，由模型通过脚本调用。`codemode` 描述、`describeTool()` 和 `ALL_TOOLS` 中的工具声明包含相应的提示指引，因为系统提示词规则只覆盖直接声明的工具。
 
-## Store values
+<a id="store-values"></a>
+## 存储值
 
-`store(key, value)` keeps a JSON value under a string key for later `codemode` calls; storing `undefined` deletes the key. `load(key)` returns the value, or `undefined`. Writes are kept only when the script succeeds: each successful script that stores values appends a `codemode-store` custom entry to the session, so resumed sessions keep the values and each branch sees only the values written on its path.
+`store(key, value)` 会用字符串键保存 JSON 值，供后续 `codemode` 调用使用；保存 `undefined` 会删除该键。`load(key)` 返回对应值，不存在时返回 `undefined`。只有脚本成功执行后，写入才会保留：成功保存值的脚本会向会话追加一个 `codemode-store` 自定义条目，因此恢复会话后仍可读取这些值，而各分支只能看到自己路径上写入的值。
 
-The store is for small state such as IDs, cursors, or summaries. One value may have at most 262144 characters of JSON and all values together at most 1048576. Do not store image data; show images with `image()`, which also saves them to a temp file.
+此存储适合保存 ID、游标或摘要等少量状态。单个值最多包含 262144 个 JSON 字符，所有值合计最多 1048576 个字符。不要在其中保存图像数据；使用 `image()` 展示图像，该函数也会将图像保存到临时文件。
 
-## Models
+<a id="models"></a>
+## 模型
 
-`models` reaches the model catalog and runs non-LLM models with the session's credentials: classifiers, which answer typed questions about JSON state and, for some models, images, and image models, which generate images. Chat models are listed but cannot be run from scripts. Which classifier and image models exist is described in [Use classifier models](/models/#use-classifier-models) and [Use image models](/models/#use-image-models).
+`models` 可以访问模型目录，并使用当前会话的凭据运行非 LLM 模型：分类器可针对 JSON 状态（部分模型也包括图像）回答类型化问题；图像模型则用于生成图像。聊天模型会列出，但不能从脚本中运行。可用的分类器和图像模型请参阅[使用分类器模型](/models/#use-classifier-models)和[使用图像模型](/models/#use-image-models)。
 
 ```ts
 type ModelType = "chat" | "image" | "classifier";
@@ -94,11 +97,13 @@ declare const models: {
 };
 ```
 
-`classify()` and `generateImages()` use only the `provider` and `id` of `model`, so `{ provider, id }` works as well. They do not throw on provider errors: check `stopReason` and `errorMessage`. At most four such calls run at once per script; more calls wait for a free slot, so `Promise.all()` over many items is fine. Their usage is added to the `codemode` tool result and counts toward the session cost.
+`classify()` 和 `generateImages()` 只使用 `model` 的 `provider` 与 `id`，因此也可以直接传入 `{ provider, id }`。Provider 出错时它们不会抛出异常，应检查 `stopReason` 和 `errorMessage`。每个脚本最多同时运行四个此类调用；超出的调用会等待空闲名额，因此可以对多个项目使用 `Promise.all()`。这些调用的用量会加入 `codemode` 工具结果，并计入会话成本。
 
-Model IDs differ between providers, for example `typesafe/jev-latest` and `openrouter/typesafe/jev-1.13`. Use `models.getAvailableOfType(type)` to find the IDs that work with the current credentials.
+同一模型在不同 Provider 下的 ID 可能不同，例如 `typesafe/jev-latest` 和 `openrouter/typesafe/jev-1.13`。使用 `models.getAvailableOfType(type)` 可查找当前凭据可用的模型 ID。
 
-### Classify
+<a id="classify"></a>
+
+### 分类
 
 ```ts
 interface ClassifierContext {
@@ -139,7 +144,7 @@ type ClassifierAnswer =
 type ModelUsage = { input: number; output: number; totalTokens: number; cost: { total: number } };
 ```
 
-Classify several items by calling `classify()` once per item. This script sorts feedback messages, for example ones a tool returned earlier in the script:
+每个项目分别调用一次 `classify()`，即可对多个项目进行分类。下面的脚本会对反馈消息进行分类，例如脚本前面由工具返回的消息：
 
 ```js
 const jev = await models.getModelOfType("classifier", "typesafe", "jev-latest");
@@ -169,7 +174,7 @@ return results.map((result, i) =>
 );
 ```
 
-Classifiers whose `input` includes `"image"` also judge images. `tools.read()` returns an image file as an image block that `images` accepts. Other classifiers return an error result when `images` is not empty.
+`input` 包含 `"image"` 的分类器也能分析图像。`tools.read()` 会将图像文件作为 `images` 可接收的图像块返回。其他分类器在 `images` 非空时会返回错误结果。
 
 ```js
 const luna = await models.getModelOfType("classifier", "openai", "gpt-6-luna");
@@ -187,7 +192,9 @@ const result = await models.classify(luna, {
 });
 ```
 
-### Generate images
+<a id="generate-images"></a>
+
+### 生成图像
 
 ```ts
 interface ImagesContext {
@@ -210,7 +217,7 @@ type TextBlock = { type: "text"; text: string };
 type ImageBlock = { type: "image"; data: string; mimeType: string };
 ```
 
-Show generated images with `image(block)`. Do not print `data` with `text()`, `console`, or `return`: it is large and the model cannot read it as text. `image()` also saves each image to a temp file and puts its path in the result, so a later turn can copy or move the file.
+使用 `image(block)` 展示生成的图像。不要通过 `text()`、`console` 或 `return` 输出 `data`：图像数据体积很大，模型也无法将其作为文本读取。`image()` 还会将每张图像保存到临时文件，并在结果中提供路径，之后可通过工具复制或移动文件。
 
 ```js
 // @options: {"timeout_ms": 300000}
@@ -225,10 +232,10 @@ for (const block of result.output) {
 }
 ```
 
-## Limits
+## 限制
 
-- A script's VM has 256 MB of memory. Running out throws `InternalError: out of memory`; filter or aggregate large data instead of accumulating it.
-- On Bun, stopping a script or reaching its deadline ends the call promptly, but a built-in that does not poll QuickJS's interrupt handler can keep computing in its worker until it returns.
-- At most two codemode workers may be alive across all sessions in one pi process; `PI_CODEMODE_MAX_WORKERS` changes the limit. A cancelled worker occupies its slot until it exits. At capacity, new scripts wait for a free worker in arrival order. A script that gets no worker within 60 seconds, or before its `timeout_ms`, fails without running.
-- A script that waits on a promise that can never settle (no tool call pending) fails immediately, since there are no timers.
-- Scripts cannot start other `codemode` scripts.
+- 每个脚本的虚拟机最多使用 256 MB 内存。内存耗尽时会抛出 `InternalError: out of memory`；处理大量数据时应先筛选或汇总，避免不断累积。
+- 在 Bun 中，停止脚本或达到截止时间会立即结束调用；但若某个内置操作不检查 QuickJS 的中断处理器，它可能仍会在 worker 中继续运行，直到操作返回。
+- 单个 pi 进程的所有会话最多同时运行两个 codemode worker；可通过 `PI_CODEMODE_MAX_WORKERS` 修改上限。已取消的 worker 在退出前仍占用名额。达到上限后，新脚本会按到达顺序等待空闲 worker。若脚本在 60 秒内或其 `timeout_ms` 截止前都未获得 worker，就会在运行前失败。
+- 如果脚本等待的 Promise 永远不会完成（且没有待处理的工具调用），脚本会立即失败，因为环境不提供计时器。
+- 脚本不能启动其他 `codemode` 脚本。
