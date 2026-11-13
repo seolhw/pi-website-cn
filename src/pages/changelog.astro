@@ -1,38 +1,117 @@
 ---
 import { getCollection, render } from 'astro:content';
-import DocsLayout from '../layouts/DocsLayout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/changelog.css';
 
 export const prerender = true;
 
-const [entry] = await getCollection('changelog');
-if (!entry) throw new Error('未找到 Pi 更新日志源文件');
-const { Content, headings } = await render(entry);
-const releaseHeadings = headings.filter((heading) => heading.depth === 2);
+const entries = await getCollection('changelog');
+if (entries.length === 0) throw new Error('未找到 Pi 更新日志源文件');
+const changelogChunkOrder = [
+  'CHANGELOG',
+  'CHANGELOG-1.5.0',
+  'CHANGELOG-1.2',
+  'CHANGELOG-1.1-to-1.0',
+];
+const chunkRank = (id: string) => {
+  const fileName = id.split('/').at(-1)?.replace(/\.md$/i, '').toUpperCase();
+  const rank = changelogChunkOrder.indexOf(fileName ?? '');
+  return rank === -1 ? changelogChunkOrder.length : rank;
+};
+entries.sort((a, b) => chunkRank(a.id) - chunkRank(b.id));
+const renderedEntries = await Promise.all(entries.map((entry) => render(entry)));
+const releaseHeadings = renderedEntries
+  .flatMap(({ headings }) => headings.filter((heading) => heading.depth === 2))
+  .sort((a, b) => {
+    if (/unreleased/i.test(a.text)) return -1;
+    if (/unreleased/i.test(b.text)) return 1;
+    const version = (text: string) => text.match(/\[(\d+)\.(\d+)\.(\d+)\]/)?.slice(1).map(Number) ?? [0, 0, 0];
+    const versionA = version(a.text);
+    const versionB = version(b.text);
+    for (let index = 0; index < 3; index++) {
+      if (versionA[index] !== versionB[index]) return versionB[index] - versionA[index];
+    }
+    return a.text.localeCompare(b.text);
+  });
 ---
 
-<DocsLayout
-  title="更新日志"
-  description="Pi Coding Agent 各版本更新内容。"
-  activeSlug="changelog"
-  headings={releaseHeadings}
-  showDocNavigation={false}
->
-  <div class="changelog-content" data-changelog>
-    <Content />
-  </div>
-</DocsLayout>
+<BaseLayout title="更新日志 · Pi" description="Pi Coding Agent 各版本更新内容。">
+  <main class="content-shell news-page">
+    <header class="content-hero">
+      <h1 class="content-title">更新日志</h1>
+      <p class="content-description">Pi Coding Agent 的版本发布说明与更新内容。</p>
+    </header>
+    <div class="news-layout">
+      <section class="news-feed" aria-label="更新日志">
+        <div class="rich-text news-prose" data-changelog-source>
+          {renderedEntries.map(({ Content }) => <Content />)}
+        </div>
+      </section>
+      <aside class="news-toc-rail">
+        <section class="surface-panel content-card news-toc-card">
+          <header class="content-card-header"><h2 class="content-card-title">本页内容</h2></header>
+          <nav class="news-toc-links" aria-label="本页内容">
+            {releaseHeadings.map((heading) => (
+              <a class="news-toc-link" href={`#${heading.slug}`}>{heading.text}</a>
+            ))}
+          </nav>
+        </section>
+      </aside>
+    </div>
+  </main>
+</BaseLayout>
 
 <script>
-  const changelog = document.querySelector<HTMLElement>('[data-changelog]');
-  changelog?.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
-    const href = link.getAttribute('href') ?? '';
-    const match = href.match(/^docs\/(.+?)\.md(#[\s\S]*)?$/);
-    if (!match) return;
-    const page = match[1] === 'index' ? 'overview' : match[1];
-    link.setAttribute('href', `/${page}/${match[2] ?? ''}`);
-  });
-</script>
+  const source = document.querySelector<HTMLElement>('[data-changelog-source]');
+  const feed = document.querySelector<HTMLElement>('.news-feed');
 
-<style is:global>
-  .changelog-content > h1:first-child { display: none; }
-</style>
+  if (source && feed) {
+    const cards: HTMLElement[] = [];
+    let cardBody: HTMLElement | undefined;
+
+    for (const element of [...source.children]) {
+      if (element.matches('h2')) {
+        const card = document.createElement('article');
+        card.className = 'surface-panel content-card news-feed-card';
+        cardBody = document.createElement('div');
+        cardBody.className = 'content-card-body news-feed-card-body';
+
+        const heading = element as HTMLHeadingElement;
+        const title = heading.textContent?.trim() ?? '';
+        const version = title.match(/\[([^\]]+)\]/)?.[1] ?? title;
+        const meta = document.createElement('div');
+        meta.className = 'news-feed-meta';
+        const chip = document.createElement('span');
+        chip.className = 'meta-chip news-source-chip';
+        chip.textContent = version === 'Unreleased' ? '未发布' : '版本发布';
+        meta.append(chip);
+        const date = title.match(/\d{4}-\d{2}-\d{2}/)?.[0];
+        if (date) {
+          const time = document.createElement('time');
+          time.dateTime = date;
+          time.textContent = date;
+          meta.append(time);
+        }
+
+        heading.className = 'news-release-title';
+        cardBody.append(meta, heading);
+        card.append(cardBody);
+        cards.push(card);
+        continue;
+      }
+
+      if (cardBody) cardBody.append(element);
+    }
+
+    source.remove();
+    feed.append(...cards);
+
+    feed.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+      const href = link.getAttribute('href') ?? '';
+      const match = href.match(/^docs\/(.+?)\.md(#[\s\S]*)?$/);
+      if (!match) return;
+      const page = match[1] === 'index' ? 'overview' : match[1];
+      link.setAttribute('href', `/${page}/${match[2] ?? ''}`);
+    });
+  }
+</script>

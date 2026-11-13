@@ -16,7 +16,7 @@ export const collections = {
     schema: pageSchema,
   }),
   changelog: defineCollection({
-    loader: glob({ pattern: "CHANGELOG.md", base: "./src/pi/coding-agent" }),
+    loader: glob({ pattern: "CHANGELOG*.md", base: "./src/content/changelog" }),
     schema: pageSchema,
   }),
   home: defineCollection({
